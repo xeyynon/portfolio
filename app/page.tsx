@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { personalInfo, projects, achievements, technicalSkills } from "@/data/portfolioData";
+import { personalInfo, projects, achievements, skills } from "@/data/portfolioData";
 import PrismHero from "@/components/PrismHero";
 import LeadershipTimeline from "@/components/LeadershipTimeline";
 
@@ -106,19 +106,23 @@ export default function Home() {
           <div className="section-head">
             <span className="eyebrow">TECHNICAL SKILLS</span>
           </div>
-          <div className="flex flex-wrap gap-px bg-[var(--line-light)] border border-[var(--line-light)] mt-[20px]">
-            {Object.entries(technicalSkills).map(([category, skills], i) => {
-              const level = Math.min(4, Math.ceil(skills.length / 2));
-              return (
-                <div key={category} className="flex-1 min-w-[220px] bg-[var(--bg-light)] p-6 transition-colors hover:bg-[#eeece3]">
-                  <div className="flex gap-[3px] mb-3">
-                    {[1,2,3,4].map(n => <span key={n} className={`w-[5px] h-[14px] ${n <= level ? "bg-[var(--v500)] shadow-[0_0_4px_var(--v500)]" : "bg-[var(--line-light)]"}`} />)}
-                  </div>
-                  <h4 className="text-[12.5px] font-semibold text-[var(--ink-lo)] uppercase tracking-wider mb-2">{category.replace('_', ' ')}</h4>
-                  <p className="font-mono text-[9.5px] text-[var(--muted-light)] leading-relaxed">{skills.join(' · ')}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[var(--line-light)] border border-[var(--line-light)] mt-[20px]">
+            {skills.map((s) => (
+              <div key={s.label} className="bg-[var(--bg-light)] p-6 transition-colors hover:bg-[#eeece3]">
+                <span className="block w-7 h-[3px] mb-2.5" style={{ background: s.color }} />
+                <h4 className="text-[12.5px] font-semibold text-[var(--ink-lo)] uppercase tracking-wider">{s.label}</h4>
+                <p className="font-mono text-[9.5px] text-[var(--muted-light)] mt-1.5 leading-relaxed">{s.items.join(" · ")}</p>
+                <div className="flex gap-[3px] mt-3">
+                  {[1, 2, 3, 4].map((n) => (
+                    <span
+                      key={n}
+                      className={`w-[5px] h-[12px] ${n <= s.level ? "shadow-[0_0_4px_" + s.color + "]" : ""}`}
+                      style={{ background: n <= s.level ? s.color : "var(--line-light)" }}
+                    />
+                  ))}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
       </section>

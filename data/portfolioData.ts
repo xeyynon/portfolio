@@ -159,12 +159,13 @@ export const achievements = [
   }
 ];
 
-export const technicalSkills = {
-  embedded: ["ESP32", "Arduino", "Raspberry Pi"],
-  mobile: ["Flutter", "Dart"],
-  programming: ["Python", "C++", "Java"],
-  iot: ["LoRa", "BLE", "LTE", "WiFi"],
-  ai_ml: ["YOLOv8", "EfficientNet-V2", "LSTM", "Edge Impulse"],
-  backend: ["FastAPI", "MongoDB"],
-  tools: ["Git", "VS Code", "Arduino IDE"]
-};
+export const skills = [
+  { label: "Embedded",    items: ["ESP32", "Arduino", "Raspberry Pi"], color: "var(--v400)", level: 4 },
+  { label: "Mobile",      items: ["Flutter", "Dart"], color: "var(--v450)", level: 3 },
+  { label: "Programming", items: ["Python", "C++", "Java"], color: "var(--v500)", level: 4 },
+  { label: "IoT",         items: ["LoRa", "BLE", "LTE", "WiFi"], color: "var(--v560)", level: 4 },
+  { label: "AI/ML",       items: ["YOLOv8", "EfficientNet-V2", "LSTM", "Edge Impulse"], color: "var(--v600)", level: 3 },
+  { label: "Backend",     items: ["FastAPI", "MongoDB"], color: "var(--v680)", level: 2 },
+  { label: "Tools",       items: ["Git", "VS Code", "Arduino IDE"], color: "var(--v400)", level: 4 },
+  { label: "Cloud & DB",  items: ["Firebase", "Google Cloud", "PostgreSQL"], color: "var(--v450)", level: 3 }
+];
