@@ -23,7 +23,7 @@ export const projects = [
       "Optimization of baud rates and synchronization delays"
     ],
     stack: ["Arduino", "Laser Module", "Solar Panel", "LM358", "Embedded C"],
-    links: { github: "https://github.com/yourname/lifi-transmission", demo: "https://drive.google.com/file/d/xxxxx/view" }
+    links: { github: "https://github.com/xeyynon/Lifi-Data-Transmission-System", demo: "https://drive.google.com/file/d/xxxxx/view" }
   },
   {
     slug: "telegram-drive",
@@ -62,7 +62,7 @@ export const projects = [
       "System testing and validation"
     ],
     stack: ["Raspberry Pi 4B", "Flutter", "Dart", "LTE", "GPS", "IoT"],
-    links: { github: "https://github.com/yourname/ecox-safety", demo: "https://drive.google.com/file/d/xxxxx/view" }
+    links: { github: "https://github.com/xeyynon/ecoX", demo: "https://drive.google.com/file/d/xxxxx/view" }
   },
   {
     slug: "flowiq",
@@ -81,7 +81,7 @@ export const projects = [
       "Traffic monitoring and violation management interfaces"
     ],
     stack: ["Flutter", "Google Maps API", "Firebase Auth", "YOLOv8", "SORT"],
-    links: { github: "https://github.com/yourname/flowiq", demo: "https://drive.google.com/file/d/xxxxx/view" }
+    links: { github: "https://github.com/xeyynon/TUA", demo: "https://drive.google.com/file/d/xxxxx/view" }
   },
   {
     slug: "human-presence-detection",
