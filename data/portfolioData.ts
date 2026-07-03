@@ -23,7 +23,7 @@ export const projects = [
       "Optimization of baud rates and synchronization delays"
     ],
     stack: ["Arduino", "Laser Module", "Solar Panel", "LM358", "Embedded C"],
-    links: { github: "https://github.com/xeyynon/Lifi-Data-Transmission-System", demo: "https://drive.google.com/file/d/xxxxx/view" }
+    links: { github: "https://github.com/xeyynon/Lifi-Data-Transmission-System", demo: "/sources/PPTs/LIFI.pdf" }
   },
   {
     slug: "telegram-drive",
@@ -44,7 +44,7 @@ export const projects = [
       "Multi-profile support"
     ],
     stack: ["Flutter", "Telegram Bot API", "Biometrics", "Encrypted Storage", "Dart"],
-    links: { github: "https://github.com/xeyynon/TelegramDriveStorage", demo: "https://drive.google.com/file/d/xxxxx/view" }
+    links: { github: "https://github.com/xeyynon/TelegramDriveStorage" }
   },
   {
     slug: "ecox-industrial-safety",
@@ -62,7 +62,7 @@ export const projects = [
       "System testing and validation"
     ],
     stack: ["Raspberry Pi 4B", "Flutter", "Dart", "LTE", "GPS", "IoT"],
-    links: { github: "https://github.com/xeyynon/ecoX", demo: "https://drive.google.com/file/d/xxxxx/view" }
+    links: { github: "https://github.com/xeyynon/ecoX", demo: "/sources/PPTs/ECOX.pdf" }
   },
   {
     slug: "flowiq",
@@ -81,7 +81,7 @@ export const projects = [
       "Traffic monitoring and violation management interfaces"
     ],
     stack: ["Flutter", "Google Maps API", "Firebase Auth", "YOLOv8", "SORT"],
-    links: { github: "https://github.com/xeyynon/TUA", demo: "https://drive.google.com/file/d/xxxxx/view" }
+    links: { github: "https://github.com/xeyynon/TUA", demo: "/sources/PPTs/FLOWIQ.pdf" }
   },
   {
     slug: "human-presence-detection",
@@ -100,7 +100,7 @@ export const projects = [
       "Testing and system validation"
     ],
     stack: ["ESP32", "CSI", "EfficientNet-V2", "Flutter", "Raspberry Pi"],
-    links: { github: "https://github.com/xeyynon/CSI-Sense", demo: "https://drive.google.com/file/d/xxxxx/view" }
+    links: { github: "https://github.com/xeyynon/CSI-Sense", demo: "/sources/PPTs/CSI.pdf" }
   },
   {
     slug: "smart-water-quality",
@@ -119,7 +119,7 @@ export const projects = [
       "Testing and calibration"
     ],
     stack: ["ESP32", "LoRa", "Python", "Machine Learning", "Dashboard Development"],
-    links: { github: "https://github.com/xeyynon/Water-Monitoring-Hardware", demo: "https://drive.google.com/file/d/xxxxx/view" }
+    links: { github: "https://github.com/xeyynon/Water-Monitoring-Hardware", demo: "/sources/PPTs/Water.pdf" }
   }
 ];
 
