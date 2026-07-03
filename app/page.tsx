@@ -12,7 +12,7 @@ export default function Home() {
         <div className="wrap hero">
           <div className="chipbar">
             {spectrumColors.map((c, i) => (
-              <span key={c} className="chip" style={{ background: `var(${c})` }}>{400 + i * 50}nm</span>
+              <span key={c} className="chip" style={{ background: `var(${c})` }}>{[400, 450, 500, 560, 600, 680][i]}nm</span>
             ))}
             <span className="quote">&quot;Learn something new every day.&quot;</span>
           </div>
@@ -81,11 +81,16 @@ export default function Home() {
             {achievements.map((ach, i) => {
               const yearMatch = ach.event.match(/\d{4}/);
               const year = yearMatch ? yearMatch[0] : "----";
+              const pmatch = projects.find(p => p.slug.includes(ach.project) || ach.project.includes(p.slug));
               return (
                 <div key={i} className="ach">
                   <span className="ach-year">{year}</span>
                   <span>
-                    <span className="ach-title">{ach.title} — {ach.event}</span>
+                    {pmatch ? (
+                      <Link href={`/projects/${pmatch.slug}`} className="ach-title hover:text-[var(--v500)] transition-colors inline-block">{ach.title} — {ach.event}</Link>
+                    ) : (
+                      <span className="ach-title">{ach.title} — {ach.event}</span>
+                    )}
                     <div className="ach-sub">{ach.project}</div>
                     <div className="ach-sub" style={{ fontSize: '9px', marginTop: '2px' }}>{ach.achievement}</div>
                   </span>
@@ -101,14 +106,19 @@ export default function Home() {
           <div className="section-head">
             <span className="eyebrow">TECHNICAL SKILLS</span>
           </div>
-          <div className="certs">
-            {Object.entries(technicalSkills).map(([category, skills], i) => (
-              <div key={category} className="cert">
-                <div className="cbar" style={{ background: `var(${spectrumColors[i % spectrumColors.length]})` }}></div>
-                <h4 style={{ textTransform: 'capitalize' }}>{category.replace('_', ' ')}</h4>
-                <p>{skills.join(' · ')}</p>
-              </div>
-            ))}
+          <div className="flex flex-wrap gap-px bg-[var(--line-light)] border border-[var(--line-light)] mt-[20px]">
+            {Object.entries(technicalSkills).map(([category, skills], i) => {
+              const level = Math.min(4, Math.ceil(skills.length / 2));
+              return (
+                <div key={category} className="flex-1 min-w-[220px] bg-[var(--bg-light)] p-6 transition-colors hover:bg-[#eeece3]">
+                  <div className="flex gap-[3px] mb-3">
+                    {[1,2,3,4].map(n => <span key={n} className={`w-[5px] h-[14px] ${n <= level ? "bg-[var(--v500)] shadow-[0_0_4px_var(--v500)]" : "bg-[var(--line-light)]"}`} />)}
+                  </div>
+                  <h4 className="text-[12.5px] font-semibold text-[var(--ink-lo)] uppercase tracking-wider mb-2">{category.replace('_', ' ')}</h4>
+                  <p className="font-mono text-[9.5px] text-[var(--muted-light)] leading-relaxed">{skills.join(' · ')}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -116,7 +126,11 @@ export default function Home() {
       <section className="dark-panel" id="contact">
         <div className="wrap contact">
           <h2>Let's build something together.</h2>
-          <p className="lede">Open to internships, research collaborations, and exciting opportunities.</p>
+          <p className="lede mb-4">Open to internships, research collaborations, and exciting opportunities.</p>
+          <span className="inline-flex items-center gap-2 text-xs font-mono text-[var(--muted-dark)] mb-8">
+            <span className="w-2 h-2 rounded-full bg-[var(--v500)] animate-pulse shadow-[0_0_8px_var(--v500)]" />
+            Currently open to opportunities
+          </span>
           <div className="contact-row">
             <a className="btn" href="mailto:you@example.com">EMAIL →</a>
             <a className="btn" href="#">GITHUB →</a>

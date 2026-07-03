@@ -459,3 +459,11 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   text-decoration: none;
 }
 .link-btn:hover { border-color: var(--project-accent, var(--v500)); color: var(--project-accent, var(--v500)); }
+
+/* Soft bleed section transitions */
+section + section.light-panel { position: relative; }
+section + section.light-panel::before {
+  content: ""; position: absolute; top: -12px; left: 0; right: 0; height: 12px;
+  background: linear-gradient(to bottom, transparent, var(--bg-light));
+  pointer-events: none;
+}
