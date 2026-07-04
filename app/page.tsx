@@ -122,14 +122,13 @@ export default function Home() {
             <span className="eyebrow">TECHNICAL SKILLS</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[var(--line-light)] border border-[var(--line-light)] mt-[20px]">
-            {skills.map((s) => {
+            {[...skills].sort((a, b) => b.level - a.level).map((s) => {
               const usedIn = getUsedInProjects(s.items);
-              const colSpan = s.level === 4 ? "col-span-1 sm:col-span-2" : "col-span-1";
               
               return (
-                <div key={s.label} className={`group relative z-0 hover:z-10 bg-[var(--bg-light)] p-6 transition-all duration-200 hover:bg-[#efece2] hover:-translate-y-[2px] hover:shadow-lg ${colSpan}`}>
+                <div key={s.label} className="group relative z-0 hover:z-10 bg-[var(--bg-light)] p-6 transition-all duration-200 hover:bg-[#efece2] hover:-translate-y-[2px] hover:shadow-lg">
                   <span className="block w-7 h-[3px] mb-2.5" style={{ background: `linear-gradient(90deg, ${s.color}, transparent)` }} />
-                  <h4 className="text-[12.5px] font-semibold text-[var(--ink-lo)] uppercase tracking-wider">{s.label}</h4>
+                  <h4 className={`text-[12.5px] font-semibold uppercase tracking-wider ${s.level === 4 ? "text-[var(--ink-lo)]" : "text-[var(--muted-light)]"}`}>{s.label}</h4>
                   <p className="font-mono text-[9.5px] text-[var(--muted-light)] mt-1.5 leading-relaxed">{s.items.join(" · ")}</p>
                   
                   <div className="flex items-center gap-3 mt-3">
