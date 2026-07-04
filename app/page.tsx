@@ -66,7 +66,9 @@ export default function Home() {
             <span className="eyebrow">ABOUT</span>
           </div>
           <div className="about-grid">
-            <div className="about-photo"></div>
+            <div className="about-photo">
+              <img src="/sources/myImage.jpg" alt="Surya Pratik" className="w-full h-full object-cover" />
+            </div>
             <div className="about-copy">
               <p style={{ fontWeight: '500', marginBottom: '12px' }}>{personalInfo.title}</p>
               <p>{personalInfo.education}</p>
