@@ -147,8 +147,8 @@ export default function Home() {
                   </div>
 
                   {usedIn.length > 0 && (
-                    <div className="absolute inset-x-6 -bottom-1 translate-y-full opacity-0 group-hover:opacity-100 group-hover:translate-y-1 transition-all font-mono text-[9px] text-[var(--muted-light)] pt-1 pointer-events-none whitespace-normal break-words leading-tight">
-                      Used in: {usedIn.join(", ")}
+                    <div className="absolute left-4 right-4 top-full -mt-2 bg-[var(--bg-dark-2)] text-[var(--muted-light)] px-3 py-2 rounded shadow-2xl opacity-0 group-hover:opacity-100 group-hover:translate-y-4 transition-all font-mono text-[9px] pointer-events-none whitespace-normal break-words leading-relaxed z-50 border border-[var(--line-dark)]">
+                      <span className="text-[var(--ink-hi)]">Used in:</span> {usedIn.join(", ")}
                     </div>
                   )}
                 </div>
