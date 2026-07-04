@@ -1,8 +1,8 @@
-# Surya Pratik — Software Engineer Portfolio
+# Surya Pratik — Portfolio
 
 A premium, highly-interactive personal portfolio built with modern web technologies. Designed with a deep focus on user experience, smooth micro-animations, and a distinct spectral aesthetic.
 
-## 🚀 Features
+##  Features
 
 - **Dynamic Theme Engine:** Seamless transition between light and dark modes with carefully curated color palettes.
 - **Custom SVG Animations:** A signature "prism" hero animation powered by custom CSS keyframes.
@@ -11,14 +11,14 @@ A premium, highly-interactive personal portfolio built with modern web technolog
 - **Interactive Data Display:** "Hover-to-expand" project timelines, dynamic skill confidence meters, and custom tooltip overlays.
 - **Strictly Typed:** 100% typed using TypeScript for robust component architecture.
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 - **Framework:** [Next.js 15 (App Router)](https://nextjs.org/)
 - **Language:** [TypeScript](https://www.typescriptlang.org/)
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) alongside modular CSS architecture.
 - **Icons / Fonts:** Next/Font using Geist Mono and Geist Sans.
 
-## 💻 Running Locally
+##  Running Locally
 
 To get a local copy up and running, follow these simple steps:
 
@@ -41,13 +41,13 @@ To get a local copy up and running, follow these simple steps:
 4. **View the site:**
    Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 📂 Project Structure
+##  Project Structure
 
 - `/app` — Core Next.js routing, pages, and global stylesheet.
 - `/components` — Reusable React UI components (Hero, Intro, Rail, Projects, etc).
 - `/data` — The central `portfolioData.ts` file containing all site content. Update this file to modify the text, projects, and skills displayed on the site.
 - `/public` — Static assets, images, and project documentation (PDFs).
 
-## 📝 License
+##  License
 
 Distributed under the MIT License. See `LICENSE` for more information.
