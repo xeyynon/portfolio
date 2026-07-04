@@ -33,7 +33,6 @@ export default function Home() {
             <span className="quote">&quot;Learn something new every day.&quot;</span>
           </div>
           <h1>{personalInfo.name.toUpperCase()}</h1>
-          <p className="tagline">{personalInfo.summary}</p>
 
           <PrismHero />
         </div>
