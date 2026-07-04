@@ -2,10 +2,27 @@ export const personalInfo = {
   name: "Surya Pratik",
   title: "Learning. Building. Improving",
   education: "B.Tech Computer Science and Engineering, VIT-AP University",
-  summary: "Passionate engineer specializing in Embedded Systems, IoT, AI/ML, and Mobile Application Development. Experienced in developing end-to-end solutions involving hardware integration, wireless communication, cloud connectivity, and intelligent applications."
+  summary: "Hi, I'm Surya Pratik from Bhilai, Chhattisgarh,I enjoy building technology that bridges hardware and software, from embedded systems and IoT devices to mobile applications. My journey has been driven by curiosity and a desire to continuously learn, experiment, and solve real-world problems. I believe growth comes from challenging yourself, embracing failures, and learning something new every day."
 };
 
-export const projects = [
+export type Project = {
+  slug: string;
+  num: string;
+  title: string;
+  pipeline: string;
+  color: string;
+  tag: string;
+  domain: string;
+  description: string;
+  highlights: string[];
+  stack: string[];
+  links?: {
+    github?: string;
+    demo?: string;
+  };
+};
+
+export const projects: Project[] = [
   {
     slug: "lifi-data-transmission-system",
     num: "01",

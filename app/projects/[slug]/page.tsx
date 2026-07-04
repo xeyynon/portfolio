@@ -17,7 +17,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const next = projects[i + 1];
 
   return (
-    <main className="project-page wrap" style={{ ["--project-accent" as any]: project.color }}>
+    <main className="project-page wrap" style={{ "--project-accent": project.color } as React.CSSProperties}>
       <Link href="/#projects" className="back-link">← Back to work</Link>
 
       <div className="pp-head">
@@ -28,14 +28,14 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </span>
       </div>
 
-      {(project as any).links && (
+      {project.links && (
         <div className="pp-links">
-          {(project as any).links.github && (
-            <a href={(project as any).links.github} target="_blank" rel="noopener noreferrer" className="link-btn">
+          {project.links.github && (
+            <a href={project.links.github} target="_blank" rel="noopener noreferrer" className="link-btn">
               <Code size={13} /> CODE
             </a>
           )}
-          {(project as any).links.demo && (
+          {project.links.demo && (
             <a href="#presentation" className="link-btn">
               <FileText size={13} /> PPT
             </a>
@@ -66,12 +66,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </div>
       </section>
 
-      {(project as any).links?.demo && (
+      {project.links?.demo && (
         <section className="pp-section mt-8" id="presentation">
           <span className="eyebrow">PRESENTATION</span>
           <div className="mt-4 w-full h-[500px] sm:h-[700px] border border-[var(--line-dark)] rounded-lg overflow-hidden">
             <iframe 
-              src={(project as any).links.demo} 
+              src={project.links.demo} 
               className="w-full h-full bg-white"
               title="Project Presentation"
             />

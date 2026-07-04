@@ -7,7 +7,10 @@ export default function PrismHero() {
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) { setPlayed(true); return; }
+    if (reduce) { 
+      setTimeout(() => setPlayed(true), 0);
+      return; 
+    }
     
     // Using IntersectionObserver to play when in view, and reset when out of view
     const obs = new IntersectionObserver(([entry]) => {
@@ -36,7 +39,7 @@ export default function PrismHero() {
             key={i}
             d={`M365,60 L860,${l.y}`}
             className="spectrum-line"
-            style={{ stroke: l.color, animationDelay: `${0.55 + l.delay}s`, ["--pulse-delay" as any]: `${1.6 + i * 0.15}s` }}
+            style={{ stroke: l.color, animationDelay: `${0.55 + l.delay}s`, "--pulse-delay": `${1.6 + i * 0.15}s` } as React.CSSProperties}
             pathLength="1"
           />
         ))}

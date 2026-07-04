@@ -15,7 +15,7 @@ export default function Rail() {
       const slug = pathname.split('/')[2];
       const projectIndex = projects.findIndex(p => p.slug === slug);
       if (projectIndex !== -1) {
-        setActiveId(`p${projectIndex + 1}`);
+        setTimeout(() => setActiveId(`p${projectIndex + 1}`), 0);
       }
       return; // Skip intersection observer on project pages
     }
