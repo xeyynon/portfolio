@@ -70,7 +70,23 @@ export default function Home() {
               <Image src="/sources/myImage.jpg" alt="Surya Pratik" fill className="object-cover" />
             </div>
             <div className="about-copy">
-              <p style={{ fontWeight: '500', marginBottom: '12px' }}>{personalInfo.title}</p>
+              <p style={{ fontWeight: '500', marginBottom: '12px', fontSize: '16px' }}>
+                {personalInfo.title.split('.').filter(Boolean).map((word, i) => {
+                  const colors = ["var(--v500)", "var(--v560)", "var(--v600)"];
+                  return (
+                    <span 
+                      key={i} 
+                      className="animate-pulse-color mr-1.5" 
+                      style={{ 
+                        "--pulse-color": colors[i % colors.length], 
+                        animationDelay: `${i * 2}s` 
+                      } as React.CSSProperties}
+                    >
+                      {word.trim()}.
+                    </span>
+                  );
+                })}
+              </p>
               <p>{personalInfo.education}</p>
               <p style={{ marginTop: '12px' }}>{personalInfo.summary}</p>
               <div className="swatches">

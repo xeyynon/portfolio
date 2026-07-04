@@ -115,6 +115,16 @@ section{margin-left:26px;}
 .beam-in{stroke:var(--ink-hi);stroke-width:1.4;opacity:.5;}
 .spectrum-line{stroke-width:2.4;fill:none;}
 
+@keyframes pulse-color {
+  0%, 100% { color: inherit; transform: translateY(0); }
+  15% { color: var(--pulse-color); transform: translateY(-2px); text-shadow: 0 2px 10px var(--pulse-color); }
+  35% { color: inherit; transform: translateY(0); text-shadow: none; }
+}
+.animate-pulse-color {
+  animation: pulse-color 6s ease-in-out infinite;
+  display: inline-block;
+}
+
 /* PROJECTS */
 .section-head{
   display:flex;justify-content:space-between;align-items:baseline;
