@@ -77,7 +77,7 @@ export default function Home() {
                 {spectrumColors.map(c => (
                   <span key={c} className="sw" style={{ background: `var(${c})` }}></span>
                 ))}
-                <span className="stat">{String(projects.length).padStart(2, '0')} projects · {String(achievements.length).padStart(2, '0')} awards</span>
+                {/* Removed stat string per user request */}
               </div>
             </div>
           </div>
