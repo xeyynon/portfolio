@@ -145,8 +145,8 @@ export const leadershipOrg = "Microsoft Student Chapter, VIT-AP";
 export const leadership = [
   { date: "Jan 2024", role: "Hi-Tech Team Member", range: "Jan 2024 – Jun 2024", gain: 1 },
   { date: "Jun 2024", role: "Club Manager",        range: "Jun 2024 – Jun 2025", gain: 2 },
-  { date: "Jul 2025", role: "President",           range: "Jul 2025 – Oct 2025", gain: 3 },
-  { date: "Nov 2025", role: "Chief Advisor",       range: "Nov 2025 – Present",  gain: 4, current: true }
+  { date: "Jul 2025", role: "President",           range: "Jul 2025 – NOV 2025", gain: 3 },
+  { date: "Nov 2025", role: "Chief Advisor",       range: "Nov 2025 – Jul 2026",  gain: 4, tag: "LAST POSITION" }
 ];
 
 export const achievements = [
