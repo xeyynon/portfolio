@@ -11,8 +11,8 @@ export const projects = [
       "Testing and resolving bit corruption via synchronization delays"
     ],
     techStack: ["Arduino Mega 2560", "LM358 Op-Amp", "Laser Module", "Solar Panel", "Embedded C"],
-    github: "https://github.com/yourusername/lifi-project",
-    pptEmbed: "/ppt/lifi.pdf",
+    github: "https://github.com/xeyynon/Lifi-Data-Transmission-System",
+    pptEmbed: "../sources/LIFI",
     award: "Best Contemporary Project — ECS EXPO'24",
     images: ["/images/lifi-1.jpg", "/images/lifi-2.jpg"]
   }

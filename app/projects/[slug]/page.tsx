@@ -36,7 +36,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             </a>
           )}
           {(project as any).links.demo && (
-            <a href={(project as any).links.demo} target="_blank" rel="noopener noreferrer" className="link-btn">
+            <a href="#presentation" className="link-btn">
               <FileText size={13} /> PPT
             </a>
           )}
@@ -65,6 +65,19 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           ))}
         </div>
       </section>
+
+      {(project as any).links?.demo && (
+        <section className="pp-section mt-8" id="presentation">
+          <span className="eyebrow">PRESENTATION</span>
+          <div className="mt-4 w-full h-[500px] sm:h-[700px] border border-[var(--line-dark)] rounded-lg overflow-hidden">
+            <iframe 
+              src={(project as any).links.demo} 
+              className="w-full h-full bg-white"
+              title="Project Presentation"
+            />
+          </div>
+        </section>
+      )}
 
       <div className="flex justify-between items-center mt-14 pt-5 border-t border-[var(--line-dark)]">
         {prev ? (
