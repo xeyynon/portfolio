@@ -23,7 +23,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Your Name — Spectral",
+  title: "Surya Pratik — Spectral",
   description: "I build systems that split the physical world into signal.",
 };
 
