@@ -72,15 +72,13 @@ export default function Home() {
             <div className="about-copy">
               <p style={{ fontWeight: '500', marginBottom: '12px', fontSize: '16px' }}>
                 {personalInfo.title.split('.').filter(Boolean).map((word, i) => {
-                  const colors = ["var(--v500)", "var(--v560)", "var(--v600)"];
                   return (
                     <span 
                       key={i} 
-                      className="animate-pulse-color mr-1.5" 
+                      className={`animate-pulse-${i % 3} mr-1.5`} 
                       style={{ 
-                        "--pulse-color": colors[i % colors.length], 
                         animationDelay: `${i * 2}s` 
-                      } as React.CSSProperties}
+                      }}
                     >
                       {word.trim()}.
                     </span>
