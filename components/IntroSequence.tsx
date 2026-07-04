@@ -10,10 +10,7 @@ export default function IntroSequence({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const seen = sessionStorage.getItem("intro-shown");
-    if (reduce || seen) { setSkip(true); setDone(true); return; }
-
-    sessionStorage.setItem("intro-shown", "true");
+    if (reduce) { setSkip(true); setDone(true); return; }
 
     const perWord = 700; // ms each word stays fully visible
     const timers = words.map((_, i) =>
