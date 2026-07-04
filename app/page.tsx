@@ -165,10 +165,10 @@ export default function Home() {
             Currently open to opportunities
           </span>
           <div className="contact-row">
-            <a className="btn" href="mailto:you@example.com">EMAIL →</a>
-            <a className="btn" href="#">GITHUB →</a>
-            <a className="btn" href="#">LINKEDIN →</a>
-            <a className="btn" href="#">RESUME →</a>
+            <a className="btn" href="mailto:suryapratik12@gmail.com" target="_blank" rel="noopener noreferrer">EMAIL →</a>
+            <a className="btn" href="https://github.com/xeyynon" target="_blank" rel="noopener noreferrer">GITHUB →</a>
+            <a className="btn" href="https://www.linkedin.com/in/suryapratik/" target="_blank" rel="noopener noreferrer">LINKEDIN →</a>
+            <a className="btn" href="https://drive.google.com/drive/folders/1VjUdrDwPhYxG0RvFJxR1G3ilHIyyd9AT?usp=sharing" target="_blank" rel="noopener noreferrer">RESUME →</a>
           </div>
         </div>
         <div className="wrap">
