@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { personalInfo, projects, achievements, skills } from "@/data/portfolioData";
 import PrismHero from "@/components/PrismHero";
 import LeadershipTimeline from "@/components/LeadershipTimeline";
@@ -67,7 +68,7 @@ export default function Home() {
           </div>
           <div className="about-grid">
             <div className="about-photo">
-              <img src="/sources/myImage.jpg" alt="Surya Pratik" className="w-full h-full object-cover" />
+              <Image src="/sources/myImage.jpg" alt="Surya Pratik" fill className="object-cover" />
             </div>
             <div className="about-copy">
               <p style={{ fontWeight: '500', marginBottom: '12px' }}>{personalInfo.title}</p>
@@ -160,7 +161,7 @@ export default function Home() {
 
       <section className="dark-panel" id="contact">
         <div className="wrap contact">
-          <h2>Let's build something together.</h2>
+          <h2>Let&apos;s build something together.</h2>
           <p className="lede mb-4">Open to internships, research collaborations, and exciting opportunities.</p>
           <span className="inline-flex items-center gap-2 text-xs font-mono text-[var(--muted-dark)] mb-8">
             <span className="w-2 h-2 rounded-full bg-[var(--v500)] animate-pulse shadow-[0_0_8px_var(--v500)]" />

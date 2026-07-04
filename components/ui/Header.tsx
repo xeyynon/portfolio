@@ -1,13 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { personalInfo } from "@/data/portfolioData";
 
 export default function Header() {
-  const pathname = usePathname();
-  
   const toggleTheme = () => {
     document.documentElement.classList.toggle('light');
   };
