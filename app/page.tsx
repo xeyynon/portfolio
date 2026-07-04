@@ -75,10 +75,7 @@ export default function Home() {
                   return (
                     <span 
                       key={i} 
-                      className={`animate-pulse-${i % 3} mr-1.5`} 
-                      style={{ 
-                        animationDelay: `${i * 2}s` 
-                      }}
+                      className={`animate-pulse-${i % 3} mr-1.5 inline-block`}
                     >
                       {word.trim()}.
                     </span>
