@@ -12,13 +12,13 @@ export default function LeadershipTimeline() {
         <div className="leadership-org">{leadershipOrg}</div>
 
         <div className="leadership-list">
-          {leadership.map((l) => (
-            <div className={`leadership-item ${l.current ? "current" : ""}`} key={l.role}>
+          {leadership.map((l: any) => (
+            <div className={`leadership-item ${l.current || l.tag ? "current" : ""}`} key={l.role}>
               <div className="li-date">{l.date}</div>
               <div className="li-body">
                 <div className="li-role">
                   {l.role}
-                  {l.current && <span className="li-tag">CURRENT</span>}
+                  {l.tag ? <span className="li-tag" style={{ background: 'var(--bg-light)', color: 'var(--muted-dark)', border: '1px solid var(--line-dark)' }}>{l.tag}</span> : l.current ? <span className="li-tag">CURRENT</span> : null}
                 </div>
                 <div className="li-range">{l.range}</div>
               </div>
