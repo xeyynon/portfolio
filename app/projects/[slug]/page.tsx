@@ -79,25 +79,32 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </section>
       )}
 
-      <div className="flex justify-between items-center mt-14 pt-5 border-t border-[var(--line-dark)]">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 sm:gap-0 mt-14 pt-5 border-t border-[var(--line-dark)]">
         {prev ? (
-          <Link href={`/projects/${prev.slug}`} className="group flex items-center gap-3 max-w-[45%]">
+          <Link href={`/projects/${prev.slug}`} className="group flex items-center gap-3 w-full sm:max-w-[45%]">
             <span className="w-1 h-8" style={{ background: prev.color }} />
-            <div>
+            <div className="min-w-0">
               <div className="text-[9px] font-mono text-[var(--muted-dark)] uppercase">PREV</div>
               <div className="text-sm group-hover:text-[var(--project-accent)] transition-colors text-[var(--ink-hi)] truncate">{prev.title}</div>
             </div>
           </Link>
-        ) : <div />}
+        ) : <div className="hidden sm:block" />}
         {next ? (
-          <Link href={`/projects/${next.slug}`} className="group flex items-center gap-3 text-right max-w-[45%] justify-end">
-            <div className="min-w-0">
+          <Link href={`/projects/${next.slug}`} className="group flex items-center gap-3 text-left sm:text-right w-full sm:max-w-[45%] justify-start sm:justify-end">
+            <div className="hidden sm:block min-w-0">
               <div className="text-[9px] font-mono text-[var(--muted-dark)] uppercase">NEXT</div>
               <div className="text-sm group-hover:text-[var(--project-accent)] transition-colors text-[var(--ink-hi)] truncate">{next.title}</div>
             </div>
-            <span className="w-1 h-8 shrink-0" style={{ background: next.color }} />
+            <span className="w-1 h-8 shrink-0 hidden sm:block" style={{ background: next.color }} />
+
+            {/* Mobile Next Layout */}
+            <span className="w-1 h-8 shrink-0 sm:hidden" style={{ background: next.color }} />
+            <div className="sm:hidden min-w-0">
+              <div className="text-[9px] font-mono text-[var(--muted-dark)] uppercase">NEXT</div>
+              <div className="text-sm group-hover:text-[var(--project-accent)] transition-colors text-[var(--ink-hi)] truncate">{next.title}</div>
+            </div>
           </Link>
-        ) : <div />}
+        ) : <div className="hidden sm:block" />}
       </div>
     </main>
   );
