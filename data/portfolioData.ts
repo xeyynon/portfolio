@@ -1,6 +1,6 @@
 export const personalInfo = {
   name: "Surya Pratik",
-  title: "Embedded Systems Engineer | IoT Developer | Flutter Developer",
+  title: "Learning. Building. Improving",
   education: "B.Tech Computer Science and Engineering, VIT-AP University",
   summary: "Passionate engineer specializing in Embedded Systems, IoT, AI/ML, and Mobile Application Development. Experienced in developing end-to-end solutions involving hardware integration, wireless communication, cloud connectivity, and intelligent applications."
 };
