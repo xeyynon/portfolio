@@ -3,6 +3,7 @@ import { Space_Grotesk, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import Rail from "@/components/ui/Rail";
 import Header from "@/components/ui/Header";
+import IntroSequence from "@/components/IntroSequence";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -37,9 +38,11 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${inter.variable} ${ibmPlexMono.variable} antialiased`}
       >
-        <Rail />
-        <Header />
-        {children}
+        <IntroSequence>
+          <Rail />
+          <Header />
+          {children}
+        </IntroSequence>
       </body>
     </html>
   );
