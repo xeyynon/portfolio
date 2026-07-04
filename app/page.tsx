@@ -147,7 +147,7 @@ export default function Home() {
                   </div>
 
                   {usedIn.length > 0 && (
-                    <div className="absolute inset-x-6 -bottom-1 translate-y-full opacity-0 group-hover:opacity-100 group-hover:translate-y-1 transition-all font-mono text-[9px] text-[var(--muted-light)] pt-1 pointer-events-none">
+                    <div className="absolute inset-x-6 -bottom-1 translate-y-full opacity-0 group-hover:opacity-100 group-hover:translate-y-1 transition-all font-mono text-[9px] text-[var(--muted-light)] pt-1 pointer-events-none whitespace-normal break-words leading-tight">
                       Used in: {usedIn.join(", ")}
                     </div>
                   )}
