@@ -2,15 +2,6 @@
 
 A premium, highly-interactive personal portfolio built with modern web technologies. Designed with a deep focus on user experience, smooth micro-animations, and a distinct spectral aesthetic.
 
-##  Features
-
-- **Dynamic Theme Engine:** Seamless transition between light and dark modes with carefully curated color palettes.
-- **Custom SVG Animations:** A signature "prism" hero animation powered by custom CSS keyframes.
-- **Staggered Sequences:** An immersive intro sequence and staggered glowing text that greets users.
-- **Responsive Grid System:** A fully fluid layout that looks stunning on 4k displays, desktops, tablets, and phones.
-- **Interactive Data Display:** "Hover-to-expand" project timelines, dynamic skill confidence meters, and custom tooltip overlays.
-- **Strictly Typed:** 100% typed using TypeScript for robust component architecture.
-
 ##  Tech Stack
 
 - **Framework:** [Next.js 15 (App Router)](https://nextjs.org/)
