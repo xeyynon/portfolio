@@ -25,7 +25,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "SP",
-  description: "I build systems that split the physical world into signal.",
+  description: "Learning->Building->Improving",
 };
 
 export default function RootLayout({
