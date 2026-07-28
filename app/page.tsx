@@ -4,31 +4,28 @@ import { personalInfo, projects, achievements, skills } from "@/data/portfolioDa
 import PrismHero from "@/components/PrismHero";
 import LeadershipTimeline from "@/components/LeadershipTimeline";
 
-export default function Home() {
-  const spectrumColors = ['--v400', '--v450', '--v500', '--v560', '--v600', '--v680'];
+const SPECTRUM = [
+  { token: "--v400", nm: 400 },
+  { token: "--v450", nm: 450 },
+  { token: "--v500", nm: 500 },
+  { token: "--v560", nm: 560 },
+  { token: "--v600", nm: 600 },
+  { token: "--v680", nm: 680 },
+];
 
-  const getUsedInProjects = (skillItems: string[]) => {
-    return projects.filter(p => 
-      p.stack.some(s => skillItems.some(si => s.toLowerCase().includes(si.toLowerCase()))) ||
-      p.highlights.some(h => skillItems.some(si => h.toLowerCase().includes(si.toLowerCase())))
-    ).map(p => {
-      if (p.title.includes("LiFi")) return "LiFi";
-      if (p.title.includes("EcoX")) return "EcoX";
-      if (p.title.includes("FlowIQ")) return "FlowIQ";
-      if (p.title.includes("Telegram")) return "Telegram Drive";
-      if (p.title.includes("Human Presence")) return "CSI-Sense";
-      if (p.title.includes("Water Quality")) return "Smart Water";
-      return p.title.split(' ')[0];
-    });
-  };
+export default function Home() {
+  // Explicit join on the `skills` field each project declares, rather than
+  // substring-matching skill names against prose.
+  const projectsUsing = (skillLabel: string) =>
+    projects.filter((p) => p.skills.includes(skillLabel));
 
   return (
     <>
       <section className="dark-panel">
         <div className="wrap hero">
           <div className="chipbar">
-            {spectrumColors.map((c, i) => (
-              <span key={c} className="chip" style={{ background: `var(${c})` }}>{[400, 450, 500, 560, 600, 680][i]}nm</span>
+            {SPECTRUM.map((s) => (
+              <span key={s.token} className="chip" style={{ background: `var(${s.token})` }}>{s.nm}nm</span>
             ))}
             <span className="quote">&quot;Learn something new every day.&quot;</span>
           </div>
@@ -84,11 +81,10 @@ export default function Home() {
               </p>
               <p>{personalInfo.education}</p>
               <p style={{ marginTop: '12px' }}>{personalInfo.summary}</p>
-              <div className="swatches">
-                {spectrumColors.map(c => (
-                  <span key={c} className="sw" style={{ background: `var(${c})` }}></span>
+              <div className="swatches" aria-hidden="true">
+                {SPECTRUM.map((s) => (
+                  <span key={s.token} className="sw" style={{ background: `var(${s.token})` }} />
                 ))}
-                {/* Removed stat string per user request */}
               </div>
             </div>
           </div>
@@ -105,27 +101,27 @@ export default function Home() {
             <span className="eyebrow">ACHIEVEMENTS</span>
             <span className="count" style={{ color: 'var(--muted-light)' }}>{String(achievements.length).padStart(2, '0')} TOTAL</span>
           </div>
-          <div className="ach-list">
-            {achievements.map((ach, i) => {
-              const yearMatch = ach.event.match(/\d{4}/);
-              const year = yearMatch ? yearMatch[0] : "----";
-              const pmatch = projects.find(p => p.slug.includes(ach.project) || ach.project.includes(p.slug));
+          <ul className="ach-list">
+            {achievements.map((ach) => {
+              const project = projects.find((p) => p.slug === ach.slug);
               return (
-                <div key={i} className="ach">
-                  <span className="ach-year">{year}</span>
+                <li key={`${ach.slug}-${ach.event}`} className="ach">
+                  <span className="ach-year">{ach.year}</span>
                   <span>
-                    {pmatch ? (
-                      <Link href={`/projects/${pmatch.slug}`} className="ach-title hover:text-[var(--v500)] transition-colors inline-block">{ach.title} — {ach.event}</Link>
+                    {project ? (
+                      <Link href={`/projects/${project.slug}`} className="ach-title ach-link">
+                        {ach.title} — {ach.event}
+                      </Link>
                     ) : (
                       <span className="ach-title">{ach.title} — {ach.event}</span>
                     )}
-                    <div className="ach-sub">{ach.project}</div>
-                    <div className="ach-sub" style={{ fontSize: '9px', marginTop: '2px' }}>{ach.achievement}</div>
+                    <span className="ach-sub">{project?.title ?? ach.slug}</span>
+                    <span className="ach-sub ach-detail">{ach.achievement}</span>
                   </span>
-                </div>
-              )
+                </li>
+              );
             })}
-          </div>
+          </ul>
         </div>
       </section>
 
@@ -134,33 +130,38 @@ export default function Home() {
           <div className="section-head">
             <span className="eyebrow">TECHNICAL SKILLS</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-[var(--line-light)] border border-[var(--line-light)] mt-[20px]">
+          <div className="skill-grid">
             {[...skills].sort((a, b) => b.level - a.level).map((s) => {
-              const usedIn = getUsedInProjects(s.items);
-              
+              const usedIn = projectsUsing(s.label);
+
               return (
-                <div key={s.label} className="group relative z-0 hover:z-10 bg-[var(--bg-light)] p-6 transition-all duration-200 hover:bg-[#efece2] hover:-translate-y-[2px] hover:shadow-lg">
-                  <span className="block w-7 h-[3px] mb-2.5" style={{ background: `linear-gradient(90deg, ${s.color}, transparent)` }} />
-                  <h4 className={`text-[12.5px] font-semibold uppercase tracking-wider ${s.level === 4 ? "text-[var(--ink-lo)]" : "text-[var(--muted-light)]"}`}>{s.label}</h4>
-                  <p className="font-mono text-[9.5px] text-[var(--muted-light)] mt-1.5 leading-relaxed">{s.items.join(" · ")}</p>
-                  
-                  <div className="flex items-center gap-3 mt-3">
-                    <div className="flex gap-[3px]">
+                <div key={s.label} className="skill">
+                  <span className="skill-bar" style={{ background: `linear-gradient(90deg, ${s.color}, transparent)` }} />
+                  <h4 className="skill-label">{s.label}</h4>
+                  <p className="skill-items">{s.items.join(" · ")}</p>
+
+                  <div className="skill-meter" aria-label={`Proficiency ${s.level} of 4`}>
+                    <span className="skill-segs" aria-hidden="true">
                       {[1, 2, 3, 4].map((n) => (
                         <span
                           key={n}
-                          className={`w-[5px] h-[12px] ${n <= s.level ? "shadow-[0_0_4px_" + s.color + "]" : ""}`}
+                          className="seg"
                           style={{ background: n <= s.level ? s.color : "var(--line-light)" }}
                         />
                       ))}
-                    </div>
-                    <span className="font-mono text-[8.5px] text-[var(--muted-light)]">{s.level}/4</span>
+                    </span>
+                    <span className="skill-level" aria-hidden="true">{s.level}/4</span>
                   </div>
 
                   {usedIn.length > 0 && (
-                    <div className="absolute left-4 right-4 top-full -mt-2 bg-[var(--bg-dark-2)] text-[var(--muted-light)] px-3 py-2 rounded shadow-2xl opacity-0 group-hover:opacity-100 group-hover:translate-y-4 transition-all font-mono text-[9px] pointer-events-none whitespace-normal break-words leading-relaxed z-50 border border-[var(--line-dark)]">
-                      <span className="text-[var(--ink-hi)]">Used in:</span> {usedIn.join(", ")}
-                    </div>
+                    <p className="skill-used">
+                      <span className="skill-used-label">Used in</span>
+                      {usedIn.map((p) => (
+                        <Link key={p.slug} href={`/projects/${p.slug}`} className="skill-used-link">
+                          {p.short}
+                        </Link>
+                      ))}
+                    </p>
                   )}
                 </div>
               );

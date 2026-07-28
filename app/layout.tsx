@@ -24,9 +24,14 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SP",
-  description: "Learning->Building->Improving",
+  title: "Surya Pratik — Embedded Systems & IoT Engineer",
+  description:
+    "Portfolio of Surya Pratik: embedded systems, IoT, and applied machine learning. LiFi transmission, Wi-Fi CSI sensing, LoRa mesh networks.",
 };
+
+// Applies the stored theme before first paint so the page never flashes the
+// wrong palette. Inline and synchronous by necessity.
+const themeScript = `try{if(localStorage.theme==="light")document.documentElement.classList.add("light")}catch(e){}`;
 
 export default function RootLayout({
   children,
@@ -34,14 +39,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body
         className={`${spaceGrotesk.variable} ${inter.variable} ${ibmPlexMono.variable} antialiased`}
       >
+        <a href="#main" className="skip-link">Skip to content</a>
         <IntroSequence>
           <Rail />
           <Header />
-          {children}
+          <main id="main">{children}</main>
         </IntroSequence>
       </body>
     </html>

@@ -2,6 +2,7 @@ import { projects } from "@/data/portfolioData";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Code, FileText } from "lucide-react";
+import DeckViewer from "@/components/DeckViewer";
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
@@ -17,7 +18,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const next = projects[i + 1];
 
   return (
-    <main className="project-page wrap" style={{ "--project-accent": project.color } as React.CSSProperties}>
+    <article className="project-page wrap" style={{ "--project-accent": project.color } as React.CSSProperties}>
       <Link href="/#projects" className="back-link">← Back to work</Link>
 
       <div className="pp-head">
@@ -67,15 +68,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       </section>
 
       {project.links?.demo && (
-        <section className="pp-section mt-8" id="presentation">
+        <section className="pp-section" id="presentation">
           <span className="eyebrow">PRESENTATION</span>
-          <div className="mt-4 w-full h-[500px] sm:h-[700px] border border-[var(--line-dark)] rounded-lg overflow-hidden">
-            <iframe 
-              src={project.links.demo} 
-              className="w-full h-full bg-white"
-              title="Project Presentation"
-            />
-          </div>
+          <DeckViewer src={project.links.demo} title={project.short} />
         </section>
       )}
 
@@ -106,6 +101,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </Link>
         ) : <div className="hidden sm:block" />}
       </div>
-    </main>
+    </article>
   );
 }

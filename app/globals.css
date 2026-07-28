@@ -11,14 +11,67 @@
   --line-dark:#24262c;
   --line-light:#ddd9cd;
 
-  --v400:#9B7EDE;
-  --v450:#7B93E0;
-  --v500:#4FD8E0;
-  --v560:#6FE07D;
-  --v600:#F2A65A;
-  --v680:#E8536B;
-  --vwhite:#EDEBE2;
+  --tick-idle:#2b2d34;
+  --nav-bg:rgba(11,12,15,.86);
+
+  /* ---- SPECTRUM ----
+     Two tunings of the same six hues. `bright` is legible on near-black,
+     `deep` on cream; each clears 4.5:1 on its own surface as text and border.
+     The active tuning is bound to the *surface*, not the theme, because the
+     cream panel exists in both themes — see the surface bindings below. */
+  --spec-bright-400:#9B7EDE;
+  --spec-bright-450:#7B93E0;
+  --spec-bright-500:#4FD8E0;
+  --spec-bright-560:#6FE07D;
+  --spec-bright-600:#F2A65A;
+  --spec-bright-680:#E8536B;
+  --spec-bright-white:#EDEBE2;
+
+  --spec-deep-400:#5B3FA8;
+  --spec-deep-450:#3B54A8;
+  --spec-deep-500:#0E6E75;
+  --spec-deep-560:#1F7A34;
+  --spec-deep-600:#8A5210;
+  --spec-deep-680:#B01F3A;
+  --spec-deep-white:#14151A;
 }
+
+/* Surface bindings. Read as: "whatever is dark here uses bright, whatever is
+   cream uses deep." The two theme rules simply swap which is which. */
+:root,
+:root.light .light-panel {
+  --v400:var(--spec-bright-400);
+  --v450:var(--spec-bright-450);
+  --v500:var(--spec-bright-500);
+  --v560:var(--spec-bright-560);
+  --v600:var(--spec-bright-600);
+  --v680:var(--spec-bright-680);
+  --vwhite:var(--spec-bright-white);
+}
+
+.light-panel,
+:root.light {
+  --v400:var(--spec-deep-400);
+  --v450:var(--spec-deep-450);
+  --v500:var(--spec-deep-500);
+  --v560:var(--spec-deep-560);
+  --v600:var(--spec-deep-600);
+  --v680:var(--spec-deep-680);
+  --vwhite:var(--spec-deep-white);
+}
+
+/* ---------- A11Y PRIMITIVES ---------- */
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+.skip-link{
+  position:absolute;left:-9999px;top:0;z-index:200;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;
+  background:var(--bg-dark-2);color:var(--ink-hi);
+  border:1px solid var(--v500);padding:10px 16px;
+}
+.skip-link:focus{left:34px;top:10px;}
 
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
@@ -44,27 +97,28 @@ a{color:inherit;text-decoration:none;}
   gap:5px;z-index:50;
 }
 .rail .tick{
-  width:3px;height:16px;background:#2b2d34;border-radius:1px;
+  appearance:none;border:0;padding:0;
+  width:3px;height:16px;border-radius:1px;
   cursor:pointer;transition:height .35s cubic-bezier(.2,.8,.2,1),background .35s,box-shadow .35s;
 }
-.rail .tick.active{height:30px;box-shadow:0 0 10px 1px var(--tick-color, transparent);}
-.rail-label{
-  position:absolute;left:36px;top:50%;transform:translateY(-50%) translateX(-6px);
-  font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;color:var(--muted-dark);
-  background:var(--bg-dark-2);border:1px solid var(--line-dark);padding:4px 7px;
-  opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;white-space:nowrap;
-}
-.rail .tick:hover + .rail-label,.rail-label.show{opacity:1;transform:translateY(-50%) translateX(0);}
+.rail .tick:hover{height:24px;}
+.rail .tick.active{height:30px;}
 
 /* ---------- NAV ---------- */
 header.nav{
   position:sticky;top:0;z-index:40;
-  background:rgba(11,12,15,.86);backdrop-filter:blur(10px);
+  background:var(--nav-bg);backdrop-filter:blur(10px);
   border-bottom:1px solid var(--line-dark);
   padding:16px 0;margin-left:26px;
 }
-.nav-inner{display:flex;justify-content:space-between;align-items:center;}
-.nav-inner .logo{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--ink-hi);font-weight:500;}
+/* The logo doubles as the theme toggle, so it is a real <button>. */
+.logo{
+  appearance:none;background:none;border:0;padding:0;cursor:pointer;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;
+  color:var(--ink-hi);font-weight:500;
+  transition:color .2s;
+}
+.logo:hover{color:var(--v500);}
 .nav-links{display:flex;gap:22px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.07em;color:var(--muted-dark);}
 .nav-links a{padding-bottom:3px;border-bottom:1px solid transparent;transition:color .2s,border-color .2s;}
 .nav-links a:hover,.nav-links a.current{color:var(--v500);border-color:var(--v500);}
@@ -109,12 +163,6 @@ section{margin-left:26px;}
   font-size:15px;color:var(--muted-dark);margin-top:16px;max-width:460px;line-height:1.6;
 }
 
-/* PRISM signature graphic */
-.prism-wrap{position:relative;height:120px;margin-top:36px;}
-.prism-wrap svg{width:100%;height:100%;overflow:visible;}
-.beam-in{stroke:var(--ink-hi);stroke-width:1.4;opacity:.5;}
-.spectrum-line{stroke-width:2.4;fill:none;}
-
 @keyframes pulse-color-0 {
   0%, 33%, 100% { color: var(--ink-lo); transform: translateY(0); text-shadow: none; }
   16% { color: var(--v500); transform: translateY(-2px); text-shadow: 0 2px 10px var(--v500); }
@@ -155,19 +203,8 @@ section{margin-left:26px;}
 .ppipe{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);margin-top:4px;letter-spacing:.01em;}
 .ptag{font-family:var(--font-mono);font-size:9px;letter-spacing:.04em;border:1px solid var(--line-dark);padding:4px 8px;white-space:nowrap;}
 .pchev{font-family:var(--font-mono);font-size:10px;color:var(--muted-dark);transition:transform .2s, color .2s;}
-.project.open .pchev{transform:rotate(90deg);}
-.project:hover .pchev { transform: translateX(4px); color: var(--vwhite); }
-.project:hover .ptitle { color: var(--v500); }
-
-.pdetail{
-  max-height:0;overflow:hidden;transition:max-height .35s ease;
-  margin-left:44px;
-}
-.project.open .pdetail{max-height:200px;}
-.pdetail-inner{padding:14px 0 4px;border-top:1px dashed var(--line-dark);margin-top:12px;}
-.pdetail p{font-size:12.5px;color:var(--muted-dark);line-height:1.6;max-width:520px;}
-.pdetail .stack{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
-.pdetail .stack span{font-family:var(--font-mono);font-size:9px;color:var(--ink-hi);background:var(--bg-dark-2);border:1px solid var(--line-dark);padding:3px 7px;}
+.project:hover .pchev,.project:focus-visible .pchev{transform:translateX(4px);color:var(--vwhite);}
+.project:hover .ptitle,.project:focus-visible .ptitle{color:var(--v500);}
 
 /* ABOUT (light) */
 .about{padding:56px 0 60px;}
@@ -186,22 +223,49 @@ section{margin-left:26px;}
 .swatches .stat{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-light);margin-left:8px;}
 
 /* ACHIEVEMENTS */
-.ach-list{margin-top:20px;}
+.ach-list{margin-top:20px;list-style:none;}
 .ach{
   display:grid;grid-template-columns:74px 1fr;gap:20px;
   border-top:1px solid var(--line-light);padding:16px 0;
 }
 .ach-year{font-family:var(--font-mono);font-size:11px;color:var(--muted-light);}
-.ach-title{font-size:13.5px;font-weight:500;color:var(--ink-lo);}
-.ach-sub{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-light);margin-top:3px;}
+.ach-title{font-size:13.5px;font-weight:500;color:var(--ink-lo);display:inline-block;}
+.ach-link{transition:color .2s;}
+.ach-link:hover,.ach-link:focus-visible{color:var(--v500);}
+.ach-sub{display:block;font-family:var(--font-mono);font-size:10.5px;color:var(--muted-light);margin-top:3px;}
+.ach-detail{font-size:9.5px;margin-top:2px;}
 
-/* CERTIFICATES */
-.certs{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1px;background:var(--line-light);border:1px solid var(--line-light);margin-top:20px;}
-.cert{background:var(--bg-light);padding:16px;transition:background .2s;}
-.cert:hover{background:#eeece3;}
-.cert .cbar{width:28px;height:3px;margin-bottom:10px;}
-.cert h4{font-size:12.5px;color:var(--ink-lo);font-weight:600;}
-.cert p{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-light);margin-top:5px;}
+/* SKILLS */
+.skill-grid{
+  /* auto-fit, not auto-fill: empty trailing tracks would otherwise render as
+     bare gap colour where no card exists. */
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:1px;background:var(--line-light);border:1px solid var(--line-light);
+  margin-top:20px;
+}
+.skill{
+  background:var(--bg-light);padding:22px;
+  transition:background .25s cubic-bezier(.2,.8,.2,1);
+}
+.skill:hover{background:color-mix(in srgb, var(--bg-light) 92%, var(--ink-lo));}
+.skill-bar{display:block;width:28px;height:3px;margin-bottom:10px;}
+.skill-label{font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-lo);}
+.skill-items{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-light);margin-top:6px;line-height:1.6;}
+.skill-meter{display:flex;align-items:center;gap:12px;margin-top:12px;}
+.skill-segs{display:flex;gap:3px;}
+.skill-segs .seg{width:5px;height:12px;}
+.skill-level{font-family:var(--font-mono);font-size:8.5px;color:var(--muted-light);}
+.skill-used{
+  display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;
+  margin-top:14px;padding-top:12px;border-top:1px dashed var(--line-light);
+  font-family:var(--font-mono);font-size:9px;
+}
+.skill-used-label{color:var(--muted-light);letter-spacing:.06em;text-transform:uppercase;}
+.skill-used-link{
+  color:var(--ink-lo);border-bottom:1px solid var(--line-light);
+  transition:color .2s,border-color .2s;
+}
+.skill-used-link:hover,.skill-used-link:focus-visible{color:var(--v500);border-color:var(--v500);}
 
 /* CONTACT (dark, bookend) */
 .contact{padding:64px 0 70px;border-top:1px solid var(--line-dark);}
@@ -383,7 +447,7 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   margin-top: 6px; margin-bottom: 8px;
 }
 
-.leadership-list { position: relative; padding-left: 28px; margin-top: 24px; }
+.leadership-list { position: relative; padding-left: 28px; margin-top: 24px; list-style: none; }
 .leadership-list::before {
   content: ""; position: absolute; left: 5px; top: 8px; bottom: 8px;
   width: 1px; background: var(--line-light);
@@ -407,10 +471,11 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 
 .li-date { font-family: var(--font-mono); font-size: 11px; color: var(--muted-light); }
 .li-role { font-size: 14px; font-weight: 500; color: var(--ink-lo); display: flex; align-items: center; gap: 8px; }
-.li-range { font-family: var(--font-mono); font-size: 10px; color: var(--muted-light); margin-top: 3px; }
+.li-range { display: block; font-family: var(--font-mono); font-size: 10px; color: var(--muted-light); margin-top: 3px; }
 .li-tag {
   font-family: var(--font-mono); font-size: 8.5px; letter-spacing: .06em;
   color: var(--v500); border: 1px solid var(--v500); padding: 2px 6px;
+  white-space: nowrap;
 }
 
 .li-gain { display: flex; gap: 3px; }
@@ -480,6 +545,37 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 }
 .link-btn:hover { border-color: var(--project-accent, var(--v500)); color: var(--project-accent, var(--v500)); }
 
+/* ==========================================================================
+   Deck Viewer
+   ========================================================================== */
+
+.deck-poster {
+  appearance: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; width: 100%; min-height: 220px; margin-top: 16px;
+  background: var(--bg-dark-2); color: var(--muted-dark);
+  border: 1px dashed var(--line-dark);
+  transition: border-color .25s cubic-bezier(.2,.8,.2,1), color .25s;
+}
+.deck-poster:hover, .deck-poster:focus-visible {
+  border-color: var(--project-accent, var(--v500));
+  color: var(--project-accent, var(--v500));
+}
+.deck-poster-icon { display: block; }
+.deck-poster-label {
+  font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--ink-hi);
+}
+.deck-poster-meta {
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase;
+}
+
+.deck-frame {
+  margin-top: 16px; width: 100%; height: 500px;
+  border: 1px solid var(--line-dark); overflow: hidden;
+}
+.deck-frame iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+@media (min-width: 640px) { .deck-frame { height: 700px; } }
+
 /* Soft bleed section transitions */
 section + section.light-panel { position: relative; }
 section + section.light-panel::before {
@@ -488,17 +584,20 @@ section + section.light-panel::before {
   pointer-events: none;
 }
 
-/* Light Mode Theme applied to root element */
+/* Light theme: the two surfaces trade places. Spectrum tuning follows the
+   surface automatically via the bindings at the top of this file. */
 :root.light {
   --bg-dark: #F5F3EE;
   --bg-dark-2: #EAE8E2;
   --bg-light: #0B0C0F;
   --ink-hi: #14151A;
   --ink-lo: #F2F0E9;
-  --muted-dark: #8a8877;
-  --muted-light: #7c7e86;
+  --muted-dark: #6a6858;
+  --muted-light: #9c9ea6;
   --line-dark: #ddd9cd;
   --line-light: #24262c;
+  --tick-idle: #c9c5b8;
+  --nav-bg: rgba(245,243,238,.86);
 }
 
 
@@ -513,21 +612,29 @@ section + section.light-panel::before {
 }
 .intro-hide { opacity: 0; visibility: hidden; pointer-events: none; }
 
+.intro-overlay { flex-direction: column; gap: 28px; }
+
 .intro-word {
   font-family: var(--font-display);
   font-size: clamp(28px, 5vw, 44px);
   font-weight: 600; letter-spacing: -0.01em;
   color: var(--ink-hi);
-  animation: introFade 0.7s ease;
+  animation: introFade 0.62s ease;
 }
+
+.intro-skip {
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .08em;
+  color: var(--muted-dark);
+  animation: introHint 1.2s ease forwards;
+  opacity: 0;
+}
+@keyframes introHint { to { opacity: 1; } }
 @keyframes introFade {
   0% { opacity: 0; transform: translateY(6px); }
   15% { opacity: 1; transform: translateY(0); }
   85% { opacity: 1; }
   100% { opacity: 0; }
 }
-
-.intro-content-hidden { visibility: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   .intro-overlay, .intro-word { animation: none; transition: none; }
