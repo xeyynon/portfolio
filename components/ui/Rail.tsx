@@ -4,75 +4,74 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { projects } from "@/data/portfolioData";
 
+const stops = [
+  ...projects.map((p, i) => ({ id: `p${i + 1}`, label: p.title, color: p.color })),
+  { id: "about", label: "About", color: "var(--vwhite)" },
+];
+
 export default function Rail() {
   const pathname = usePathname();
   const router = useRouter();
-  const [activeId, setActiveId] = useState<string>("");
+  const [scrollActive, setScrollActive] = useState("");
+
+  // On a project page the active stop is a pure function of the route, so it is
+  // derived during render rather than pushed into state from an effect.
+  const projectSlug = pathname.startsWith("/projects/") ? pathname.split("/")[2] : null;
+  const routeActive = projectSlug
+    ? stops[projects.findIndex((p) => p.slug === projectSlug)]?.id ?? null
+    : null;
+
+  const activeId = routeActive ?? scrollActive;
 
   useEffect(() => {
-    // If we're on a specific project page, set that as active based on pathname
-    if (pathname.startsWith('/projects/')) {
-      const slug = pathname.split('/')[2];
-      const projectIndex = projects.findIndex(p => p.slug === slug);
-      if (projectIndex !== -1) {
-        setTimeout(() => setActiveId(`p${projectIndex + 1}`), 0);
-      }
-      return; // Skip intersection observer on project pages
-    }
+    if (projectSlug) return;
 
-    // Otherwise, we are on the homepage, use IntersectionObserver
-    const ticks = document.querySelectorAll<HTMLElement>('.rail .tick');
-    const targets = Array.from(ticks).map(t => document.getElementById(t.dataset.target!)).filter(Boolean) as HTMLElement[];
+    const targets = stops
+      .map((s) => document.getElementById(s.id))
+      .filter((el): el is HTMLElement => el !== null);
 
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setActiveId(entry.target.id);
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setScrollActive(entry.target.id);
         }
-      });
-    }, { threshold: 0.5 });
+      },
+      { threshold: 0.5 }
+    );
 
-    targets.forEach(t => io.observe(t));
+    targets.forEach((t) => io.observe(t));
     return () => io.disconnect();
-  }, [pathname]);
+  }, [projectSlug]);
 
-  const handleTickClick = (targetId: string) => {
+  const goTo = (targetId: string) => {
     if (pathname !== "/") {
       router.push(`/#${targetId}`);
-    } else {
-      const target = document.getElementById(targetId);
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
     }
+    document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   return (
-    <nav className="rail" aria-label="Signal spectrum index">
-      {projects.map((proj, i) => {
-        const targetId = `p${i + 1}`;
-        const isActive = activeId === targetId;
+    <nav className="rail" aria-label="Section index">
+      {stops.map((stop) => {
+        const isActive = activeId === stop.id;
         return (
-          <div 
-            key={targetId} 
-            className={`tick ${isActive ? 'active' : ''}`} 
-            data-target={targetId} 
-            onClick={() => handleTickClick(targetId)}
-            style={{ 
-              background: isActive ? proj.color : '#2b2d34',
-              boxShadow: isActive ? `0 0 10px 1px ${proj.color}` : 'none'
+          <button
+            key={stop.id}
+            type="button"
+            className={`tick ${isActive ? "active" : ""}`}
+            onClick={() => goTo(stop.id)}
+            aria-current={isActive ? "true" : undefined}
+            title={stop.label}
+            style={{
+              background: isActive ? stop.color : "var(--tick-idle)",
+              boxShadow: isActive ? `0 0 10px 1px ${stop.color}` : "none",
             }}
-          />
+          >
+            <span className="sr-only">{stop.label}</span>
+          </button>
         );
       })}
-      <div 
-        className={`tick ${activeId === 'about' ? 'active' : ''}`} 
-        data-target="about" 
-        onClick={() => handleTickClick('about')}
-        style={{
-          background: activeId === 'about' ? 'var(--vwhite)' : '#2b2d34',
-          boxShadow: activeId === 'about' ? '0 0 10px 1px var(--vwhite)' : 'none'
-        }}
-      />
-      <div className="rail-label" id="railLabel">400nm</div>
     </nav>
   );
 }

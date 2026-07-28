@@ -5,10 +5,13 @@ export const personalInfo = {
   summary: "Hi, I'm Surya Pratik from Bhilai, Chhattisgarh,I enjoy building technology that bridges hardware and software, from embedded systems and IoT devices to mobile applications. My journey has been driven by curiosity and a desire to continuously learn, experiment, and solve real-world problems. I believe growth comes from challenging yourself, embracing failures, and learning something new every day."
 };
 
+/** Stable short label used wherever a project is referenced compactly. */
 export type Project = {
   slug: string;
   num: string;
   title: string;
+  /** Short name for cross-references (skill tooltips, achievement rows). */
+  short: string;
   pipeline: string;
   color: string;
   tag: string;
@@ -16,6 +19,8 @@ export type Project = {
   description: string;
   highlights: string[];
   stack: string[];
+  /** Skill labels this project demonstrates. Drives the skills-to-work join. */
+  skills: string[];
   links?: {
     github?: string;
     demo?: string;
@@ -27,6 +32,7 @@ export const projects: Project[] = [
     slug: "lifi-data-transmission-system",
     num: "01",
     title: "LiFi Data Transmission System",
+    short: "LiFi",
     pipeline: "laser → light pulse → solar receiver → decode",
     color: "var(--v400)",
     tag: "AWARDED",
@@ -40,12 +46,14 @@ export const projects: Project[] = [
       "Optimization of baud rates and synchronization delays"
     ],
     stack: ["Arduino", "Laser Module", "Solar Panel", "LM358", "Embedded C"],
+    skills: ["Embedded", "Programming", "Tools"],
     links: { github: "https://github.com/xeyynon/Lifi-Data-Transmission-System", demo: "/sources/PPTs/LIFI.pdf" }
   },
   {
     slug: "telegram-drive",
     num: "02",
     title: "Telegram Drive – Telegram-Based Cloud Storage Platform",
+    short: "Telegram Drive",
     pipeline: "app → bot api → virtual storage",
     color: "var(--v450)",
     tag: "SHIPPED",
@@ -61,12 +69,14 @@ export const projects: Project[] = [
       "Multi-profile support"
     ],
     stack: ["Flutter", "Telegram Bot API", "Biometrics", "Encrypted Storage", "Dart"],
+    skills: ["Mobile", "Backend", "Cloud & DB", "Tools"],
     links: { github: "https://github.com/xeyynon/TelegramDriveStorage" }
   },
   {
     slug: "ecox-industrial-safety",
     num: "03",
     title: "EcoX – Industrial Safety and Emission Monitoring System",
+    short: "EcoX",
     pipeline: "gas sensor → raspberry pi → LTE/GPS → dashboard",
     color: "var(--v500)",
     tag: "TOP 30",
@@ -79,12 +89,14 @@ export const projects: Project[] = [
       "System testing and validation"
     ],
     stack: ["Raspberry Pi 4B", "Flutter", "Dart", "LTE", "GPS", "IoT"],
+    skills: ["Embedded", "Mobile", "IoT", "Tools"],
     links: { github: "https://github.com/xeyynon/ecoX", demo: "/sources/PPTs/ECOX.pdf" }
   },
   {
     slug: "flowiq",
     num: "04",
     title: "FlowIQ – AI Powered Smart Traffic Management System",
+    short: "FlowIQ",
     pipeline: "cameras → YOLOv8 → SORT tracking → route optimization",
     color: "var(--v560)",
     tag: "HIGH SCORE",
@@ -98,12 +110,14 @@ export const projects: Project[] = [
       "Traffic monitoring and violation management interfaces"
     ],
     stack: ["Flutter", "Google Maps API", "Firebase Auth", "YOLOv8", "SORT"],
+    skills: ["Mobile", "AI/ML", "Cloud & DB", "Programming"],
     links: { github: "https://github.com/xeyynon/TUA", demo: "/sources/PPTs/FLOWIQ.pdf" }
   },
   {
     slug: "human-presence-detection",
     num: "05",
     title: "Human Presence and Activity Detection Using CSI and Deep Learning",
+    short: "CSI-Sense",
     pipeline: "wifi signal → ESP32 → CSI features → EfficientNet-V2",
     color: "var(--v600)",
     tag: "FINALIST",
@@ -117,12 +131,14 @@ export const projects: Project[] = [
       "Testing and system validation"
     ],
     stack: ["ESP32", "CSI", "EfficientNet-V2", "Flutter", "Raspberry Pi"],
+    skills: ["Embedded", "AI/ML", "IoT", "Mobile"],
     links: { github: "https://github.com/xeyynon/CSI-Sense", demo: "/sources/PPTs/CSI.pdf" }
   },
   {
     slug: "smart-water-quality",
     num: "06",
     title: "Smart Water Quality Monitoring System",
+    short: "Smart Water",
     pipeline: "sensors → ESP32 → LoRa → ML classification",
     color: "var(--v680)",
     tag: "RESEARCH",
@@ -136,42 +152,65 @@ export const projects: Project[] = [
       "Testing and calibration"
     ],
     stack: ["ESP32", "LoRa", "Python", "Machine Learning", "Dashboard Development"],
+    skills: ["Embedded", "IoT", "AI/ML", "Programming"],
     links: { github: "https://github.com/xeyynon/Water-Monitoring-Hardware", demo: "/sources/PPTs/Water.pdf" }
   }
 ];
 
 export const leadershipOrg = "Microsoft Student Chapter, VIT-AP";
 
-export const leadership = [
+export type LeadershipStage = {
+  date: string;
+  role: string;
+  range: string;
+  /** 1-4, drives the signal-gain meter. */
+  gain: number;
+  tag?: string;
+};
+
+export const leadership: LeadershipStage[] = [
   { date: "Jan 2024", role: "Hi-Tech Team Member", range: "Jan 2024 – Jun 2024", gain: 1 },
   { date: "Jun 2024", role: "Club Manager",        range: "Jun 2024 – Jun 2025", gain: 2 },
   { date: "Jul 2025", role: "President",           range: "Jul 2025 – NOV 2025", gain: 3 },
   { date: "Nov 2025", role: "Chief Advisor",       range: "Nov 2025 – Jul 2026",  gain: 4, tag: "LAST POSITION" }
 ];
 
-export const achievements = [
+export type Achievement = {
+  title: string;
+  event: string;
+  year: string;
+  /** Project slug this award belongs to. */
+  slug: string;
+  achievement: string;
+};
+
+export const achievements: Achievement[] = [
   {
     title: "Best Contemporary Project Award",
     event: "ECS EXPO 2024",
-    project: "LiFi Data Transmission System",
+    year: "2024",
+    slug: "lifi-data-transmission-system",
     achievement: "Awarded among 1000+ teams"
   },
   {
     title: "Top 30 Team",
     event: "Smart India Hackathon 2025 Internal Hackathon",
-    project: "EcoX",
+    year: "2025",
+    slug: "ecox-industrial-safety",
     achievement: "Selected among 500+ teams and qualified for Semi-Final Round"
   },
   {
     title: "Highest Scoring Team",
     event: "RADIOTHON 2026",
-    project: "FlowIQ",
+    year: "2026",
+    slug: "flowiq",
     achievement: "Highest evaluation score in Semi-Final Round"
   },
   {
     title: "Finalist",
     event: "ECS EXPO 2026",
-    project: "Human Presence and Activity Detection Using CSI and Deep Learning",
+    year: "2026",
+    slug: "human-presence-detection",
     achievement: "Qualified for Final Round"
   }
 ];

@@ -11,25 +11,25 @@ export default function LeadershipTimeline() {
         </div>
         <div className="leadership-org">{leadershipOrg}</div>
 
-        <div className="leadership-list">
-          {leadership.map((l: any) => (
-            <div className={`leadership-item ${l.current || l.tag ? "current" : ""}`} key={l.role}>
-              <div className="li-date">{l.date}</div>
-              <div className="li-body">
-                <div className="li-role">
+        <ol className="leadership-list">
+          {leadership.map((l) => (
+            <li className={`leadership-item ${l.tag ? "current" : ""}`} key={l.role}>
+              <span className="li-date">{l.date}</span>
+              <span className="li-body">
+                <span className="li-role">
                   {l.role}
-                  {l.tag ? <span className="li-tag" style={{ background: 'var(--bg-light)', color: 'var(--muted-dark)', border: '1px solid var(--line-dark)' }}>{l.tag}</span> : l.current ? <span className="li-tag">CURRENT</span> : null}
-                </div>
-                <div className="li-range">{l.range}</div>
-              </div>
-              <div className="li-gain" aria-label={`Gain level ${l.gain} of 4`}>
+                  {l.tag && <span className="li-tag">{l.tag}</span>}
+                </span>
+                <span className="li-range">{l.range}</span>
+              </span>
+              <span className="li-gain" role="img" aria-label={`Responsibility level ${l.gain} of 4`}>
                 {[1, 2, 3, 4].map((n) => (
-                  <span key={n} className={n <= l.gain ? "seg filled" : "seg"} />
+                  <span key={n} className={n <= l.gain ? "seg filled" : "seg"} aria-hidden="true" />
                 ))}
-              </div>
-            </div>
+              </span>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
     </div>
   );
