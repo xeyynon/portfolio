@@ -4,7 +4,6 @@ import { personalInfo, experience, projects, achievements, skills } from "@/data
 import ScrollSceneProvider from "@/components/ScrollSceneProvider";
 import PrismScene from "@/components/PrismScene";
 import LeadershipTimeline from "@/components/LeadershipTimeline";
-import { SHOW_PROJECT_PAGES } from "@/lib/flags";
 
 const SPECTRUM = [
   { token: "--v400", nm: 400 },
@@ -97,8 +96,8 @@ export default function Home() {
                 <span className="count">{String(projects.length).padStart(2, '0')} TOTAL</span>
               </div>
 
-              {projects.map((proj) => {
-                const row = (
+              {projects.map((proj) => (
+                <Link href={`/projects/${proj.slug}`} key={proj.slug} className="project block" id={`p${parseInt(proj.num)}`}>
                   <div className="prow">
                     <span className="pbar" style={{ background: proj.color }}></span>
                     <span className="pnum">{proj.num}</span>
@@ -107,19 +106,10 @@ export default function Home() {
                       <div className="ppipe">{proj.pipeline}</div>
                     </span>
                     <span className="ptag" style={{ color: proj.color, borderColor: proj.color }}>{proj.tag}</span>
-                    {SHOW_PROJECT_PAGES && <span className="pchev">→</span>}
+                    <span className="pchev">→</span>
                   </div>
-                );
-                return SHOW_PROJECT_PAGES ? (
-                  <Link href={`/projects/${proj.slug}`} key={proj.slug} className="project block" id={`p${parseInt(proj.num)}`}>
-                    {row}
-                  </Link>
-                ) : (
-                  <div key={proj.slug} className="project block" id={`p${parseInt(proj.num)}`}>
-                    {row}
-                  </div>
-                );
-              })}
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -182,7 +172,7 @@ export default function Home() {
                     <li key={`${ach.slug}-${ach.event}`} className="ach">
                       <span className="ach-year">{ach.year}</span>
                       <span>
-                        {project && SHOW_PROJECT_PAGES ? (
+                        {project ? (
                           <Link href={`/projects/${project.slug}`} className="ach-title ach-link">
                             {ach.title} — {ach.event}
                           </Link>
@@ -232,17 +222,11 @@ export default function Home() {
                       {usedIn.length > 0 && (
                         <p className="skill-used">
                           <span className="skill-used-label">Used in</span>
-                          {usedIn.map((p) =>
-                            SHOW_PROJECT_PAGES ? (
-                              <Link key={p.slug} href={`/projects/${p.slug}`} className="skill-used-link">
-                                {p.short}
-                              </Link>
-                            ) : (
-                              <span key={p.slug} className="skill-used-link">
-                                {p.short}
-                              </span>
-                            )
-                          )}
+                          {usedIn.map((p) => (
+                            <Link key={p.slug} href={`/projects/${p.slug}`} className="skill-used-link">
+                              {p.short}
+                            </Link>
+                          ))}
                         </p>
                       )}
                     </div>

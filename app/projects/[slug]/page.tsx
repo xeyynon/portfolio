@@ -15,13 +15,10 @@ import { SHOW_PROJECT_PAGES } from "@/lib/flags";
 const ProjectPrismRay = dynamic(() => import("@/components/ProjectPrismRay"));
 
 export function generateStaticParams() {
-  if (!SHOW_PROJECT_PAGES) return [];
   return projects.map((p) => ({ slug: p.slug }));
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
-  if (!SHOW_PROJECT_PAGES) return notFound();
-
   const resolvedParams = await params;
   const project = projects.find((p) => p.slug === resolvedParams.slug);
   if (!project) return notFound();
@@ -32,24 +29,38 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
   return (
     <article className="project-page wrap" style={{ "--project-accent": project.color } as React.CSSProperties}>
-      <div className="pp-hero">
-        <ProjectPrismRay color={project.color} />
-        <Link href="/#projects" className="back-link">← Back to work</Link>
-      </div>
+      {/* SHOW_PROJECT_PAGES switches which hero design ships: the plain
+          back-link + heading (old, already shipped) while the prism-ray
+          redesign is still being finished, then the ProjectPrismRay banner
+          once that's ready to showcase — flip the env var, no code change. */}
+      {SHOW_PROJECT_PAGES ? (
+        <>
+          <div className="pp-hero">
+            <ProjectPrismRay color={project.color} />
+            <Link href="/#projects" className="back-link">← Back to work</Link>
+          </div>
 
-      {/* Title moved out of .pp-hero — it used to sit at the bottom of the
-          ray banner, overlapping the triangle and beam directly. On the
-          homepage the wordmark sits above the prism, never over it; this
-          matches that by giving the ray a clean run as its own background
-          and putting the title in normal flow below it, the same
-          relationship "Selected Work" has to the homepage's hero scene. */}
-      <div className="pp-head">
-        <span className="pnum">{project.num}</span>
-        <h1>{project.title}</h1>
-        <span className="ptag" style={{ borderColor: project.color, color: project.color }}>
-          {project.tag}
-        </span>
-      </div>
+          <div className="pp-head">
+            <span className="pnum">{project.num}</span>
+            <h1>{project.title}</h1>
+            <span className="ptag" style={{ borderColor: project.color, color: project.color }}>
+              {project.tag}
+            </span>
+          </div>
+        </>
+      ) : (
+        <>
+          <Link href="/#projects" className="back-link">← Back to work</Link>
+
+          <div className="pp-head">
+            <span className="pnum">{project.num}</span>
+            <h1>{project.title}</h1>
+            <span className="ptag" style={{ borderColor: project.color, color: project.color }}>
+              {project.tag}
+            </span>
+          </div>
+        </>
+      )}
 
       {project.links && (
         <div className="pp-links">
