@@ -1,14 +1,27 @@
 import { projects } from "@/data/portfolioData";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Code, FileText } from "lucide-react";
 import DeckViewer from "@/components/DeckViewer";
+import { SHOW_PROJECT_PAGES } from "@/lib/flags";
+
+// Puts the shader-string/compile logic in its own chunk instead of this
+// route's main bundle. No `ssr: false` here (unlike PrismScene's own
+// dynamic import of PrismCanvas) — this page is a Server Component, and
+// Next disallows that option outside a Client Component; ProjectPrismRay's
+// own "use client" + idle-deferred mount already keep it from doing
+// anything until the browser is idle regardless of how it's imported.
+const ProjectPrismRay = dynamic(() => import("@/components/ProjectPrismRay"));
 
 export function generateStaticParams() {
+  if (!SHOW_PROJECT_PAGES) return [];
   return projects.map((p) => ({ slug: p.slug }));
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
+  if (!SHOW_PROJECT_PAGES) return notFound();
+
   const resolvedParams = await params;
   const project = projects.find((p) => p.slug === resolvedParams.slug);
   if (!project) return notFound();
@@ -19,8 +32,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
   return (
     <article className="project-page wrap" style={{ "--project-accent": project.color } as React.CSSProperties}>
-      <Link href="/#projects" className="back-link">← Back to work</Link>
+      <div className="pp-hero">
+        <ProjectPrismRay color={project.color} />
+        <Link href="/#projects" className="back-link">← Back to work</Link>
+      </div>
 
+      {/* Title moved out of .pp-hero — it used to sit at the bottom of the
+          ray banner, overlapping the triangle and beam directly. On the
+          homepage the wordmark sits above the prism, never over it; this
+          matches that by giving the ray a clean run as its own background
+          and putting the title in normal flow below it, the same
+          relationship "Selected Work" has to the homepage's hero scene. */}
       <div className="pp-head">
         <span className="pnum">{project.num}</span>
         <h1>{project.title}</h1>
@@ -47,19 +69,19 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       <p className="ppipe">{project.pipeline}</p>
 
       <section className="pp-section">
-        <span className="eyebrow">OVERVIEW</span>
+        <h2 className="eyebrow">OVERVIEW</h2>
         <p className="pp-desc">{project.description}</p>
       </section>
 
       <section className="pp-section">
-        <span className="eyebrow">WHAT I BUILT</span>
+        <h2 className="eyebrow">WHAT I BUILT</h2>
         <ul className="pp-highlights">
           {project.highlights.map((h) => <li key={h}>{h}</li>)}
         </ul>
       </section>
 
       <section className="pp-section">
-        <span className="eyebrow">STACK</span>
+        <h2 className="eyebrow">STACK</h2>
         <div className="stack">
           {project.stack.map((s) => (
             <span key={s} className="stack-chip">{s}</span>
@@ -69,7 +91,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
       {project.links?.demo && (
         <section className="pp-section" id="presentation">
-          <span className="eyebrow">PRESENTATION</span>
+          <h2 className="eyebrow">PRESENTATION</h2>
           <DeckViewer src={project.links.demo} title={project.short} />
         </section>
       )}

@@ -5,8 +5,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { projects } from "@/data/portfolioData";
 
 const stops = [
+  { id: "experience", label: "Experience", color: "var(--vwhite)" },
   ...projects.map((p, i) => ({ id: `p${i + 1}`, label: p.title, color: p.color })),
   { id: "about", label: "About", color: "var(--vwhite)" },
+  { id: "leadership", label: "Leadership", color: "var(--vwhite)" },
+  { id: "achievements", label: "Achievements", color: "var(--vwhite)" },
+  { id: "skills", label: "Skills", color: "var(--vwhite)" },
+  { id: "contact", label: "Contact", color: "var(--vwhite)" },
 ];
 
 export default function Rail() {
@@ -16,10 +21,12 @@ export default function Rail() {
 
   // On a project page the active stop is a pure function of the route, so it is
   // derived during render rather than pushed into state from an effect.
+  // Builds the `p${n}` id directly rather than indexing into `stops` by
+  // position — the two arrays are no longer index-aligned now that
+  // "experience" sits before the project stops.
   const projectSlug = pathname.startsWith("/projects/") ? pathname.split("/")[2] : null;
-  const routeActive = projectSlug
-    ? stops[projects.findIndex((p) => p.slug === projectSlug)]?.id ?? null
-    : null;
+  const projectIndex = projectSlug ? projects.findIndex((p) => p.slug === projectSlug) : -1;
+  const routeActive = projectIndex >= 0 ? `p${projectIndex + 1}` : null;
 
   const activeId = routeActive ?? scrollActive;
 

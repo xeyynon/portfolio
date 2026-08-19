@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root{
   --bg-dark:#0B0C0F;
@@ -7,7 +11,10 @@
   --ink-hi:#F2F0E9;
   --ink-lo:#14151A;
   --muted-dark:#7c7e86;
-  --muted-light:#8a8877;
+  /* #8a8877 measured 3.2:1 on --bg-light (#F5F3EE) — fails WCAG AA (4.5:1).
+     Darkened within the same hue to 5.3:1; the light-theme override of this
+     token already passed and is unchanged. */
+  --muted-light:#686552;
   --line-dark:#24262c;
   --line-light:#ddd9cd;
 
@@ -34,6 +41,85 @@
   --spec-deep-600:#8A5210;
   --spec-deep-680:#B01F3A;
   --spec-deep-white:#14151A;
+
+  /* ---- PINNED SCENE ----
+     Fixed, non-theme-swapped. About now sits on the persistent WebGL scene
+     (near-black, always) rather than the cream .light-panel surface, so it
+     needs its own tokens that don't participate in the :root.light surface
+     swap the way --ink-hi/--ink-lo/--v400.. do — the scene is never a light
+     surface regardless of site theme. */
+  --scene-ink-hi:#F2F0E9;
+  --scene-ink-lo:#B9B7AE;
+  --scene-scrim:rgba(8,9,12,0.88);
+  /* The scene's own base and the fallback SVG's outline stroke: both need to
+     stay the same colour regardless of theme, same reasoning as the two
+     tokens above. --scene-base stops the pinned scene from showing the
+     theme-swapped page background (cream, in light theme) through the gap
+     before WebGL mounts or if it fails — a background flip on top of a
+     proportion problem, not just the proportion problem alone. */
+  --scene-base:#0B0C10;
+  --scene-outline:#33353c;
+
+  /* ---- GLASS ----
+     Earned here rather than decorative: the site's subject is an optical
+     prism, so glass is the material the work is *about*. Two weights —
+     `pane` for surfaces carrying body text (opaque enough that contrast
+     holds no matter what the animated scene does behind it), `veil` for
+     surfaces that only need to separate, where the prism showing through is
+     the point.
+
+     Blur is deliberately concentrated in a few large panes rather than
+     spread across many small ones: each backdrop-filter is its own
+     compositor pass, and over a live WebGL canvas that cost is real. Small
+     elements (chips, tags, buttons) get the edge + translucent fill and no
+     blur of their own — they sit on a pane that already blurred. */
+  --glass-pane:rgba(11,13,18,0.78);
+  --glass-veil:rgba(11,13,18,0.42);
+  --glass-blur:22px;
+  /* Real glass catches light along its top edge. This 1px highlight does
+     more to sell the material than blur radius does. */
+  --glass-edge:rgba(255,255,255,0.07);
+  --glass-border:rgba(255,255,255,0.055);
+  --glass-fill:rgba(255,255,255,0.03);
+  /* Secondary text inside a glass pane needs to be lighter than it does on
+     an opaque surface: the pane composites the scene behind it, so the
+     effective backdrop is brighter than --bg-dark. Measured — over a blown
+     white ray core the backdrop lands at rgb(65,66,70), where the normal
+     --muted-dark (#7c7e86) falls to 2.48:1. This clears 4.5:1 against that
+     same worst case. Scoped to the pane rather than applied site-wide, in
+     the same spirit as the surface-bound spectrum (D-002). */
+  --glass-muted:#b3b5bf;
+
+  /* ---- shadcn / Animate UI bridge ----
+     shadcn components consume these names. Rather than run a second palette
+     alongside the spectrum system, every one of them is aliased onto the
+     portfolio's own tokens, so generated components inherit this site's
+     identity — including the surface-bound spectrum — instead of shipping
+     stock neutral grey. Radius is 0: nothing else here is rounded. */
+  --background: var(--bg-dark);
+  --foreground: var(--ink-hi);
+  --card: var(--bg-dark-2);
+  --card-foreground: var(--ink-hi);
+  --popover: var(--bg-dark-2);
+  --popover-foreground: var(--ink-hi);
+  --primary: var(--v500);
+  --primary-foreground: var(--bg-dark);
+  --secondary: var(--bg-dark-2);
+  --secondary-foreground: var(--ink-hi);
+  --muted: var(--bg-dark-2);
+  --muted-foreground: var(--muted-dark);
+  --accent: var(--v500);
+  --accent-foreground: var(--bg-dark);
+  --destructive: var(--v680);
+  --border: var(--line-dark);
+  --input: var(--line-dark);
+  --ring: var(--v500);
+  --chart-1: var(--v400);
+  --chart-2: var(--v450);
+  --chart-3: var(--v500);
+  --chart-4: var(--v560);
+  --chart-5: var(--v600);
+  --radius: 0px;
 }
 
 /* Surface bindings. Read as: "whatever is dark here uses bright, whatever is
@@ -75,6 +161,11 @@
 
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
+
+/* Lenis drives scrolling once mounted. Native smooth behaviour has to yield or
+   the two easing models fight and anchor jumps stutter. */
+html.lenis{scroll-behavior:auto;}
+html.lenis body{min-height:100%;}
 body{
   background:var(--bg-dark);
   color:var(--ink-hi);
@@ -96,24 +187,56 @@ a{color:inherit;text-decoration:none;}
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:5px;z-index:50;
 }
+/* Ticks grow via scaleY, not height. The rail is a flex column, so animating
+   height reflowed it and nudged every sibling on hover. The box stays 16px and
+   only the paint scales, so the column never relayouts. */
 .rail .tick{
   appearance:none;border:0;padding:0;
   width:3px;height:16px;border-radius:1px;
-  cursor:pointer;transition:height .35s cubic-bezier(.2,.8,.2,1),background .35s,box-shadow .35s;
+  cursor:pointer;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),background .35s,box-shadow .35s;
 }
-.rail .tick:hover{height:24px;}
-.rail .tick.active{height:30px;}
+.rail .tick:hover{transform:scaleY(1.5);}
+.rail .tick.active{transform:scaleY(1.875);}
+
+@media(prefers-reduced-motion:reduce){
+  .rail .tick{transition:background .35s,box-shadow .35s;}
+}
 
 /* ---------- NAV ---------- */
+/* No blur — same GPU-load reasoning as .scene-panel. --nav-bg already carries
+   enough opacity to read as a distinct surface without it.
+   border-bottom was --glass-border (a fixed, white-based translucent token
+   meant for elements riding the permanently-dark scene) — correct on a dark
+   background, but nearly invisible white-on-cream in light theme, since it
+   never swaps with the theme the way this bar's own background does. Uses
+   --line-dark now, which is designed to always sit a few shades from
+   whatever --bg-dark currently is. The shadow is light-theme only: a hard
+   1px line reads fine against the scene's black in dark mode, but this bar
+   floats directly over that same permanent black scene in light mode too —
+   a soft shadow gives it real separation there instead of just a thin,
+   easy-to-miss line meeting a much darker surface. */
 header.nav{
   position:sticky;top:0;z-index:40;
-  background:var(--nav-bg);backdrop-filter:blur(10px);
+  background:var(--nav-bg);
   border-bottom:1px solid var(--line-dark);
   padding:16px 0;margin-left:26px;
+  /* Every other colour on this bar was snapping instantly on theme toggle
+     (true site-wide, not unique to nav) — normally unnoticeable since most
+     toggled elements are large flat fills, but this bar's border is a
+     thin, high-contrast edge, and a thin edge switching color abruptly
+     reads as a flash where a full-area fill doing the same barely
+     registers. Scoped to this element rather than a sitewide transition
+     pass, which risks fighting the hover-state transitions already
+     defined elsewhere. */
+  transition:background .3s ease,border-color .3s ease,box-shadow .3s ease;
 }
-/* The logo doubles as the theme toggle, so it is a real <button>. */
+:root.light header.nav{
+  box-shadow:0 8px 24px -12px rgba(20,21,26,0.18);
+}
+/* Was a <button> doubling as the theme toggle; light mode is gone (dark
+   theme only now), so this is a plain logo link back to the top. */
 .logo{
-  appearance:none;background:none;border:0;padding:0;cursor:pointer;
   font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;
   color:var(--ink-hi);font-weight:500;
   transition:color .2s;
@@ -136,17 +259,95 @@ header.nav{
 section{margin-left:26px;}
 @media(max-width:640px){section{margin-left:0;}}
 
-.dark-panel{background:var(--bg-dark);}
-.light-panel{background:var(--bg-light);color:var(--ink-lo);}
+/* flow-root establishes a block formatting context on each panel, which stops
+   a first child's margin-top (e.g. .section-head's 44px) from collapsing
+   through the section and escaping into the gap between sections — without a
+   BFC, sections whose first child had no padding of its own rendered flush
+   against the colour edge with zero apparent top inset. Verified: leadership,
+   achievements, and skills sections all had this before the fix. */
+.dark-panel{background:var(--bg-dark);display:flow-root;}
+.light-panel{background:var(--bg-light);color:var(--ink-lo);display:flow-root;}
+
+/* ---------- GLASS ----------
+   One shared surface treatment. `.glass` carries the blur (use sparingly —
+   one compositor pass each) and, on this page specifically, unaffordable —
+   a real-blur `.glass` over the pinned live WebGL canvas measurably
+   overwhelmed the compositor (see .scene-panel). Neither variant blurs;
+   `.glass` carries the denser tint, `.glass-edge` the lighter fill, both via
+   flat colour + edge highlight only. */
+.glass,
+.glass-edge{
+  position:relative;
+  border:1px solid var(--glass-border);
+}
+.glass{ background:var(--glass-pane); }
+.glass-edge{ background:var(--glass-fill); }
+
+/* The lit top edge. This, more than blur radius, is what reads as glass
+   rather than as a translucent rectangle. */
+.glass::before,
+.glass-edge::before{
+  content:"";position:absolute;inset:0 0 auto 0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--glass-edge) 18%,var(--glass-edge) 82%,transparent);
+  pointer-events:none;
+}
+
+/* Shared band for every section riding the pinned scene (Projects, Leadership,
+   Achievements, Skills, Contact) — glass rather than opaque, so the prism
+   stays visible through all of them: that is the whole premise of extending
+   the scene across the page, and an opaque block anywhere in it would cut
+   the "one continuous optical world" back into disconnected pages. Contrast
+   is carried by --glass-pane's opacity, verified against the animated scene
+   at its brightest plausible moment (a blown-out white ray core), not a
+   single sampled frame.
+
+   Rebinds both muted tokens here rather than at :root: they measured 2.48:1
+   through this glass (a bright ray behind it lifts the effective backdrop
+   luminance well above the solid --bg-dark they were tuned for), while the
+   rest of the site's secondary text — nowhere near this animated a
+   background — keeps its established weight. */
+/* No backdrop-filter here — measured, not assumed: five of these panels
+   simultaneously blurring a continuously-animating full-viewport WebGL
+   canvas overwhelmed the compositor (confirmed via GL pixel readback going
+   to solid 0-brightness mid-scroll, not a WebGL context loss, consistent
+   with the render loop falling too far behind for backdrop-filter's
+   per-frame resample to keep up). Flat tint + edge highlight reads as glass
+   without re-blurring a live canvas five times a frame. The contrast
+   guarantee is unaffected: it was always computed against a worst-case
+   single bright pixel, which blur or no blur is the same worst case. */
+/* Purely the glass surface — background and edges. Text tokens are not
+   rebound here: every .scene-panel in this codebase is paired with
+   .scene-overlay (below), which is the single place that happens, so a
+   panel's own text stays correct without this rule also having to know
+   about it. Kept separate from .scene-overlay because not everything that
+   needs scene-safe text also wants a glass background (Hero, the prism
+   scene itself). */
+.scene-panel{
+  background:var(--glass-pane);
+  border-top:1px solid var(--glass-border);
+  border-bottom:1px solid var(--glass-border);
+}
 
 /* HERO */
-.hero{padding:64px 0 40px;}
+/* padding-top/-bottom only: this element always carries "wrap X", and a
+   3-value shorthand here (Npx 0 Mpx) would zero .wrap's own 48px horizontal
+   inset — verified live, this exact bug existed on .hero/.about/.contact
+   before the fix. */
+/* padding-bottom widened from 40px: the pinned prism sits full-viewport
+   behind everything now, and 40px left almost no unobstructed scene visible
+   between the wordmark and the glass projects panel starting. */
+.hero{padding-top:64px;padding-bottom:168px;}
 .chipbar{
   display:inline-flex;align-items:center;border:1px solid var(--line-dark);
   font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;margin-bottom:22px;
   overflow:hidden;flex-wrap:wrap;
 }
-.chipbar span.chip{padding:5px 9px;color:var(--bg-dark);font-weight:500;}
+/* Chip background is the spectrum hue, always bright now that .hero carries
+   .scene-overlay (it sits on the permanent scene, same as everything else
+   there) — so the text needs a fixed dark colour to match, not --bg-dark
+   (theme-swapped, was only correct by coincidence when the background swapped
+   with it). --scene-base is the same fixed near-black the scene itself uses. */
+.chipbar span.chip{padding:5px 9px;color:var(--scene-base);font-weight:500;}
 .chipbar span.quote{padding:5px 10px;color:var(--muted-dark);}
 
 .hero h1{
@@ -185,29 +386,57 @@ section{margin-left:26px;}
   border-top:1px solid var(--line-dark);padding-top:14px;margin-top:44px;
 }
 .light-panel .section-head{border-top:1px solid var(--line-light);}
-.section-head .eyebrow{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;color:var(--muted-dark);}
-.light-panel .section-head .eyebrow{color:var(--muted-light);}
+/* .eyebrow now lands on <h2>/<h3> elements (previously bare <span>s with no
+   heading semantics — screen readers had no way to jump to "About",
+   "Achievements", "Skills", etc). The base rule (shared with the project
+   detail page's section headers) is defined once, below; this is only the
+   one delta a .section-head context needs — no bottom margin, since the
+   row's own flex layout (space-between, baseline) already places .count
+   correctly and the base rule's margin would just add dead space under it. */
+.section-head .eyebrow{margin-bottom:0;}
 .section-head .count{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);}
 
+/* Rows sit inside the already-blurred .projects-panel, so they get the glass
+   *fill* on hover without a blur pass of their own — the pane behind them
+   has already done that work. */
 .project{
   border-top:1px solid var(--line-dark);
   padding:15px 0;cursor:pointer;
+  transition:background .28s cubic-bezier(.2,.8,.2,1);
 }
+.project:hover,.project:focus-visible{background:var(--glass-fill);}
 .project:last-child{border-bottom:1px solid var(--line-dark);}
 .prow{
   display:grid;grid-template-columns:4px 26px 1fr auto auto;align-items:center;gap:14px;
 }
-.pbar{height:30px;border-radius:1px;transition:width .2s;}
+.pbar{height:30px;border-radius:1px;}
 .pnum{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);}
 .ptitle{font-size:14px;color:var(--ink-hi);font-weight:500;transition:color .2s;}
 .ppipe{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);margin-top:4px;letter-spacing:.01em;}
-.ptag{font-family:var(--font-mono);font-size:9px;letter-spacing:.04em;border:1px solid var(--line-dark);padding:4px 8px;white-space:nowrap;}
+/* border-color is always set inline (project.color) at every call site —
+   the class only needs the width/style. */
+.ptag{font-family:var(--font-mono);font-size:9px;letter-spacing:.04em;border:1px solid;padding:4px 8px;white-space:nowrap;}
 .pchev{font-family:var(--font-mono);font-size:10px;color:var(--muted-dark);transition:transform .2s, color .2s;}
 .project:hover .pchev,.project:focus-visible .pchev{transform:translateX(4px);color:var(--vwhite);}
 .project:hover .ptitle,.project:focus-visible .ptitle{color:var(--v500);}
 
-/* ABOUT (light) */
-.about{padding:56px 0 60px;}
+/* EXPERIENCE — one entry, styled as a single wide "row" echoing .prow's
+   bar+content shape rather than inventing a new primitive. --vwhite (all
+   wavelengths combined) is the accent, not a 7th spectrum hue: this is the
+   light source the six capabilities disperse from, not another band. */
+.exp-row{display:flex;gap:16px;align-items:flex-start;}
+.exp-bar{width:4px;align-self:stretch;border-radius:1px;flex-shrink:0;}
+.exp-role{font-family:var(--font-display);font-size:20px;font-weight:500;color:var(--ink-hi);}
+.exp-company{color:var(--vwhite);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s;}
+.exp-company:hover{border-bottom-color:var(--vwhite);}
+.exp-period{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);margin-top:4px;}
+.exp-highlights{margin-top:16px;}
+.exp-highlights li::before{color:var(--vwhite);}
+.exp-highlights li{color:var(--muted-dark);}
+
+/* ABOUT — now an overlay on the persistent scene, not a .light-panel section.
+   See .about-overlay/.about-scrim below for how it stays readable. */
+.about{padding-top:56px;padding-bottom:60px;}
 .about-grid{display:grid;grid-template-columns:140px 1fr;gap:30px;margin-top:22px;}
 .about-photo{
   width:140px;height:172px;background:var(--bg-dark);position:relative;overflow:hidden;
@@ -217,7 +446,68 @@ section{margin-left:26px;}
   background:linear-gradient(160deg,var(--v400) 0%,transparent 30%,transparent 70%,var(--v680) 100%);
   opacity:.35;
 }
-.about-copy p{font-size:14.5px;line-height:1.7;max-width:440px;color:var(--ink-lo);}
+.about-copy p{font-size:14.5px;line-height:1.7;max-width:440px;color:var(--scene-ink-lo);}
+
+/* .about-overlay forces the "bright" spectrum tuning regardless of the
+   site's light/dark theme toggle. Without this, :root.light's deep tuning
+   (verified only against the cream .light-panel surface) would inherit onto
+   About once it leaves .light-panel — and About's background is always the
+   near-black scene now, never cream, in either theme. A direct declaration
+   on the element beats an inherited one regardless of the ancestor rule's
+   specificity, so this plain class rule is enough; no extra combinator
+   needed (contrast with how .light-panel itself has to fight :root.light —
+   here there's no competing rule targeting this element directly). */
+.about-overlay{
+  --v400:var(--spec-bright-400); --v450:var(--spec-bright-450);
+  --v500:var(--spec-bright-500); --v560:var(--spec-bright-560);
+  --v600:var(--spec-bright-600); --v680:var(--spec-bright-680);
+  --vwhite:var(--spec-bright-white);
+  color:var(--scene-ink-hi);
+  position:relative;
+}
+
+/* The single, comprehensive "this text sits on the permanent dark scene"
+   rebind — every token a component might use for text, on any surface that
+   rides the persistent WebGL background, regardless of the site theme.
+   Originally only covered --ink-lo/--muted-light/--line-light (for
+   Leadership/Achievements/Skills, which leaned on those specific tokens as
+   inherited from their former .light-panel markup). That left --ink-hi and
+   --muted-dark unrebound, which is exactly the gap Projects, Contact, and
+   Hero fell into — all three use --ink-hi/--muted-dark directly and sit
+   on the same permanent scene, so they went dark-on-dark in light theme the
+   same way About would have without .about-overlay. Fixed once, here,
+   rather than per component: apply .scene-overlay to *any* element whose
+   text sits on the scene, and every token it might reach for is covered. */
+.scene-overlay{
+  --v400:var(--spec-bright-400); --v450:var(--spec-bright-450);
+  --v500:var(--spec-bright-500); --v560:var(--spec-bright-560);
+  --v600:var(--spec-bright-600); --v680:var(--spec-bright-680);
+  --vwhite:var(--spec-bright-white);
+  --ink-hi:var(--scene-ink-hi);
+  --ink-lo:var(--scene-ink-hi);
+  --muted-dark:var(--glass-muted);
+  --muted-light:var(--glass-muted);
+  --line-light:var(--glass-border);
+  color:var(--scene-ink-hi);
+}
+
+/* Near-opaque rather than a light "just enough" scrim: the background behind
+   it is an animated, unbounded scene (stars, nebula, the spectrum fan can
+   itself pass behind this block during the scroll range), so a contrast
+   check against one sampled frame doesn't hold across every frame. Only a
+   near-opaque scrim gives a guarantee independent of what's animating
+   underneath. backdrop-filter reads as atmosphere/depth — on-brand with the
+   prism itself — rather than a flat dark rectangle. PrismCanvas's uSceneDim
+   is a second, independent margin on top of this, not a substitute for it. */
+/* No blur, same reasoning as .scene-panel — and --scene-scrim is already
+   0.88 opacity, near-opaque, so blur was doing very little visible work
+   here regardless. */
+.about-scrim{
+  position:absolute; inset:-24px;
+  background:var(--scene-scrim);
+  z-index:-1;
+  pointer-events:none;
+}
 .swatches{display:flex;gap:5px;margin-top:18px;align-items:center;}
 .swatches span.sw{width:15px;height:15px;}
 .swatches .stat{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-light);margin-left:8px;}
@@ -236,18 +526,30 @@ section{margin-left:26px;}
 .ach-detail{font-size:9.5px;margin-top:2px;}
 
 /* SKILLS */
+/* .skill-grid/.skill previously assumed the cream .light-panel surface
+   (solid --bg-light cards, --line-light grid seams) — both wrong now that
+   Skills is a dark glass panel: cards rendered as solid white/cream boxes
+   sitting inside the dark scene, a real visual break, not a subtle mismatch. */
 .skill-grid{
   /* auto-fit, not auto-fill: empty trailing tracks would otherwise render as
      bare gap colour where no card exists. */
   display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:1px;background:var(--line-light);border:1px solid var(--line-light);
+  gap:1px;background:var(--glass-border);border:1px solid var(--glass-border);
   margin-top:20px;
 }
 .skill{
-  background:var(--bg-light);padding:22px;
+  /* --bg-dark-2 is theme-swapped (cream in light theme) — wrong here, since
+     .scene-overlay's text tokens stay bright-tuned in both themes (the panel
+     never stops being the dark scene). --glass-veil is fixed, matching how
+     .scene-panel itself is styled. */
+  background:var(--glass-veil);padding:22px;
   transition:background .25s cubic-bezier(.2,.8,.2,1);
 }
-.skill:hover{background:color-mix(in srgb, var(--bg-light) 92%, var(--ink-lo));}
+/* Was color-mix(..., var(--bg-light) ...) — a near-white flash, correct only
+   while Skills sat on the cream .light-panel. Now it's a dark glass panel
+   like every other section riding the scene, so the hover needs the same
+   subtle-tint treatment as .project:hover, not a light background. */
+.skill:hover{background:var(--glass-fill);}
 .skill-bar{display:block;width:28px;height:3px;margin-bottom:10px;}
 .skill-label{font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-lo);}
 .skill-items{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-light);margin-top:6px;line-height:1.6;}
@@ -268,16 +570,53 @@ section{margin-left:26px;}
 .skill-used-link:hover,.skill-used-link:focus-visible{color:var(--v500);border-color:var(--v500);}
 
 /* CONTACT (dark, bookend) */
-.contact{padding:64px 0 70px;border-top:1px solid var(--line-dark);}
+.contact{padding-top:64px;padding-bottom:70px;border-top:1px solid var(--line-dark);}
 .contact h2{font-family:var(--font-display);font-size:clamp(30px,5vw,44px);font-weight:600;letter-spacing:-.01em;}
 .contact p.lede{color:var(--muted-dark);font-size:14px;margin-top:12px;max-width:420px;}
 .contact-row{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap;}
+/* Glass fill + edge, no blur: contact sits on an opaque panel, where a
+   backdrop-filter would sample a flat colour and cost a compositor pass for
+   nothing. */
 .contact-row a.btn{
+  position:relative;
   font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;
-  border:1px solid var(--line-dark);padding:11px 18px;
-  transition:border-color .2s,color .2s;color:var(--ink-hi);
+  background:var(--glass-fill);
+  border:1px solid var(--glass-border);padding:11px 18px;
+  transition:border-color .2s,color .2s,background .2s;color:var(--ink-hi);
+}
+.contact-row a.btn::before{
+  content:"";position:absolute;inset:0 0 auto 0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--glass-edge) 18%,var(--glass-edge) 82%,transparent);
+  pointer-events:none;
 }
 .contact-row a.btn:hover{border-color:var(--v500);color:var(--v500);}
+
+/* CSS-only replacements for the `motion`-backed LiquidButton/RippleButton
+   primitives (removed — a 719KB animation library for three button hovers
+   contradicted this project's own no-animation-library stance, see
+   AGENTS.md/DECISIONS.md D-001, and was flagged as avoidable waste in
+   AUDIT.md/CODE_REVIEW.md). Both effects are transform/opacity only, so
+   they stay on the compositor same as everything else in this file. */
+.contact-row a.btn-liquid{overflow:hidden;}
+.contact-row a.btn-liquid::after{
+  content:"";position:absolute;inset:0;
+  background:var(--v500);opacity:.14;
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .5s cubic-bezier(.22,.61,.24,1);
+  pointer-events:none;
+}
+.contact-row a.btn-liquid:hover::after{transform:scaleX(1);}
+
+.contact-row a.btn-ripple{overflow:hidden;}
+.contact-row a.btn-ripple::after{
+  content:"";position:absolute;left:50%;top:50%;width:0;height:0;
+  background:radial-gradient(circle,var(--v500) 0%,transparent 70%);
+  opacity:.4;border-radius:50%;
+  transform:translate(-50%,-50%);
+  transition:width .5s cubic-bezier(.22,.61,.24,1),height .5s cubic-bezier(.22,.61,.24,1);
+  pointer-events:none;
+}
+.contact-row a.btn-ripple:active::after{width:240%;height:240%;transition:width .05s,height .05s;}
 footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padding:20px 0 40px;border-top:1px solid var(--line-dark);margin-top:20px;display:flex;justify-content:space-between;}
 
 @media(max-width:640px){
@@ -286,21 +625,79 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   .ptag{display:none;}
 }
 
-
 /* ==========================================================================
    Project Detail Page (.project-page)
    ========================================================================== */
 
+/* padding-top was 140px, tuned for the old small ray banner — left a large
+   blank gap below the nav before the prism appeared at all. Requested
+   directly: the prism should be the first thing visible, immediately,
+   the way the homepage's scene starts right at the top of its own page —
+   not after an empty run-up. 32px is just clearance under the sticky nav. */
 .project-page {
-  padding-top: 140px;
+  position: relative;
+  padding-top: 32px;
   padding-bottom: 100px;
   max-width: 900px;
   margin: 0 auto;
 }
 
+/* The single-wavelength continuation of the homepage's rainbow (see
+   components/ProjectPrismRay.tsx). z-index:-1 against .pp-hero's own
+   stacking context — same technique as .about-scrim — sinks it behind the
+   header text without needing every sibling to opt in with its own z-index.
+   <canvas> is a replaced element: inset alone does NOT stretch it the way
+   it would a non-replaced box (neither width nor height), so it was
+   rendering at its browser-default intrinsic size (300x150) instead of
+   spanning the column — explicit width/height below is the fix, matching
+   .prism-canvas's own rule.
+
+   left:50% + width:100vw + translateX(-50%) is the standard "full-bleed
+   inside a centred container" break-out — needed because <article> carries
+   .project-page's own max-width:900px. The previous version only escaped
+   .wrap's 48px padding (calc(100% + 96px)), which still left the ray
+   confined to that 900px column with dead black margin on either side at
+   any wider viewport — the homepage's own scene has no such ceiling, it's
+   the actual browser viewport. This is what actually fixes that: the ray
+   now spans edge-to-edge of the real window, matching the homepage. */
+.pp-ray {
+  position: absolute; top: 0; bottom: 0; left: 50%; right: auto;
+  width: 100vw; height: 100%;
+  transform: translateX(-50%);
+  display: block;
+  z-index: -1; pointer-events: none;
+  background: var(--scene-base);
+  opacity: 0; animation: prismIn 1.4s cubic-bezier(.22,.61,.24,1) .1s forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pp-ray { animation: none; opacity: 1; }
+}
+
+/* min-height is the "much bigger" ask — clamp(420px, 50vh, 600px), a real
+   fraction of the viewport rather than the ~200px this used to shrink-wrap
+   to. Only the back-link sits inside now — the title moved out (see
+   page.tsx) so nothing here overlaps the ray's triangle/beam — echoing the
+   homepage's hero (wordmark near the top of the pinned scene, generous
+   empty scene below it before Selected Work) instead of cramming text
+   into a tight band. */
+.pp-hero {
+  position: relative;
+  min-height: clamp(420px, 50vh, 600px);
+  padding: 28px 0;
+}
+
+/* There is no scrim/glass panel behind the back-link — removed. The
+   homepage's own hero text sits directly on the raw persistent canvas
+   with no tint or border, legible purely via scene-locked ink tokens
+   (--scene-ink-lo below is that same pattern). A scrim here would also
+   have had to be opaque to guarantee legibility at any point in the
+   canvas, which would mean an opaque layer painted directly over the
+   WebGL canvas, hiding the ray it's supposed to be decorating — the
+   fixed --scene-base fallback already on .pp-ray itself (shown before
+   the canvas paints) is the only "backdrop" this needs. */
 .back-link {
   display: inline-block;
-  color: var(--muted-dark);
+  color: var(--scene-ink-lo);
   font-family: var(--font-mono);
   font-size: 11px;
   text-decoration: none;
@@ -314,16 +711,24 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   color: var(--project-accent);
 }
 
+/* Sits in normal page flow now, below .pp-hero rather than inside it — so
+   it's on the theme-swapping page background, not the permanently-dark
+   ray. Colours below switched from the fixed scene-locked tokens (always
+   light, meant for sitting on the dark ray) to the same theme-aware tokens
+   the rest of the page body uses, matching that. */
 .pp-head {
   display: flex;
   align-items: baseline;
   gap: 16px;
+  margin-top: 32px;
   margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
+/* font-family inherited from the base .pnum rule (app/globals.css, PROJECTS
+   section) — this element carries both classes; only size/colour differ
+   here. */
 .pp-head .pnum {
-  font-family: var(--font-mono);
   font-size: 14px;
   color: var(--muted-dark);
 }
@@ -337,15 +742,17 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   line-height: 1.1;
 }
 
+/* font-family/font-size/border inherited from the base .ptag rule — this
+   element carries both classes; only the properties below are this
+   context's own delta. background was rgba(0,0,0,0.2), a dark backdrop
+   needed only when this tag sat over the busy ray; removed now that it
+   sits on the plain page background, where it would otherwise show as a
+   dark smudge in light theme. */
 .pp-head .ptag {
-  font-family: var(--font-mono);
-  font-size: 9px;
   padding: 3px 6px;
-  border: 1px solid;
   border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  background: rgba(0, 0, 0, 0.2);
 }
 
 .ppipe {
@@ -355,19 +762,34 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   margin-bottom: 40px;
 }
 
-.pp-section { 
-  margin-top: 40px; 
-  padding-top: 20px; 
-  border-top: 1px solid var(--line-dark); 
+/* Was just a border-top divider — plain text on the page background, no
+   panel at all. Requested directly: content should read as "widgets", the
+   same glass-card language the homepage uses for Skills/Selected
+   Work/Experience, not bare sections. --glass-veil/--glass-border are the
+   same fixed tokens .skill uses — safe to reuse plainly now that light
+   mode is gone and every surface is permanently dark. */
+.pp-section {
+  margin-top: 24px;
+  padding: 24px;
+  background: var(--glass-veil);
+  border: 1px solid var(--glass-border);
 }
 
-.eyebrow { 
-  font-family: var(--font-mono); 
-  font-size: 9.5px; 
-  letter-spacing: .1em; 
-  color: var(--muted-dark); 
-  display: block; 
-  margin-bottom: 14px; 
+/* The shared base for every section eyebrow label — homepage section heads
+   (SELECTED WORK, LEADERSHIP, ...) and the project detail page's own
+   headers (OVERVIEW, WHAT I BUILT, STACK, PRESENTATION) alike. font-weight
+   is reset because headings are bold by default in the UA stylesheet; both
+   contexts land this on <h2>/<h3> for screen-reader navigation. See
+   .section-head .eyebrow above for the one delta the homepage context
+   needs. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: .1em;
+  color: var(--muted-dark);
+  display: block;
+  margin-bottom: 14px;
 }
 
 .pp-desc {
@@ -407,13 +829,19 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   flex-wrap: wrap; 
 }
 
+/* background/border were --glass-fill/--glass-border — fixed, white-based
+   tokens meant for elements riding the permanently-dark homepage scene.
+   This chip lives on the project page's real, theme-swapping background
+   instead, so a white-on-white-ish 3-5% opacity fill/border was nearly
+   invisible in light theme (the same class of bug the nav's border had).
+   --bg-dark-2/--line-dark both swap correctly with the theme. */
 .stack-chip {
-  font-family: var(--font-mono); 
-  font-size: 10px; 
+  font-family: var(--font-mono);
+  font-size: 10px;
   letter-spacing: .04em;
-  color: var(--ink-hi); 
+  color: var(--ink-hi);
   background: var(--bg-dark-2);
-  border: 1px solid var(--line-dark); 
+  border: 1px solid var(--line-dark);
   padding: 5px 10px;
 }
 
@@ -462,7 +890,12 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 .leadership-item::before {
   content: ""; position: absolute; left: -28px; top: 50%; transform: translateY(-50%);
   width: 9px; height: 9px; border-radius: 50%;
-  background: var(--bg-light); border: 2px solid var(--muted-light);
+  /* Was --bg-light (blends with the cream .light-panel this used to sit on)
+     — a filled cream dot on the dark glass panel now, instead of the
+     intended hollow-outline look. --bg-dark-2 blended correctly in dark
+     theme but is itself theme-swapped, so it went cream again in light
+     theme — same bug, different token. --glass-veil is fixed. */
+  background: var(--glass-veil); border: 2px solid var(--muted-light);
 }
 .leadership-item.current::before {
   background: var(--v500); border-color: var(--v500);
@@ -484,18 +917,113 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 .leadership-item.current .li-gain .seg.filled { background: var(--v500); box-shadow: 0 0 4px var(--v500); }
 
 /* ==========================================================================
-   Prism Hero Animation
+   Persistent Pinned Prism Scene (Phase 1: Hero + Projects + About)
    ========================================================================== */
 
-.prism-wrap { position: relative; height: 120px; margin-top: 36px; }
+/* Standard "sticky background, scrolling foreground": .scene-pin occupies
+   one 100dvh slot in normal flow; .scene-content is pulled back over it by
+   the same amount so the two overlap from the top of .scene-span. Sticky
+   then keeps .scene-pin glued to the viewport for as long as .scene-content
+   (now the entire page — Hero through Footer) is taller than one viewport,
+   so pin duration falls out of real content height rather than a
+   hand-tuned vh multiplier. .scene-spacer at the very end of .scene-content
+   is what the trailing unpin lands on. */
+.scene-span { position: relative; }
+
+.scene-pin {
+  position: sticky; top: 0; height: 100dvh;
+  z-index: 0; overflow: hidden; pointer-events: none;
+}
+
+.scene-content {
+  position: relative; z-index: 1;
+  margin-top: calc(-1 * 100dvh);
+}
+
+/* Sacrificial trailing buffer: the sticky-pin technique always unpins during
+   the final 100dvh of .scene-content's own scroll, no matter how tall real
+   content is (fundamental to the technique, not tunable away). Without this,
+   that unpinned tail lands on whatever real content happens to be last —
+   here, About — releasing the background before the user finishes reading
+   it. Appending a full 100dvh of empty space after the real content moves
+   the release into the buffer instead. */
+.scene-spacer { height: 100dvh; }
+
+/* Real empty space between glass panels — not padding on the panels
+   themselves — so the prism/rainbow is genuinely visible in the gap, not
+   just visible-through-tinted-glass. Panels read as floating in the scene
+   rather than stacked edge to edge. */
+.scene-gap { height: clamp(64px, 12vw, 140px); }
+
+/* The scene holds two layers: the SVG diagram, which is the real hero and
+   ships in the HTML, and the WebGL canvas, which fades in over it once idle.
+   If WebGL is unavailable the SVG simply stays. background is fixed
+   (--scene-base), not the theme-swapped page background, for the same
+   reason About needs .about-overlay: this box is the persistent scene, so
+   it must already look like the canvas's own near-black stage before the
+   canvas exists — otherwise light theme shows cream here and then flips to
+   black the moment WebGL mounts. .scene-overlay (applied where this is
+   used) keeps the SVG's own stroke/spectrum colours correct against that
+   fixed background in both themes. */
+/* Default position matches scroll progress 0 (top of page) — the same
+   state PrismCanvas.tsx's own JS drives via inline style once it mounts
+   (TOP_SHIFT_MAX_PX there, kept in sync with this -90px by hand). Without
+   this, the scene rendered centered for the brief window before the WebGL
+   canvas's first rAF frame applied the shift — both the SVG fallback and,
+   at very slow connections, the canvas's own first frame would flash at
+   the wrong position before snapping to the correct one. */
+.prism-scene { position: relative; width: 100%; height: 100%; background: var(--scene-base); transform: translateY(-90px); }
+
+.prism-canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  display: block; opacity: 0;
+  animation: prismIn 1.6s cubic-bezier(.22,.61,.24,1) .1s forwards;
+}
+@keyframes prismIn { to { opacity: 1; } }
+
+/* height was a fixed 120px, sized for the old hero-only strip (.scene-pin
+   was that short too, so the two matched). .scene-pin is now a full 100dvh
+   pinned box; a fixed 120px diagram inside it reads as a thin line floating
+   in an otherwise-empty dark box on any visit where WebGL fails or hasn't
+   mounted yet. Scaling with the viewport keeps it proportionate to the box
+   it now actually lives in, at any screen size, rather than only correct at
+   the one aspect ratio it was originally tuned for. */
+/* top was 50% (dead centre of .prism-scene's own box) — measured live
+   (getBoundingClientRect on both this and the WebGL canvas, before/after
+   it mounts) against where PrismCanvas.tsx's camera actually frames the
+   beam/prism: centred around 27% down the viewport there, not 50%. The
+   two were never the same coordinate system (this is plain CSS centring,
+   that's a 3D camera projection) and nothing kept them in sync — the
+   fallback rendered visibly lower than where the WebGL scene settles,
+   reported directly as "little downwards" / "the old prism design". 37%
+   here (not 27%) because this box is *itself* centred on that point via
+   translateY(-50%) below, and its parent (.prism-scene) carries its own
+   -90px top-shift (PrismCanvas.tsx's TOP_SHIFT_MAX_PX) that this box's
+   percentage is computed before, not after. */
+.prism-wrap {
+  position: absolute; left: 0; right: 0; top: 37%; transform: translateY(-50%);
+  height: clamp(160px, 34vh, 420px);
+  /* No longer nested inside .wrap.hero (the scene now sits behind it, not
+     inside it) — reapply the same centring/inset by hand so the fallback
+     SVG still aligns with the hero text column above it. */
+  max-width: min(1400px, 90vw);
+  margin: 0 auto;
+  padding: 0 48px;
+  transition: opacity .9s cubic-bezier(.22,.61,.24,1);
+}
+.prism-scene.is-live .prism-wrap { opacity: 0; }
 .prism-wrap svg { width: 100%; height: 100%; overflow: visible; }
+
+@media (prefers-reduced-motion: reduce) {
+  .prism-canvas { animation: none; opacity: 1; }
+}
 
 .beam-in {
   stroke: var(--ink-hi); stroke-width: 1.4; opacity: 0; fill: none;
   stroke-dasharray: 1; stroke-dashoffset: 1;
 }
 .prism-outline {
-  fill: none; stroke: #33353c; stroke-width: 1.4;
+  fill: none; stroke: var(--scene-outline); stroke-width: 1.4;
   stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0;
 }
 .spectrum-line {
@@ -576,14 +1104,6 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 .deck-frame iframe { width: 100%; height: 100%; border: 0; background: #fff; }
 @media (min-width: 640px) { .deck-frame { height: 700px; } }
 
-/* Soft bleed section transitions */
-section + section.light-panel { position: relative; }
-section + section.light-panel::before {
-  content: ""; position: absolute; top: -12px; left: 0; right: 0; height: 12px;
-  background: linear-gradient(to bottom, transparent, var(--bg-light));
-  pointer-events: none;
-}
-
 /* Light theme: the two surfaces trade places. Spectrum tuning follows the
    surface automatically via the bindings at the top of this file. */
 :root.light {
@@ -599,7 +1119,6 @@ section + section.light-panel::before {
   --tick-idle: #c9c5b8;
   --nav-bg: rgba(245,243,238,.86);
 }
-
 
 /* ==========================================================================
    Intro Sequence Overlay
@@ -638,4 +1157,93 @@ section + section.light-panel::before {
 
 @media (prefers-reduced-motion: reduce) {
   .intro-overlay, .intro-word { animation: none; transition: none; }
+}
+
+@theme inline {
+  --font-heading:var(--font-sans);
+  --font-sans:var(--font-sans);
+  --color-sidebar-ring:var(--sidebar-ring);
+  --color-sidebar-border:var(--sidebar-border);
+  --color-sidebar-accent-foreground:var(--sidebar-accent-foreground);
+  --color-sidebar-accent:var(--sidebar-accent);
+  --color-sidebar-primary-foreground:var(--sidebar-primary-foreground);
+  --color-sidebar-primary:var(--sidebar-primary);
+  --color-sidebar-foreground:var(--sidebar-foreground);
+  --color-sidebar:var(--sidebar);
+  --color-chart-5:var(--chart-5);
+  --color-chart-4:var(--chart-4);
+  --color-chart-3:var(--chart-3);
+  --color-chart-2:var(--chart-2);
+  --color-chart-1:var(--chart-1);
+  --color-ring:var(--ring);
+  --color-input:var(--input);
+  --color-border:var(--border);
+  --color-destructive:var(--destructive);
+  --color-accent-foreground:var(--accent-foreground);
+  --color-accent:var(--accent);
+  --color-muted-foreground:var(--muted-foreground);
+  --color-muted:var(--muted);
+  --color-secondary-foreground:var(--secondary-foreground);
+  --color-secondary:var(--secondary);
+  --color-primary-foreground:var(--primary-foreground);
+  --color-primary:var(--primary);
+  --color-popover-foreground:var(--popover-foreground);
+  --color-popover:var(--popover);
+  --color-card-foreground:var(--card-foreground);
+  --color-card:var(--card);
+  --color-foreground:var(--foreground);
+  --color-background:var(--background);
+  --radius-sm:calc(var(--radius) * 0.6);
+  --radius-md:calc(var(--radius) * 0.8);
+  --radius-lg:var(--radius);
+  --radius-xl:calc(var(--radius) * 1.4);
+  --radius-2xl:calc(var(--radius) * 1.8);
+  --radius-3xl:calc(var(--radius) * 2.2);
+  --radius-4xl:calc(var(--radius) * 2.6);
+}
+
+.dark {
+  --background:oklch(0.145 0 0);
+  --foreground:oklch(0.985 0 0);
+  --card:oklch(0.205 0 0);
+  --card-foreground:oklch(0.985 0 0);
+  --popover:oklch(0.205 0 0);
+  --popover-foreground:oklch(0.985 0 0);
+  --primary:oklch(0.922 0 0);
+  --primary-foreground:oklch(0.205 0 0);
+  --secondary:oklch(0.269 0 0);
+  --secondary-foreground:oklch(0.985 0 0);
+  --muted:oklch(0.269 0 0);
+  --muted-foreground:oklch(0.708 0 0);
+  --accent:oklch(0.269 0 0);
+  --accent-foreground:oklch(0.985 0 0);
+  --destructive:oklch(0.704 0.191 22.216);
+  --border:oklch(1 0 0 / 10%);
+  --input:oklch(1 0 0 / 15%);
+  --ring:oklch(0.556 0 0);
+  --chart-1:oklch(0.87 0 0);
+  --chart-2:oklch(0.556 0 0);
+  --chart-3:oklch(0.439 0 0);
+  --chart-4:oklch(0.371 0 0);
+  --chart-5:oklch(0.269 0 0);
+  --sidebar:oklch(0.205 0 0);
+  --sidebar-foreground:oklch(0.985 0 0);
+  --sidebar-primary:oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground:oklch(0.985 0 0);
+  --sidebar-accent:oklch(0.269 0 0);
+  --sidebar-accent-foreground:oklch(0.985 0 0);
+  --sidebar-border:oklch(1 0 0 / 10%);
+  --sidebar-ring:oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }
