@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Tooling installed into the repo, not project source.
+    ".claude/**",
   ]),
 ]);
 

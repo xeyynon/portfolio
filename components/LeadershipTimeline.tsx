@@ -6,7 +6,7 @@ export default function LeadershipTimeline() {
     <div className="wrap" style={{ paddingBottom: '30px' }}>
       <section className="leadership" id="leadership">
         <div className="section-head">
-          <span className="eyebrow">LEADERSHIP</span>
+          <h2 className="eyebrow">LEADERSHIP</h2>
           <span className="count">{String(leadership.length).padStart(2, '0')} STAGES</span>
         </div>
         <div className="leadership-org">{leadershipOrg}</div>

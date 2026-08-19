@@ -18,6 +18,64 @@ We keep the inline SVG prism. It tells the same beam → refraction → spectrum
 
 ---
 
+## D-006 — The prism became WebGL, but not via Three.js
+
+**Date:** 2026-07-29 · **Status:** Accepted · **Supersedes the conclusion of [D-001](#d-001)**
+
+The user reversed D-001 and asked for the prism to become the site's 3D centrepiece. D-001's *reasoning* still held, so only its conclusion was overturned: the hero is now WebGL, but hand-written GLSL rather than Three.js.
+
+The scene is one convex solid and one light. A scene graph, loaders, and a PBR material system buy nothing here — and the thing that actually matters, per-wavelength dispersion, cannot be expressed by `MeshPhysicalMaterial` at all. Custom GLSL was required either way; Three.js would only have added ~600 KB around it. The renderer is ~6 KB, code-split, idle-deferred, and layered over the SVG hero which still ships in the HTML and remains the fallback.
+
+**Consequence:** `three` stays uninstalled. The optics live in `lib/prism.ts` and are unit-testable without a browser — which is how three separate bugs below were caught.
+
+---
+
+## D-007 — Physics generates the spectrum; a gain amplifies it
+
+**Date:** 2026-07-29 · **Status:** Accepted
+
+Three failures had to be fixed before the fan rendered, and each was found by measurement rather than inspection:
+
+1. **Every wavelength totally internally reflected.** At n ≈ 1.66 a 60° prism has a 37° critical angle while the internal ray arrives at ~45°, so no light escaped. Fixed by moving to crown-glass indices and aiming the beam at minimum deviation.
+2. **A pose wedge silently killed the spectrum.** Negative yaw with positive pitch re-entered TIR. The boundary was mapped by sweeping the tracer and is now enforced by an explicit clamp (`yawFloor`), verified across 21,500 poses.
+3. **The closest-point formula was inverted.** `segmentGlow` divided by `-den`, clamping every ray to its start point, so the fan rendered as dots. Confirmed against brute force over 300 random cases before correcting.
+
+With the optics correct, real dispersion still only spread violet-to-red by ~13°, which reads as one diagonal streak at this aspect ratio. `FAN_GAIN` scales each ray's deviation from the fan's mean to ~31°, matching the established SVG hero.
+
+**Why a gain rather than a stronger glass:** raising the index to widen the fan optically walks straight back into TIR. The gain leaves everything physical intact — wavelength ordering, relative spacing, entry/exit geometry, and the way the fan sweeps as the prism turns — and magnifies only the final angular spread.
+
+**Revisit if:** the canvas aspect changes materially. A taller hero needs less gain.
+
+---
+
+## D-008 — The wordmark gradient is narrative, not decoration
+
+**Date:** 2026-07-29 · **Status:** Accepted
+
+Impeccable's `gradient-text` rule flags the spectrum gradient on the `SURYA PRATIK` wordmark as decorative — generally a fair call, since gradient headings are a common tell.
+
+Kept, on the user's decision. This site's premise is white light refracting into a spectrum where each wavelength is a capability ([PRD.md](PRD.md)). The wordmark is where the beam lands; a solid fill would break the one place the narrative and the name meet. The gradient also predates this work and is drawn entirely from `--v400`…`--v680`, so it obeys the token system rather than introducing a one-off.
+
+Persisted as a scoped ignore: `gradient-text=*` limited to `app/globals.css` in `.impeccable/config.json`. Scoped rather than global so gradient text appearing anywhere else still gets flagged.
+
+**Revisit if:** the wordmark ever stops being the terminus of the beam, or gradients start spreading to other headings — at which point the rule is doing its job and should be re-enabled.
+
+---
+
+## D-009 — Theme script: raw `<script>` and `next/script` both warn in dev; production is clean
+
+**Date:** 2026-07-29 · **Status:** Accepted, no code beyond the `next/script` migration
+
+The pre-hydration theme script in `app/layout.tsx` (prevents a flash of the wrong theme) originally used a raw `<script dangerouslySetInnerHTML>`. On a true cold dev-server start, React 19 logs "Encountered a script tag while rendering React component." Switching to the officially documented `next/script` with `strategy="beforeInteractive"` was the correct fix regardless — but the same warning still fires on cold start with the documented API too.
+
+Verified before accepting this: started a real production server (`next start`, a second port to avoid colliding with the dev preview) and loaded it cold in a fresh tab. Zero console errors. The warning is specific to Turbopack dev mode's handling of `beforeInteractive` scripts on the very first SSR pass in this Next/React version pairing — it does not recur on subsequent client navigation in the same dev session, and it does not exist in what actually ships.
+
+**Why not eliminate the client script entirely** (e.g. read a theme cookie server-side via `next/headers` and skip the script altogether — a strictly better architecture for FOUC prevention when SSR is available): genuinely worth doing, but it's a bigger change than this specific, cosmetic, dev-only, already-verified-harmless finding justifies on its own.
+
+**Revisit if:** the cookie-based server read is undertaken for other reasons, which would remove this dev-mode noise as a side effect.
+
+---
+
 ## D-002 — Spectrum tuning binds to surface, not theme
 
 **Date:** 2026-07-28 · **Status:** Accepted

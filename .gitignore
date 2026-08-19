@@ -39,3 +39,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# internal working docs — audit/review/planning notes, not meant for the public repo
+AUDIT.md
+CODE_REVIEW.md
+FINAL_REVIEW.md
+SESSION_HANDOFF.md
+AGENTS.md
+ARCHITECTURE.md
+CLAUDE.md
+DECISIONS.md
+PRD.md
+TASKS.md
+.impeccable/
+
+# Claude Code local tooling config (not site code)
+.claude/

@@ -2,7 +2,30 @@ export const personalInfo = {
   name: "Surya Pratik",
   title: "Learning. Building. Improving",
   education: "B.Tech Computer Science and Engineering, VIT-AP University",
-  summary: "Hi, I'm Surya Pratik from Bhilai, Chhattisgarh,I enjoy building technology that bridges hardware and software, from embedded systems and IoT devices to mobile applications. My journey has been driven by curiosity and a desire to continuously learn, experiment, and solve real-world problems. I believe growth comes from challenging yourself, embracing failures, and learning something new every day."
+  summary: "Hi, I'm Surya Pratik from Bhilai, Chhattisgarh, I enjoy building technology that bridges hardware and software, from embedded systems and IoT devices to mobile applications. My journey has been driven by curiosity and a desire to continuously learn, experiment, and solve real-world problems. I believe growth comes from challenging yourself, embracing failures, and learning something new every day."
+};
+
+export type Experience = {
+  company: string;
+  companyUrl?: string;
+  role: string;
+  period: string;
+  status: "current" | "past";
+  pipeline: string;
+  highlights: string[];
+};
+
+export const experience: Experience = {
+  company: "Alfaleus Technologies",
+  companyUrl: "https://alfaleus.com",
+  role: "Embedded Engineering Intern",
+  period: "Jul 2026 — Present",
+  status: "current",
+  pipeline: "embedded system design → integration → real-world deployment",
+  highlights: [
+    "Designing embedded systems across multiple concurrent projects",
+    "Integrating hardware and software subsystems into deployable products aimed at making everyday tasks easier",
+  ],
 };
 
 /** Stable short label used wherever a project is referenced compactly. */

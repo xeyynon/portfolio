@@ -4,6 +4,7 @@ import "./globals.css";
 import Rail from "@/components/ui/Rail";
 import Header from "@/components/ui/Header";
 import IntroSequence from "@/components/IntroSequence";
+import SmoothScroll from "@/components/SmoothScroll";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -24,14 +25,10 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Surya Pratik — Embedded Systems & IoT Engineer",
+  title: "Surya Pratik — Computer Science Engineer",
   description:
-    "Portfolio of Surya Pratik: embedded systems, IoT, and applied machine learning. LiFi transmission, Wi-Fi CSI sensing, LoRa mesh networks.",
+    "Portfolio of Surya Pratik, a Computer Science Engineering student building embedded systems, IoT, and applied machine learning projects. LiFi transmission, Wi-Fi CSI sensing, LoRa mesh networks.",
 };
-
-// Applies the stored theme before first paint so the page never flashes the
-// wrong palette. Inline and synchronous by necessity.
-const themeScript = `try{if(localStorage.theme==="light")document.documentElement.classList.add("light")}catch(e){}`;
 
 export default function RootLayout({
   children,
@@ -39,14 +36,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
+    <html lang="en" className="scroll-smooth">
       <body
         className={`${spaceGrotesk.variable} ${inter.variable} ${ibmPlexMono.variable} antialiased`}
       >
         <a href="#main" className="skip-link">Skip to content</a>
+        <SmoothScroll />
         <IntroSequence>
           <Rail />
           <Header />

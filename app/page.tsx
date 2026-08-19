@@ -1,8 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
-import { personalInfo, projects, achievements, skills } from "@/data/portfolioData";
-import PrismHero from "@/components/PrismHero";
+import { personalInfo, experience, projects, achievements, skills } from "@/data/portfolioData";
+import ScrollSceneProvider from "@/components/ScrollSceneProvider";
+import PrismScene from "@/components/PrismScene";
 import LeadershipTimeline from "@/components/LeadershipTimeline";
+import { SHOW_PROJECT_PAGES } from "@/lib/flags";
 
 const SPECTRUM = [
   { token: "--v400", nm: 400 },
@@ -21,177 +23,280 @@ export default function Home() {
 
   return (
     <>
-      <section className="dark-panel">
-        <div className="wrap hero">
-          <div className="chipbar">
-            {SPECTRUM.map((s) => (
-              <span key={s.token} className="chip" style={{ background: `var(${s.token})` }}>{s.nm}nm</span>
-            ))}
-            <span className="quote">&quot;Learn something new every day.&quot;</span>
-          </div>
-          <h1>{personalInfo.name.toUpperCase()}</h1>
-
-          <PrismHero />
+      <ScrollSceneProvider>
+        <div className="scene-pin">
+          <PrismScene />
         </div>
 
-        <div className="wrap" id="projects">
-          <div className="section-head">
-            <span className="eyebrow">SELECTED WORK</span>
-            <span className="count">{String(projects.length).padStart(2, '0')} TOTAL</span>
-          </div>
-
-          {projects.map((proj) => (
-            <Link href={`/projects/${proj.slug}`} key={proj.slug} className="project block" id={`p${parseInt(proj.num)}`}>
-              <div className="prow">
-                <span className="pbar" style={{ background: proj.color }}></span>
-                <span className="pnum">{proj.num}</span>
-                <span>
-                  <div className="ptitle">{proj.title}</div>
-                  <div className="ppipe">{proj.pipeline}</div>
-                </span>
-                <span className="ptag" style={{ color: proj.color, borderColor: proj.color }}>{proj.tag}</span>
-                <span className="pchev">→</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="light-panel" id="about">
-        <div className="wrap about">
-          <div className="section-head">
-            <span className="eyebrow">ABOUT</span>
-          </div>
-          <div className="about-grid">
-            <div className="about-photo">
-              <Image src="/sources/myImage.jpg" alt="Surya Pratik" fill className="object-cover" />
+        <div className="scene-content">
+          <div className="wrap hero scene-overlay">
+            <div className="chipbar">
+              {SPECTRUM.map((s) => (
+                <span key={s.token} className="chip" style={{ background: `var(${s.token})` }}>{s.nm}nm</span>
+              ))}
+              <span className="quote">&quot;Learn something new every day.&quot;</span>
             </div>
-            <div className="about-copy">
-              <p style={{ fontWeight: '500', marginBottom: '12px', fontSize: '16px' }}>
-                {personalInfo.title.split('.').filter(Boolean).map((word, i) => {
-                  return (
-                    <span 
-                      key={i} 
-                      className={`animate-pulse-${i % 3} mr-1.5 inline-block`}
-                    >
-                      {word.trim()}.
+            <h1>{personalInfo.name.toUpperCase()}</h1>
+          </div>
+
+          <div className="scene-gap" aria-hidden="true" />
+
+          {/* Positioned right after Hero, before Projects: the credential
+              that makes every project below read as "already working the
+              job," not just student work — see FINAL_REVIEW.md §12. Accent
+              is --vwhite (all wavelengths combined), not a 7th spectrum
+              hue — this is the light source the six capabilities disperse
+              from, not another band in the spectrum. .scene-panel (not just
+              .wrap) matches Projects' own glass-panel treatment directly
+              below it — the first version skipped the panel background,
+              which read as a design mismatch next to Selected Work. */}
+          <div className="scene-panel scene-overlay">
+            <div className="wrap" id="experience">
+              <div className="section-head">
+                <h2 className="eyebrow">EXPERIENCE</h2>
+                {experience.status === "current" && (
+                  <span className="count">CURRENT</span>
+                )}
+              </div>
+              <div className="exp-row">
+                <span className="exp-bar" style={{ background: "var(--vwhite)" }} />
+                <div>
+                  <div className="exp-role">
+                    {experience.role} —{" "}
+                    {experience.companyUrl ? (
+                      <a
+                        href={experience.companyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="exp-company"
+                      >
+                        {experience.company}
+                      </a>
+                    ) : (
+                      <span className="exp-company">{experience.company}</span>
+                    )}
+                  </div>
+                  <div className="exp-period">{experience.period}</div>
+                  <div className="ppipe">{experience.pipeline}</div>
+                  <ul className="pp-highlights exp-highlights">
+                    {experience.highlights.map((h) => (
+                      <li key={h}>{h}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="scene-gap" aria-hidden="true" />
+
+          <div className="scene-panel scene-overlay">
+            <div className="wrap" id="projects">
+              <div className="section-head">
+                <h2 className="eyebrow">SELECTED WORK</h2>
+                <span className="count">{String(projects.length).padStart(2, '0')} TOTAL</span>
+              </div>
+
+              {projects.map((proj) => {
+                const row = (
+                  <div className="prow">
+                    <span className="pbar" style={{ background: proj.color }}></span>
+                    <span className="pnum">{proj.num}</span>
+                    <span>
+                      <div className="ptitle">{proj.title}</div>
+                      <div className="ppipe">{proj.pipeline}</div>
                     </span>
+                    <span className="ptag" style={{ color: proj.color, borderColor: proj.color }}>{proj.tag}</span>
+                    {SHOW_PROJECT_PAGES && <span className="pchev">→</span>}
+                  </div>
+                );
+                return SHOW_PROJECT_PAGES ? (
+                  <Link href={`/projects/${proj.slug}`} key={proj.slug} className="project block" id={`p${parseInt(proj.num)}`}>
+                    {row}
+                  </Link>
+                ) : (
+                  <div key={proj.slug} className="project block" id={`p${parseInt(proj.num)}`}>
+                    {row}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="wrap about about-overlay" id="about">
+            <div className="about-scrim" aria-hidden="true" />
+            <div className="section-head">
+              <h2 className="eyebrow">ABOUT</h2>
+            </div>
+            <div className="about-grid">
+              <div className="about-photo">
+                <Image src="/sources/myImage.jpg" alt="Surya Pratik" fill sizes="140px" className="object-cover" />
+              </div>
+              <div className="about-copy">
+                <p style={{ fontWeight: '500', marginBottom: '12px', fontSize: '16px' }}>
+                  {personalInfo.title.split('.').filter(Boolean).map((word, i) => {
+                    return (
+                      <span
+                        key={i}
+                        className={`animate-pulse-${i % 3} mr-1.5 inline-block`}
+                      >
+                        {word.trim()}.
+                      </span>
+                    );
+                  })}
+                </p>
+                <p>{personalInfo.education}</p>
+                <p style={{ marginTop: '12px' }}>{personalInfo.summary}</p>
+                <div className="swatches" aria-hidden="true">
+                  {SPECTRUM.map((s) => (
+                    <span key={s.token} className="sw" style={{ background: `var(${s.token})` }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Leadership, Achievements, and Skills used to be their own
+              opaque .light-panel sections. They're glass bands now, riding
+              the same persistent scene as Hero/Projects/About — .scene-gap
+              is empty space (not padding) between each, so the prism/rainbow
+              is genuinely visible in the gap, not just tinted through glass. */}
+          <div className="scene-gap" aria-hidden="true" />
+
+          <div className="scene-panel scene-overlay">
+            <LeadershipTimeline />
+          </div>
+
+          <div className="scene-gap" aria-hidden="true" />
+
+          <div className="scene-panel scene-overlay" id="achievements">
+            <div className="wrap" style={{ paddingBottom: '30px' }}>
+              <div className="section-head">
+                <h2 className="eyebrow">ACHIEVEMENTS</h2>
+                <span className="count" style={{ color: 'var(--muted-light)' }}>{String(achievements.length).padStart(2, '0')} TOTAL</span>
+              </div>
+              <ul className="ach-list">
+                {achievements.map((ach) => {
+                  const project = projects.find((p) => p.slug === ach.slug);
+                  return (
+                    <li key={`${ach.slug}-${ach.event}`} className="ach">
+                      <span className="ach-year">{ach.year}</span>
+                      <span>
+                        {project && SHOW_PROJECT_PAGES ? (
+                          <Link href={`/projects/${project.slug}`} className="ach-title ach-link">
+                            {ach.title} — {ach.event}
+                          </Link>
+                        ) : (
+                          <span className="ach-title">{ach.title} — {ach.event}</span>
+                        )}
+                        <span className="ach-sub">{project?.title ?? ach.slug}</span>
+                        <span className="ach-sub ach-detail">{ach.achievement}</span>
+                      </span>
+                    </li>
                   );
                 })}
-              </p>
-              <p>{personalInfo.education}</p>
-              <p style={{ marginTop: '12px' }}>{personalInfo.summary}</p>
-              <div className="swatches" aria-hidden="true">
-                {SPECTRUM.map((s) => (
-                  <span key={s.token} className="sw" style={{ background: `var(${s.token})` }} />
-                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="scene-gap" aria-hidden="true" />
+
+          <div className="scene-panel scene-overlay" id="skills">
+            <div className="wrap" style={{ paddingBottom: '56px' }}>
+              <div className="section-head">
+                <h2 className="eyebrow">TECHNICAL SKILLS</h2>
+              </div>
+              <div className="skill-grid">
+                {[...skills].sort((a, b) => b.level - a.level).map((s) => {
+                  const usedIn = projectsUsing(s.label);
+
+                  return (
+                    <div key={s.label} className="skill">
+                      <span className="skill-bar" style={{ background: `linear-gradient(90deg, ${s.color}, transparent)` }} />
+                      <h3 className="skill-label">{s.label}</h3>
+                      <p className="skill-items">{s.items.join(" · ")}</p>
+
+                      <div className="skill-meter" aria-label={`Proficiency ${s.level} of 4`}>
+                        <span className="skill-segs" aria-hidden="true">
+                          {[1, 2, 3, 4].map((n) => (
+                            <span
+                              key={n}
+                              className="seg"
+                              style={{ background: n <= s.level ? s.color : "var(--line-light)" }}
+                            />
+                          ))}
+                        </span>
+                        <span className="skill-level" aria-hidden="true">{s.level}/4</span>
+                      </div>
+
+                      {usedIn.length > 0 && (
+                        <p className="skill-used">
+                          <span className="skill-used-label">Used in</span>
+                          {usedIn.map((p) =>
+                            SHOW_PROJECT_PAGES ? (
+                              <Link key={p.slug} href={`/projects/${p.slug}`} className="skill-used-link">
+                                {p.short}
+                              </Link>
+                            ) : (
+                              <span key={p.slug} className="skill-used-link">
+                                {p.short}
+                              </span>
+                            )
+                          )}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      <section className="light-panel">
-        <LeadershipTimeline />
-      </section>
+          <div className="scene-gap" aria-hidden="true" />
 
-      <section className="light-panel" id="achievements">
-        <div className="wrap" style={{ paddingBottom: '30px' }}>
-          <div className="section-head">
-            <span className="eyebrow">ACHIEVEMENTS</span>
-            <span className="count" style={{ color: 'var(--muted-light)' }}>{String(achievements.length).padStart(2, '0')} TOTAL</span>
+          <div className="scene-panel scene-overlay" id="contact">
+            <div className="wrap contact">
+              <h2>Let&apos;s build something together.</h2>
+              <p className="lede mb-4">Open to internships, research collaborations, and exciting opportunities.</p>
+              <span className="inline-flex items-center gap-2 text-xs font-mono text-[var(--muted-dark)] mb-8">
+                <span className="w-2 h-2 rounded-full bg-[var(--v500)] animate-pulse shadow-[0_0_8px_var(--v500)]" />
+                Currently open to opportunities
+              </span>
+              <div className="contact-row">
+                {/* Outbound profile links: a slow liquid fill on hover, matching
+                    the site's "smooth, slow, intentional" motion philosophy —
+                    now plain CSS (.btn-liquid) rather than the `motion`-backed
+                    LiquidButton primitive; see .contact-row a.btn-liquid::after
+                    in globals.css. */}
+                <a className="btn btn-liquid" href="mailto:suryapratik12@gmail.com" target="_blank" rel="noopener noreferrer">EMAIL →</a>
+                <a className="btn btn-liquid" href="https://github.com/xeyynon" target="_blank" rel="noopener noreferrer">GITHUB →</a>
+                <a className="btn btn-liquid" href="https://www.linkedin.com/in/suryapratik/" target="_blank" rel="noopener noreferrer">LINKEDIN →</a>
+                {/* Resume is the one conversion action in this row, so it alone
+                    gets a click-confirmation ripple rather than the hover fill —
+                    now plain CSS (.btn-ripple) rather than the `motion`-backed
+                    RippleButton primitive. */}
+                <a className="btn btn-ripple" href="https://drive.google.com/drive/folders/1VjUdrDwPhYxG0RvFJxR1G3ilHIyyd9AT?usp=sharing" target="_blank" rel="noopener noreferrer">
+                  RESUME →
+                </a>
+              </div>
+            </div>
+            <div className="wrap">
+              <footer>
+                <span>© 2026 {personalInfo.name.toUpperCase()}</span>
+                <span>400–680nm</span>
+              </footer>
+            </div>
           </div>
-          <ul className="ach-list">
-            {achievements.map((ach) => {
-              const project = projects.find((p) => p.slug === ach.slug);
-              return (
-                <li key={`${ach.slug}-${ach.event}`} className="ach">
-                  <span className="ach-year">{ach.year}</span>
-                  <span>
-                    {project ? (
-                      <Link href={`/projects/${project.slug}`} className="ach-title ach-link">
-                        {ach.title} — {ach.event}
-                      </Link>
-                    ) : (
-                      <span className="ach-title">{ach.title} — {ach.event}</span>
-                    )}
-                    <span className="ach-sub">{project?.title ?? ach.slug}</span>
-                    <span className="ach-sub ach-detail">{ach.achievement}</span>
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
+
+          {/* The sticky-pin technique always releases during the final
+              viewport-height of .scene-content's scroll. Without this spacer
+              that unpinned tail lands on real content instead of empty
+              buffer — verified in-browser earlier for a shorter scene-content
+              (D-0xx); the same reasoning holds regardless of how much real
+              content precedes it, as long as this stays the very last child. */}
+          <div className="scene-spacer" aria-hidden="true" />
         </div>
-      </section>
-
-      <section className="light-panel" id="skills">
-        <div className="wrap" style={{ paddingBottom: '56px' }}>
-          <div className="section-head">
-            <span className="eyebrow">TECHNICAL SKILLS</span>
-          </div>
-          <div className="skill-grid">
-            {[...skills].sort((a, b) => b.level - a.level).map((s) => {
-              const usedIn = projectsUsing(s.label);
-
-              return (
-                <div key={s.label} className="skill">
-                  <span className="skill-bar" style={{ background: `linear-gradient(90deg, ${s.color}, transparent)` }} />
-                  <h4 className="skill-label">{s.label}</h4>
-                  <p className="skill-items">{s.items.join(" · ")}</p>
-
-                  <div className="skill-meter" aria-label={`Proficiency ${s.level} of 4`}>
-                    <span className="skill-segs" aria-hidden="true">
-                      {[1, 2, 3, 4].map((n) => (
-                        <span
-                          key={n}
-                          className="seg"
-                          style={{ background: n <= s.level ? s.color : "var(--line-light)" }}
-                        />
-                      ))}
-                    </span>
-                    <span className="skill-level" aria-hidden="true">{s.level}/4</span>
-                  </div>
-
-                  {usedIn.length > 0 && (
-                    <p className="skill-used">
-                      <span className="skill-used-label">Used in</span>
-                      {usedIn.map((p) => (
-                        <Link key={p.slug} href={`/projects/${p.slug}`} className="skill-used-link">
-                          {p.short}
-                        </Link>
-                      ))}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="dark-panel" id="contact">
-        <div className="wrap contact">
-          <h2>Let&apos;s build something together.</h2>
-          <p className="lede mb-4">Open to internships, research collaborations, and exciting opportunities.</p>
-          <span className="inline-flex items-center gap-2 text-xs font-mono text-[var(--muted-dark)] mb-8">
-            <span className="w-2 h-2 rounded-full bg-[var(--v500)] animate-pulse shadow-[0_0_8px_var(--v500)]" />
-            Currently open to opportunities
-          </span>
-          <div className="contact-row">
-            <a className="btn" href="mailto:suryapratik12@gmail.com" target="_blank" rel="noopener noreferrer">EMAIL →</a>
-            <a className="btn" href="https://github.com/xeyynon" target="_blank" rel="noopener noreferrer">GITHUB →</a>
-            <a className="btn" href="https://www.linkedin.com/in/suryapratik/" target="_blank" rel="noopener noreferrer">LINKEDIN →</a>
-            <a className="btn" href="https://drive.google.com/drive/folders/1VjUdrDwPhYxG0RvFJxR1G3ilHIyyd9AT?usp=sharing" target="_blank" rel="noopener noreferrer">RESUME →</a>
-          </div>
-        </div>
-        <div className="wrap">
-          <footer>
-            <span>© 2026 {personalInfo.name.toUpperCase()}</span>
-            <span>400–680nm</span>
-          </footer>
-        </div>
-      </section>
+      </ScrollSceneProvider>
     </>
   );
 }
