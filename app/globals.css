@@ -31,7 +31,6 @@
      Text tokens for anything that sits on the persistent WebGL scene. */
   --scene-ink-hi:#F2F0E9;
   --scene-ink-lo:#B9B7AE;
-  --scene-scrim:rgba(8,9,12,0.88);
   /* The scene's own base (shown before WebGL mounts, or if it fails) and the
      fallback SVG's outline stroke. */
   --scene-base:#0B0C10;
@@ -75,7 +74,7 @@
   --card-bg:#111319;
   --card-bg-hover:#16191f;
   --card-border:#23262d;
-  --card-radius:12px;
+  --card-radius:16px;
 
   /* ---- shadcn / Animate UI bridge ----
      shadcn components consume these names. Rather than run a second palette
@@ -490,31 +489,47 @@ header.nav{
 .exp-more summary:hover{color:var(--ink-hi);}
 .exp-more p{margin-top:8px;font-size:13px;line-height:1.6;color:var(--muted-dark);}
 
-/* ABOUT — an overlay on the persistent scene. See .about-overlay/.about-scrim
-   below for how it stays readable. */
-.about{padding-top:56px;padding-bottom:60px;}
-.about-grid{display:grid;grid-template-columns:140px 1fr;gap:30px;margin-top:22px;}
-.about-photo{
-  width:140px;height:172px;background:var(--bg-dark);position:relative;overflow:hidden;
-}
-.about-photo::after{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(160deg,var(--v400) 0%,transparent 30%,transparent 70%,var(--v680) 100%);
-  opacity:.35;
-}
-.about-copy p{font-size:14.5px;line-height:1.7;max-width:440px;color:var(--scene-ink-lo);}
 
-/* Text tokens for About, which sits on the scene behind a near-opaque scrim. */
-.about-overlay{
-  --v400:var(--spec-bright-400); --v450:var(--spec-bright-450);
-  --v500:var(--spec-bright-500); --v560:var(--spec-bright-560);
-  --v600:var(--spec-bright-600); --v680:var(--spec-bright-680);
-  --vwhite:var(--spec-bright-white);
-  /* The tagline's pulse keyframes rest on --ink-lo; unbound here it fell
-     through to the near-black :root value and two of three words vanished. */
-  --ink-lo:var(--scene-ink-hi);
-  color:var(--scene-ink-hi);
-  position:relative;
+
+/* ABOUT — Bento Spectrum (owner's choice, 2026-10-11): Bento Grid + dark
+   OLED + Swiss type. One fact per solid tile, tiles of different sizes,
+   small mono labels over large values, and the spectrum only as the six
+   swatches. Row 1: photo + statement (3 columns). Row 2: four fact tiles. */
+.bento{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px;padding-bottom:56px;}
+.tile{
+  position:relative;overflow:hidden;padding:20px 22px;
+  background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);
+}
+.tile-photo{padding:0;min-height:300px;}
+.tile-photo img{object-position:50% 28%;}
+.tile-statement{grid-column:2 / span 3;display:flex;flex-direction:column;gap:12px;padding:28px 32px;}
+.bento-headline{
+  font-family:var(--font-display);font-size:clamp(26px,3vw,38px);font-weight:600;
+  line-height:1.1;letter-spacing:-.02em;color:var(--ink-hi);
+}
+.bento-focus{font-size:16px;line-height:1.6;color:var(--ink-hi);max-width:60ch;}
+.bento-belief{font-size:14px;line-height:1.6;color:var(--muted-dark);max-width:60ch;}
+.bento-sign{margin-top:auto;padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.bento-motto{font-size:15px;font-weight:500;}
+.swatches span.sw{width:12px;height:12px;border-radius:3px;}
+.tile-fact{display:flex;flex-direction:column;gap:6px;min-height:150px;}
+.tile-label{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-dark);}
+.tile-value{margin-top:auto;font-family:var(--font-display);font-size:24px;font-weight:600;line-height:1.15;color:var(--ink-hi);}
+.tile-number{font-size:44px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+.tile-unit{margin-left:4px;font-size:16px;font-weight:500;color:var(--muted-dark);}
+.tile-note{font-size:13px;line-height:1.5;color:var(--muted-dark);}
+.tile-status{display:flex;align-items:center;gap:10px;}
+/* White, not a spectrum hue: every spectrum colour already means a capability. */
+.status-dot{width:9px;height:9px;border-radius:50%;background:var(--vwhite);flex-shrink:0;}
+@media(max-width:900px){
+  .bento{grid-template-columns:repeat(2,1fr);}
+  .tile-statement{grid-column:auto;padding:22px 24px;}
+}
+@media(max-width:560px){
+  .tile-photo,.tile-statement{grid-column:1 / -1;}
+  .tile-photo{min-height:0;aspect-ratio:4 / 3;}
+  .tile-fact{min-height:128px;}
+  .tile-number{font-size:38px;}
 }
 
 /* Apply .scene-overlay to any element whose text sits on the animated scene:
@@ -533,26 +548,8 @@ header.nav{
   color:var(--scene-ink-hi);
 }
 
-/* Near-opaque rather than a light "just enough" scrim: the background behind
-   it is an animated, unbounded scene (stars, nebula, the spectrum fan can
-   itself pass behind this block during the scroll range), so a contrast
-   check against one sampled frame doesn't hold across every frame. Only a
-   near-opaque scrim gives a guarantee independent of what's animating
-   underneath. backdrop-filter reads as atmosphere/depth — on-brand with the
-   prism itself — rather than a flat dark rectangle. PrismCanvas's uSceneDim
-   is a second, independent margin on top of this, not a substitute for it. */
-/* No blur, same reasoning as .scene-panel — and --scene-scrim is already
-   0.88 opacity, near-opaque, so blur was doing very little visible work
-   here regardless. */
-.about-scrim{
-  position:absolute; inset:-24px;
-  background:var(--scene-scrim);
-  z-index:-1;
-  pointer-events:none;
-}
-.swatches{display:flex;gap:5px;margin-top:18px;align-items:center;}
+.swatches{display:flex;gap:5px;align-items:center;}
 .swatches span.sw{width:15px;height:15px;}
-.swatches .stat{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-light);margin-left:8px;}
 
 /* ACHIEVEMENTS */
 .ach-list{margin-top:20px;list-style:none;}
@@ -661,7 +658,6 @@ header.nav{
 footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padding:20px 0 40px;border-top:1px solid var(--line-dark);margin-top:20px;display:flex;justify-content:space-between;}
 
 @media(max-width:640px){
-  .about-grid{grid-template-columns:1fr;}
   .ach-event{margin:6px 0 0;display:table;}
 }
 
@@ -684,7 +680,7 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 
 /* The single-wavelength continuation of the homepage's rainbow (see
    components/ProjectPrismRay.tsx). z-index:-1 against .pp-hero's own
-   stacking context — same technique as .about-scrim — sinks it behind the
+   stacking context — the standard negative-z-index technique: sinks it behind the
    header text without needing every sibling to opt in with its own z-index.
    <canvas> is a replaced element: inset alone does NOT stretch it the way
    it would a non-replaced box (neither width nor height), so it was
@@ -1020,7 +1016,7 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
    ships in the HTML, and the WebGL canvas, which fades in over it once idle.
    If WebGL is unavailable the SVG simply stays. background is fixed
    (--scene-base), not the theme-swapped page background, for the same
-   reason About needs .about-overlay: this box is the persistent scene, so
+   reason text on the scene needs .scene-overlay: this box is the persistent scene, so
    it must already look like the canvas's own near-black stage before the
    canvas exists — otherwise light theme shows cream here and then flips to
    black the moment WebGL mounts. .scene-overlay (applied where this is

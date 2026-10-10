@@ -5,8 +5,22 @@
 export const personalInfo = {
   name: "Surya Pratik",
   title: "Learning. Building. Improving",
-  education: "B.Tech Computer Science and Engineering, VIT-AP University · 2023 → 2027 · CGPA 8.34/10",
-  summary: "Hi, I'm Surya Pratik from Bhilai, Chhattisgarh. I build AI products that ship: voice agents, LLM-backed tools, Flutter apps and, when a product needs it, the hardware they run on. I'm currently an engineering intern at Alfaleus Technologies and open to AI/ML, software and Flutter internships, available to join immediately. I believe growth comes from challenging yourself, embracing failures, and learning something new every day."
+  /** About section, one fact per tile. Taken from the former one-paragraph
+   *  summary; "intern at Alfaleus" lives in Experience, so it is not here. */
+  headline: "I build AI products that ship.",
+  focus: "Voice agents, LLM-backed tools, Flutter apps and, when a product needs it, the hardware they run on.",
+  belief: "Growth comes from challenging yourself, embracing failures, and learning something new every day.",
+  education: {
+    degree: "B.Tech CSE",
+    school: "VIT-AP University",
+    years: "2023 → 2027",
+    cgpa: "8.34",
+  },
+  hometown: { city: "Bhilai", region: "Chhattisgarh, India" },
+  availability: {
+    headline: "Open to work",
+    detail: "AI/ML, software and Flutter internships. Can join immediately.",
+  },
 };
 
 export type ExperienceHighlight = {
