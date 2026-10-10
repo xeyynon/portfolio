@@ -1,15 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import { personalInfo, experience, projects, achievements, skills, projectLabel } from "@/data/portfolioData";
+import { personalInfo, experience, projects, achievements, skills, projectLabel, projectGroups } from "@/data/portfolioData";
 import ScrollSceneProvider from "@/components/ScrollSceneProvider";
 import PrismScene from "@/components/PrismScene";
 import LeadershipTimeline from "@/components/LeadershipTimeline";
-
-// Homepage project groups, by kind of work (TARANG: group by kind of claim).
-const PROJECT_GROUPS = [
-  { key: "software", label: "SOFTWARE" },
-  { key: "embedded", label: "EMBEDDED" },
-] as const;
 
 const SPECTRUM = [
   { token: "--v400", nm: 400 },
@@ -180,7 +174,7 @@ export default function Home() {
                 <span className="count">{String(projects.length).padStart(2, '0')} TOTAL</span>
               </div>
 
-              {PROJECT_GROUPS.map((group) => {
+              {projectGroups.map((group) => {
                 const list = projects.filter((p) => p.category === group.key);
                 return (
                   <div key={group.key} className="pgroup">

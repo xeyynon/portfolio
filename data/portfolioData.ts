@@ -484,3 +484,15 @@ export const projects: Project[] = projectEntries.map((p) => ({
 export function projectLabel(p: Pick<Project, "title" | "subtitle">): string {
   return p.subtitle ? `${p.title}: ${p.subtitle}` : p.title;
 }
+
+/** Homepage project groups, in page order. The rail reads this too, so its
+ *  ticks follow the page exactly. */
+export const projectGroups = [
+  { key: "software", label: "SOFTWARE" },
+  { key: "embedded", label: "EMBEDDED" },
+] as const satisfies readonly { key: ProjectCategory; label: string }[];
+
+/** Projects in the order they appear on the homepage (grouped). */
+export const projectsInPageOrder: Project[] = projectGroups.flatMap((g) =>
+  projects.filter((p) => p.category === g.key)
+);

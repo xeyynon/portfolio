@@ -187,7 +187,7 @@ a{color:inherit;text-decoration:none;}
    height reflowed it and nudged every sibling on hover. The box stays 16px and
    only the paint scales, so the column never relayouts. */
 .rail .tick{
-  appearance:none;border:0;padding:0;
+  display:block;appearance:none;border:0;padding:0;
   width:3px;height:16px;border-radius:1px;
   cursor:pointer;
   transition:transform .35s cubic-bezier(.2,.8,.2,1),background .35s,box-shadow .35s;
