@@ -1,8 +1,18 @@
+// Content mirrors the resume; every number here must be backed by the
+// resume's own sources — add facts there first, then here. No client names,
+// internal URLs or private-repo links.
+
 export const personalInfo = {
   name: "Surya Pratik",
   title: "Learning. Building. Improving",
-  education: "B.Tech Computer Science and Engineering, VIT-AP University",
-  summary: "Hi, I'm Surya Pratik from Bhilai, Chhattisgarh, I enjoy building technology that bridges hardware and software, from embedded systems and IoT devices to mobile applications. My journey has been driven by curiosity and a desire to continuously learn, experiment, and solve real-world problems. I believe growth comes from challenging yourself, embracing failures, and learning something new every day."
+  education: "B.Tech Computer Science and Engineering, VIT-AP University (2023 – 2027) · CGPA 8.34/10",
+  summary: "Hi, I'm Surya Pratik from Bhilai, Chhattisgarh. I build AI products that ship: voice agents, LLM-backed tools, Flutter apps and, when a product needs it, the hardware they run on. I'm currently an engineering intern at Alfaleus Technologies and open to AI/ML, software and Flutter internships, available to join immediately. I believe growth comes from challenging yourself, embracing failures, and learning something new every day."
+};
+
+export type ExperienceHighlight = {
+  /** Bold lead-in, e.g. the product name. */
+  lead: string;
+  text: string;
 };
 
 export type Experience = {
@@ -12,19 +22,33 @@ export type Experience = {
   period: string;
   status: "current" | "past";
   pipeline: string;
-  highlights: string[];
+  highlights: ExperienceHighlight[];
 };
 
 export const experience: Experience = {
   company: "Alfaleus Technologies",
   companyUrl: "https://alfaleus.com",
-  role: "Embedded Engineering Intern",
-  period: "Jul 2026 — Present",
+  role: "Embedded Engineer Intern",
+  period: "Jul 2026 — Present · Hyderabad",
   status: "current",
-  pipeline: "embedded system design → integration → real-world deployment",
+  pipeline: "voice AI → mobile apps → on-device ML → hardware builds",
   highlights: [
-    "Designing embedded systems across multiple concurrent projects",
-    "Integrating hardware and software subsystems into deployable products aimed at making everyday tasks easier",
+    {
+      lead: "Multilingual voice AI caller (Raspberry Pi)",
+      text: "Built a phone agent that answers calls over Bluetooth HFP with no cloud telephony, tested in Telugu, Hindi and English. Replies in 1.2–2.5 s on real calls through a streaming Sarvam Saaras STT → Gemini 2.5 Flash → Google TTS pipeline, chosen after evaluating 6 STT, 4 LLM and 4 TTS options."
+    },
+    {
+      lead: "HR mobile app (Flutter, Android)",
+      text: "Put a desktop-only HR portal with no API on employees' phones: attendance, leave, payslips and claims. Piloted with 8–10 employees; shipped 4 releases in 4 days with 401 automated tests and CI. PAN, Aadhaar and bank data stay masked until a biometric check."
+    },
+    {
+      lead: "GARBAE AI waste-sorting bin (v3.0)",
+      text: "Moved inference and servo control from ESP32-S3 + cloud onto a Raspberry Pi 4B that sorts fully offline, deployed in a corporate cafeteria. Cut classification from ~14.6 s to ~2 s per item and raised balanced accuracy from 45.8% to 71.5% by benchmarking models on real captures."
+    },
+    {
+      lead: "Droptor (eye-drop adherence device)",
+      text: "With the team, built and validated 50 working units in one week for the Glaucoma Society of India conference (GLAUCOPAT 2026), where it won 1st place in the product exhibition."
+    }
   ],
 };
 
@@ -46,141 +70,219 @@ export type Project = {
   skills: string[];
   links?: {
     github?: string;
+    /** Slide deck PDF, rendered by DeckViewer. */
     demo?: string;
+    /** Hosted live app. */
+    live?: string;
   };
 };
 
 export const projects: Project[] = [
   {
-    slug: "lifi-data-transmission-system",
+    slug: "tarang",
     num: "01",
-    title: "LiFi Data Transmission System",
-    short: "LiFi",
-    pipeline: "laser → light pulse → solar receiver → decode",
+    title: "TARANG – Oil-Spill Detection and Vessel Attribution",
+    short: "TARANG",
+    pipeline: "Sentinel-1 radar → slick → drift hindcast → AIS tracks → ranked ships",
     color: "var(--v400)",
+    tag: "SIH 2026",
+    domain: "Remote Sensing, Maritime Forensics",
+    description: "Oil spills at sea are rarely traced to the ship responsible. TARANG closes the loop in one workstation: it detects a slick in Sentinel-1 satellite radar, hindcasts its drift back to the release point with OpenDrift, and ranks nearby AIS vessels with a reason for every score. Built for Smart India Hackathon 2026 on an NTRO problem statement.",
+    highlights: [
+      "Turns a slick into a ranked list of candidate ships in ~3 min per investigation",
+      "Ranked 331 vessels on a real Arabian Sea spill, after filtering out 293 implausible ones",
+      "Scores each ship on 40% proximity, 40% drift trajectory and 20% behaviour anomaly (Isolation Forest), and explains the score",
+      "Pulls from 5 real external data sources, including Sentinel-1 radar, NOAA GFS wind, Copernicus Marine currents and Global Fishing Watch AIS",
+      "Built the Python pipeline and React/Node UI; shipped 146 builds with 208 tests (the slick-detection model was trained by a teammate)"
+    ],
+    stack: ["Python", "OpenDrift", "Google Earth Engine", "scikit-learn", "React", "three.js", "Node.js", "Docker"],
+    skills: ["AI / ML", "Web & Backend", "Cloud & DevOps", "Languages"],
+    links: { live: "https://tarang-mu.vercel.app" }
+  },
+  {
+    slug: "dhara",
+    num: "02",
+    title: "DHARA – Dam Hazard Assessment and Routing",
+    short: "DHARA",
+    pipeline: "breach scenario → 2D flood solvers → depth & arrival time → people at risk",
+    color: "var(--v450)",
+    tag: "SIH 2026",
+    domain: "Disaster Management, Hydrodynamic Modelling",
+    description: "India has seen 36 large dam failures, and the Dam Safety Act 2021 requires flood maps that most dam owners cannot produce. DHARA simulates dam-break, water-release and river-blockage scenarios and tells an officer when the water arrives, how deep it gets and who is affected. Built for Smart India Hackathon 2026 on an NTRO problem statement.",
+    highlights: [
+      "Benchmarked 4 flood solvers against the analytic dam-break solution: ANUGA RMSE 0.037 m, Delft3D-FM 0.047 m",
+      "Modelled 5 real Indian dam and flood cases: Hidkal, Machhu-II (1979), South Lhonak (2023), Chamoli (2021) and Kosi (2008)",
+      "One Hidkal screening run maps 434 km² and 240k people in the flood zone (model output, not a validated prediction)",
+      "FastAPI job service with 132 tests and a React/MapLibre 2D/3D dashboard with .shp/.kml export",
+      "Sentinel-1 flood watch on Google Earth Engine and a one-page brief for officers"
+    ],
+    stack: ["Python", "FastAPI", "ANUGA", "SFINCS", "Delft3D-FM", "DualSPHysics", "React", "MapLibre", "Google Earth Engine"],
+    skills: ["Web & Backend", "Cloud & DevOps", "Languages"],
+    links: { live: "https://dhara-frontend-indol.vercel.app" }
+  },
+  {
+    slug: "lifi-data-transmission-system",
+    num: "03",
+    title: "Li-Fi Data Transmission System",
+    short: "Li-Fi",
+    pipeline: "laser → light pulse → solar receiver → decode",
+    color: "var(--v500)",
     tag: "AWARDED",
     domain: "Embedded Systems, Visible Light Communication",
-    description: "Wireless communication system that uses laser light to transmit digital data and a solar panel receiver with LM358 amplification for data recovery.",
+    description: "Won Best Contemporary Project among 1,000+ teams at Engineering Clinics I (Fall 2024–25). A wireless link that sends data as laser light pulses and recovers it with a solar-panel receiver.",
     highlights: [
-      "Hardware integration of Laser Module (Transmitter)",
-      "Solar Panel with LM358 Operational Amplifier (Receiver)",
-      "Firmware development for transmission and reception",
-      "Communication testing and debugging",
-      "Optimization of baud rates and synchronization delays"
+      "Laser transmitter on an Arduino Mega using on-off keying",
+      "Solar-panel receiver with an LM358 amplifier",
+      "Sends text and an 8×8 grayscale image over a 50 m link",
+      "Firmware for transmission and reception, plus link testing and debugging"
     ],
-    stack: ["Arduino", "Laser Module", "Solar Panel", "LM358", "Embedded C"],
-    skills: ["Embedded", "Programming", "Tools"],
+    stack: ["Arduino Mega", "Laser Module", "Solar Panel", "LM358", "Embedded C"],
+    skills: ["Hardware", "Languages"],
     links: { github: "https://github.com/xeyynon/Lifi-Data-Transmission-System", demo: "/sources/PPTs/LIFI.pdf" }
   },
   {
-    slug: "telegram-drive",
-    num: "02",
-    title: "Telegram Drive – Telegram-Based Cloud Storage Platform",
-    short: "Telegram Drive",
-    pipeline: "app → bot api → virtual storage",
-    color: "var(--v450)",
-    tag: "SHIPPED",
-    domain: "Cloud Storage, Mobile Development",
-    description: "Cloud storage application using Telegram Bots as the storage backend.",
+    slug: "orca",
+    num: "04",
+    title: "ORCA – Satellite Collision-Risk Screening",
+    short: "ORCA",
+    pipeline: "orbit catalog → KD-tree search → refinement → risk tiers",
+    color: "var(--v560)",
+    tag: "LIVE",
+    domain: "Space Situational Awareness",
+    description: "Commercial satellite conjunction tools are expensive and closed. ORCA is an open pipeline from raw orbit data (TLEs) to the close approaches that matter this week.",
     highlights: [
-      "Flutter application development",
-      "Telegram Bot API integration",
-      "Resumable file uploads",
-      "Biometric and PIN authentication",
-      "Encrypted local metadata storage",
-      "Virtual storage management",
-      "Multi-profile support"
+      "Screens a 15,968-object satellite catalog for one day of close approaches in 19 s",
+      "KD-tree candidate search within 100 km, then parallel refinement of each approach",
+      "Ranks close approaches by collision probability into 5 risk tiers",
+      "FastAPI + React/three.js, Docker on Oracle Cloud with CI deploys"
     ],
-    stack: ["Flutter", "Telegram Bot API", "Biometrics", "Encrypted Storage", "Dart"],
-    skills: ["Mobile", "Backend", "Cloud & DB", "Tools"],
-    links: { github: "https://github.com/xeyynon/TelegramDriveStorage" }
+    stack: ["Python", "FastAPI", "React", "three.js", "Docker", "Oracle Cloud"],
+    skills: ["Web & Backend", "Cloud & DevOps", "Languages"],
+    links: { live: "https://orca-vitap.vercel.app" }
+  },
+  {
+    slug: "surrag",
+    num: "05",
+    title: "SURRAG – Criminal Network Analysis",
+    short: "SURRAG",
+    pipeline: "police FIR → entity extraction → person resolution → case graph → leads",
+    color: "var(--v600)",
+    tag: "LIVE",
+    domain: "LLM Applications, Graph Analytics",
+    description: "Links police first information reports (FIRs) into a searchable case graph, so investigators can see connections across cases with a citation behind every lead.",
+    highlights: [
+      "LLM entity extraction with spaCy and regex fallbacks",
+      "Fuzzy person resolution across reports",
+      "Neo4j case graph plus Qdrant semantic search",
+      "FastAPI backend with about 20 endpoints and NCRB hotspot data covering 783 districts",
+      "Demo runs on synthetic FIRs"
+    ],
+    stack: ["Python", "FastAPI", "LLM", "spaCy", "Neo4j", "Qdrant"],
+    skills: ["AI / ML", "Web & Backend", "Cloud & DevOps", "Languages"],
+    links: { live: "https://crimelink-frontend.vercel.app" }
+  },
+  {
+    slug: "human-presence-detection",
+    num: "06",
+    title: "CSI-Sense – Camera-Free Activity Detection over Wi-Fi",
+    short: "CSI-Sense",
+    pipeline: "Wi-Fi signal → ESP32-S3 + biquad antenna → CSI spectrograms → EfficientNetV2 → app",
+    color: "var(--v680)",
+    tag: "TEAM",
+    domain: "Wireless Sensing, Mobile Development",
+    description: "Detects human presence and activity from Wi-Fi channel state information (CSI), with no camera. Team project for Engineering Clinics II (Winter 2025–26).",
+    highlights: [
+      "Built the Flutter app that shows live presence and activity",
+      "Helped the team build the custom biquad antenna",
+      "Team pipeline: 4× ESP32-S3 receivers, Hampel filtering, CSI spectrograms and an EfficientNetV2-S classifier"
+    ],
+    stack: ["Flutter", "Dart", "ESP32-S3", "EfficientNetV2-S"],
+    skills: ["Mobile", "Hardware"],
+    links: { github: "https://github.com/xeyynon/CSI-Sense", demo: "/sources/PPTs/CSI.pdf" }
   },
   {
     slug: "ecox-industrial-safety",
-    num: "03",
-    title: "EcoX – Industrial Safety and Emission Monitoring System",
+    num: "07",
+    title: "EcoX – Industrial Emission and Worker-Safety Device",
     short: "EcoX",
-    pipeline: "gas sensor → raspberry pi → LTE/GPS → dashboard",
-    color: "var(--v500)",
-    tag: "TOP 30",
+    pipeline: "CO sensor → Raspberry Pi 4B → 4G/GPS → Flutter dashboard",
+    color: "var(--v400)",
+    tag: "SEMI FINALIST",
     domain: "IoT, Industrial Safety",
-    description: "Portable industrial safety platform for real-time gas monitoring, GPS tracking, and cloud-connected alerts.",
+    description: "A portable, low-cost emission and worker-safety device for small and medium industries. Smart India Hackathon 2025 Semi Finalist.",
     highlights: [
-      "Integration of Winsen ZE03-CO Gas Sensor",
-      "Integration of Quectel LTE and GPS Module",
-      "Flutter mobile application development",
-      "System testing and validation"
+      "Built the Flutter monitoring dashboard",
+      "Device: Raspberry Pi 4B with CO sensing, YOLOv8n fire detection, 4G + GPS alerts and a speaker alarm",
+      "Supported the team on hardware integration and testing"
     ],
-    stack: ["Raspberry Pi 4B", "Flutter", "Dart", "LTE", "GPS", "IoT"],
-    skills: ["Embedded", "Mobile", "IoT", "Tools"],
+    stack: ["Flutter", "Dart", "Raspberry Pi 4B", "LTE", "GPS"],
+    skills: ["Mobile", "Hardware"],
     links: { github: "https://github.com/xeyynon/ecoX", demo: "/sources/PPTs/ECOX.pdf" }
   },
   {
     slug: "flowiq",
-    num: "04",
-    title: "FlowIQ – AI Powered Smart Traffic Management System",
+    num: "08",
+    title: "FlowIQ – Smart Traffic App",
     short: "FlowIQ",
-    pipeline: "cameras → YOLOv8 → SORT tracking → route optimization",
-    color: "var(--v560)",
-    tag: "HIGH SCORE",
-    domain: "Smart Cities, Computer Vision",
-    description: "AI-powered traffic management platform with route optimization and violation management.",
+    pipeline: "citizen app → maps & directions → challans → payment",
+    color: "var(--v450)",
+    tag: "98/100 R1",
+    domain: "Smart Cities, Mobile Development",
+    description: "Team Veda-Bytes' smart traffic management platform for RADIOTHON 2026, which scored 98/100 in Round 1. I built the citizen-facing mobile app.",
     highlights: [
-      "Flutter mobile application development",
-      "Google API integration",
-      "Authentication service integration",
-      "Custom UI development",
-      "Traffic monitoring and violation management interfaces"
+      "Built the Flutter user app",
+      "Google Maps and Directions integration for routing",
+      "Supabase authentication and data",
+      "Challan (traffic fine) view and payment screens"
     ],
-    stack: ["Flutter", "Google Maps API", "Firebase Auth", "YOLOv8", "SORT"],
-    skills: ["Mobile", "AI/ML", "Cloud & DB", "Programming"],
+    stack: ["Flutter", "Dart", "Supabase", "Google Maps API", "Directions API"],
+    skills: ["Mobile", "Cloud & DevOps"],
     links: { github: "https://github.com/xeyynon/TUA", demo: "/sources/PPTs/FLOWIQ.pdf" }
   },
   {
-    slug: "human-presence-detection",
-    num: "05",
-    title: "Human Presence and Activity Detection Using CSI and Deep Learning",
-    short: "CSI-Sense",
-    pipeline: "wifi signal → ESP32 → CSI features → EfficientNet-V2",
-    color: "var(--v600)",
-    tag: "FINALIST",
-    domain: "Deep Learning, Wireless Sensing",
-    description: "Camera-free human detection system using Wi-Fi CSI data and deep learning models.",
+    slug: "telegram-drive",
+    num: "09",
+    title: "Telegram Drive – Encrypted Cloud Storage",
+    short: "Telegram Drive",
+    pipeline: "file → AES-256 chunks → Telegram → streamed back",
+    color: "var(--v500)",
+    tag: "PERSONAL",
+    domain: "Mobile Development, Encryption",
+    description: "A Flutter app that turns Telegram into encrypted cloud storage.",
     highlights: [
-      "Development of custom Biquad Antenna",
-      "Antenna integration with ESP32 hardware",
-      "Firmware development",
-      "Flutter mobile application development",
-      "Testing and system validation"
+      "AES-256-CTR encryption on the device, with its own IV for every 48 MB chunk",
+      "Encrypted file index stored in a pinned Telegram message",
+      "Streaming playback that decrypts on the fly",
+      "PIN-based unlock"
     ],
-    stack: ["ESP32", "CSI", "EfficientNet-V2", "Flutter", "Raspberry Pi"],
-    skills: ["Embedded", "AI/ML", "IoT", "Mobile"],
-    links: { github: "https://github.com/xeyynon/CSI-Sense", demo: "/sources/PPTs/CSI.pdf" }
+    stack: ["Flutter", "Dart", "Telegram Bot API", "AES-256-CTR"],
+    skills: ["Mobile", "Languages"],
+    links: { github: "https://github.com/xeyynon/TelegramDriveStorage" }
   },
   {
     slug: "smart-water-quality",
-    num: "06",
-    title: "Smart Water Quality Monitoring System",
-    short: "Smart Water",
-    pipeline: "sensors → ESP32 → LoRa → ML classification",
-    color: "var(--v680)",
-    tag: "RESEARCH",
-    domain: "IoT, Machine Learning",
-    description: "Real-time water quality monitoring and prediction system using LoRa mesh networking and machine learning.",
+    num: "10",
+    title: "Water Quality Monitoring Node",
+    short: "Water Node",
+    pipeline: "pH · TDS · temperature → ESP32 → 433 MHz LoRa",
+    color: "var(--v560)",
+    tag: "PROTOTYPE",
+    domain: "IoT, Environmental Sensing",
+    description: "An ESP32 sensor node that reports water quality over long-range LoRa radio.",
     highlights: [
-      "Integration of pH, TDS, Turbidity and Temperature Sensors",
-      "Development of LoRa Mesh Network (LoRaPAN)",
-      "Implementation of Multi-LoRa Hopping",
-      "Python pipeline connecting serial data, ML models and dashboards",
-      "Testing and calibration"
+      "Reads pH, TDS and temperature sensors with 10-sample averaging",
+      "Sends readings over 433 MHz LoRa every 3 s",
+      "Sensor testing and calibration"
     ],
-    stack: ["ESP32", "LoRa", "Python", "Machine Learning", "Dashboard Development"],
-    skills: ["Embedded", "IoT", "AI/ML", "Programming"],
+    stack: ["ESP32", "LoRa (433 MHz)", "pH / TDS / temperature sensors", "Arduino C++"],
+    skills: ["Hardware", "Languages"],
     links: { github: "https://github.com/xeyynon/Water-Monitoring-Hardware", demo: "/sources/PPTs/Water.pdf" }
   }
 ];
 
 export const leadershipOrg = "Microsoft Student Chapter, VIT-AP";
+
+export const leadershipSummary = "Led the chapter to Best Student Chapter (Fall 2025) as President; ran 8+ events and 5+ webinars for 300+ members.";
 
 export type LeadershipStage = {
   date: string;
@@ -192,59 +294,81 @@ export type LeadershipStage = {
 };
 
 export const leadership: LeadershipStage[] = [
-  { date: "Jan 2024", role: "Hi-Tech Team Member", range: "Jan 2024 – Jun 2024", gain: 1 },
-  { date: "Jun 2024", role: "Club Manager",        range: "Jun 2024 – Jun 2025", gain: 2 },
-  { date: "Jul 2025", role: "President",           range: "Jul 2025 – NOV 2025", gain: 3 },
-  { date: "Nov 2025", role: "Chief Advisor",       range: "Nov 2025 – Jul 2026",  gain: 4, tag: "LAST POSITION" }
+  { date: "Dec 2023", role: "Hi-Tech Team Member", range: "Dec 2023 – Jun 2024", gain: 1 },
+  { date: "Jul 2024", role: "Club Manager",        range: "Jul 2024 – Jul 2025", gain: 2 },
+  { date: "Jul 2025", role: "President",           range: "Jul 2025 – Dec 2025", gain: 3 },
+  { date: "Dec 2025", role: "Chief Advisor",       range: "Dec 2025 – Jul 2026", gain: 4, tag: "LAST POSITION" }
 ];
 
 export type Achievement = {
   title: string;
   event: string;
   year: string;
-  /** Project slug this award belongs to. */
-  slug: string;
+  /** Project slug this award belongs to, when it has a project page. */
+  slug?: string;
+  /** Subtitle when there is no project page. */
+  sub?: string;
   achievement: string;
 };
 
 export const achievements: Achievement[] = [
   {
-    title: "Best Contemporary Project Award",
-    event: "ECS EXPO 2024",
-    year: "2024",
-    slug: "lifi-data-transmission-system",
-    achievement: "Awarded among 1000+ teams"
+    title: "1st Place, Product Exhibition",
+    event: "GLAUCOPAT 2026",
+    year: "2026",
+    sub: "Droptor eye-drop adherence device · Glaucoma Society of India",
+    achievement: "50 working units built and validated in one week, with the team"
   },
   {
-    title: "Top 30 Team",
-    event: "Smart India Hackathon 2025 Internal Hackathon",
-    year: "2025",
-    slug: "ecox-industrial-safety",
-    achievement: "Selected among 500+ teams and qualified for Semi-Final Round"
-  },
-  {
-    title: "Highest Scoring Team",
+    title: "98/100 in Round 1",
     event: "RADIOTHON 2026",
     year: "2026",
     slug: "flowiq",
-    achievement: "Highest evaluation score in Semi-Final Round"
+    achievement: "Qualified for Round 2"
   },
   {
-    title: "Finalist",
-    event: "ECS EXPO 2026",
-    year: "2026",
-    slug: "human-presence-detection",
-    achievement: "Qualified for Final Round"
+    title: "Best Student Chapter (Fall 2025)",
+    event: "Microsoft Student Chapter VIT-AP",
+    year: "2025",
+    sub: "As President",
+    achievement: "8+ events and 5+ webinars for 300+ members"
+  },
+  {
+    title: "Semi Finalist",
+    event: "Smart India Hackathon 2025",
+    year: "2025",
+    slug: "ecox-industrial-safety",
+    achievement: "Qualified for the Semi-Final Round"
+  },
+  {
+    title: "Top 20, Basic Track",
+    event: "NEC '24, E-Cell IIT Bombay",
+    year: "2025",
+    sub: "National Entrepreneurship Challenge",
+    achievement: "Ranked in the Top 20 of the Basic Track"
+  },
+  {
+    title: "Best Contemporary Project",
+    event: "Engineering Clinics I (Fall 2024–25)",
+    year: "2024",
+    slug: "lifi-data-transmission-system",
+    achievement: "Awarded among 1,000+ teams"
+  },
+  {
+    title: "Semi Finalist",
+    event: "Smart India Hackathon 2024",
+    year: "2024",
+    sub: "Vectr",
+    achievement: "Qualified for the Semi-Final Round"
   }
 ];
 
+/** Ordered for the target roles (AI/ML and software first); rendered in this order. */
 export const skills = [
-  { label: "Embedded",    items: ["ESP32", "Arduino", "Raspberry Pi"], color: "var(--v400)", level: 4 },
-  { label: "Mobile",      items: ["Flutter", "Dart"], color: "var(--v450)", level: 3 },
-  { label: "Programming", items: ["Python", "C++", "Java"], color: "var(--v500)", level: 4 },
-  { label: "IoT",         items: ["LoRa", "BLE", "LTE", "WiFi"], color: "var(--v560)", level: 4 },
-  { label: "AI/ML",       items: ["YOLOv8", "EfficientNet-V2", "LSTM", "Edge Impulse"], color: "var(--v600)", level: 3 },
-  { label: "Backend",     items: ["FastAPI", "MongoDB"], color: "var(--v680)", level: 2 },
-  { label: "Tools",       items: ["Git", "VS Code", "Arduino IDE"], color: "var(--v400)", level: 4 },
-  { label: "Cloud & DB",  items: ["Firebase", "Google Cloud", "PostgreSQL"], color: "var(--v450)", level: 3 }
+  { label: "AI / ML",        items: ["LLM integration (Gemini)", "Speech-to-text & text-to-speech streaming", "Computer vision (SigLIP2)", "INT8 quantization", "Voice activity detection", "scikit-learn"], color: "var(--v400)", level: 3 },
+  { label: "Mobile",         items: ["Flutter", "Dart", "Android", "Biometric auth", "On-device OCR"], color: "var(--v450)", level: 3 },
+  { label: "Web & Backend",  items: ["FastAPI", "React", "Node.js", "REST APIs"], color: "var(--v500)", level: 2 },
+  { label: "Cloud & DevOps", items: ["Firebase", "Supabase", "PostgreSQL", "Neo4j", "Docker", "Git", "CI/CD (GitHub Actions)"], color: "var(--v560)", level: 3 },
+  { label: "Languages",      items: ["Python", "Java", "Dart", "JavaScript", "TypeScript", "C/C++", "SQL"], color: "var(--v600)", level: 4 },
+  { label: "Hardware",       items: ["Raspberry Pi (Embedded Linux, systemd)", "ESP32-S3", "Arduino", "I2C", "Bluetooth / BLE", "LoRa"], color: "var(--v680)", level: 4 }
 ];

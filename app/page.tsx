@@ -79,7 +79,10 @@ export default function Home() {
                   <div className="ppipe">{experience.pipeline}</div>
                   <ul className="pp-highlights exp-highlights">
                     {experience.highlights.map((h) => (
-                      <li key={h}>{h}</li>
+                      <li key={h.lead}>
+                        <strong className="exp-lead">{h.lead}</strong>
+                        {h.text}
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -167,9 +170,9 @@ export default function Home() {
               </div>
               <ul className="ach-list">
                 {achievements.map((ach) => {
-                  const project = projects.find((p) => p.slug === ach.slug);
+                  const project = ach.slug ? projects.find((p) => p.slug === ach.slug) : undefined;
                   return (
-                    <li key={`${ach.slug}-${ach.event}`} className="ach">
+                    <li key={`${ach.title}-${ach.event}`} className="ach">
                       <span className="ach-year">{ach.year}</span>
                       <span>
                         {project ? (
@@ -179,7 +182,7 @@ export default function Home() {
                         ) : (
                           <span className="ach-title">{ach.title} — {ach.event}</span>
                         )}
-                        <span className="ach-sub">{project?.title ?? ach.slug}</span>
+                        <span className="ach-sub">{project?.title ?? ach.sub}</span>
                         <span className="ach-sub ach-detail">{ach.achievement}</span>
                       </span>
                     </li>
@@ -197,7 +200,7 @@ export default function Home() {
                 <h2 className="eyebrow">TECHNICAL SKILLS</h2>
               </div>
               <div className="skill-grid">
-                {[...skills].sort((a, b) => b.level - a.level).map((s) => {
+                {skills.map((s) => {
                   const usedIn = projectsUsing(s.label);
 
                   return (
@@ -241,7 +244,7 @@ export default function Home() {
           <div className="scene-panel scene-overlay" id="contact">
             <div className="wrap contact">
               <h2>Let&apos;s build something together.</h2>
-              <p className="lede mb-4">Open to internships, research collaborations, and exciting opportunities.</p>
+              <p className="lede mb-4">Open to AI/ML, software and Flutter internships. Available to join immediately.</p>
               <span className="inline-flex items-center gap-2 text-xs font-mono text-[var(--muted-dark)] mb-8">
                 <span className="w-2 h-2 rounded-full bg-[var(--v500)] animate-pulse shadow-[0_0_8px_var(--v500)]" />
                 Currently open to opportunities
@@ -252,7 +255,7 @@ export default function Home() {
                     now plain CSS (.btn-liquid) rather than the `motion`-backed
                     LiquidButton primitive; see .contact-row a.btn-liquid::after
                     in globals.css. */}
-                <a className="btn btn-liquid" href="mailto:suryapratik12@gmail.com" target="_blank" rel="noopener noreferrer">EMAIL →</a>
+                <a className="btn btn-liquid" href="mailto:pratiksurya1207@gmail.com" target="_blank" rel="noopener noreferrer">EMAIL →</a>
                 <a className="btn btn-liquid" href="https://github.com/xeyynon" target="_blank" rel="noopener noreferrer">GITHUB →</a>
                 <a className="btn btn-liquid" href="https://www.linkedin.com/in/suryapratik/" target="_blank" rel="noopener noreferrer">LINKEDIN →</a>
                 {/* Resume is the one conversion action in this row, so it alone

@@ -1,5 +1,5 @@
 "use client";
-import { leadership, leadershipOrg } from "@/data/portfolioData";
+import { leadership, leadershipOrg, leadershipSummary } from "@/data/portfolioData";
 
 export default function LeadershipTimeline() {
   return (
@@ -10,6 +10,7 @@ export default function LeadershipTimeline() {
           <span className="count">{String(leadership.length).padStart(2, '0')} STAGES</span>
         </div>
         <div className="leadership-org">{leadershipOrg}</div>
+        <p className="leadership-summary">{leadershipSummary}</p>
 
         <ol className="leadership-list">
           {leadership.map((l) => (
