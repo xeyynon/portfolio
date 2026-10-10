@@ -354,16 +354,32 @@ export type Achievement = {
   slug?: string;
   /** Subtitle when there is no project page. */
   sub?: string;
-  achievement: string;
+  /** Extra fact, only when it adds something the title doesn't say. */
+  achievement?: string;
+  /** A large tile on the homepage: the biggest wins. */
+  featured?: boolean;
 };
 
+// Ordered for the homepage bento: the two featured wins first, then newest
+// first. "Best Student Chapter" is not here: it leads the Leadership section
+// (one home per fact). Detail lines that only restated the title
+// ("Qualified for the Semi-Final Round" under "Semi Finalist") were dropped.
 export const achievements: Achievement[] = [
   {
     title: "1st Place, Product Exhibition",
     event: "GLAUCOPAT 2026",
     year: "2026",
     sub: "Droptor eye-drop adherence device · Glaucoma Society of India",
-    achievement: "50 working units built and validated in one week, with the team"
+    achievement: "50 working units built and validated in one week, with the team",
+    featured: true
+  },
+  {
+    title: "Best Contemporary Project",
+    event: "Engineering Clinics I (Fall 2024/25)",
+    year: "2024",
+    slug: "lifi-data-transmission-system",
+    achievement: "Awarded among 1,000+ teams",
+    featured: true
   },
   {
     title: "98/100 in Round 1",
@@ -373,39 +389,22 @@ export const achievements: Achievement[] = [
     achievement: "Qualified for Round 2"
   },
   {
-    title: "Best Student Chapter (Fall 2025)",
-    event: "Microsoft Student Chapter VIT-AP",
-    year: "2025",
-    sub: "As President",
-    achievement: "8+ events and 5+ webinars for 300+ members"
-  },
-  {
     title: "Semi Finalist",
     event: "Smart India Hackathon 2025",
     year: "2025",
-    slug: "ecox-industrial-safety",
-    achievement: "Qualified for the Semi-Final Round"
+    slug: "ecox-industrial-safety"
   },
   {
     title: "Top 20, Basic Track",
     event: "NEC '24, E-Cell IIT Bombay",
     year: "2025",
-    sub: "National Entrepreneurship Challenge",
-    achievement: "Ranked in the Top 20 of the Basic Track"
-  },
-  {
-    title: "Best Contemporary Project",
-    event: "Engineering Clinics I (Fall 2024/25)",
-    year: "2024",
-    slug: "lifi-data-transmission-system",
-    achievement: "Awarded among 1,000+ teams"
+    sub: "National Entrepreneurship Challenge"
   },
   {
     title: "Semi Finalist",
     event: "Smart India Hackathon 2024",
     year: "2024",
-    sub: "Vectr",
-    achievement: "Qualified for the Semi-Final Round"
+    sub: "Vectr"
   }
 ];
 

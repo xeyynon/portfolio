@@ -158,7 +158,7 @@ export default function Home() {
                 <h2 className="eyebrow">ABOUT</h2>
               </div>
               <div className="bento">
-                <div className="tile tile-photo">
+                <div className="tile tile-photo span-3 md-6 sm-12">
                   <Image
                     src="/sources/myImage.jpg"
                     alt="Surya Pratik speaking at a lectern"
@@ -168,7 +168,7 @@ export default function Home() {
                   />
                 </div>
 
-                <div className="tile tile-statement">
+                <div className="tile tile-statement span-9 md-6 sm-12">
                   <p className="bento-headline">{personalInfo.headline}</p>
                   <p className="bento-focus">{personalInfo.focus}</p>
                   <p className="bento-belief">{personalInfo.belief}</p>
@@ -188,7 +188,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="tile tile-fact">
+                <div className="tile tile-fact span-3 md-6 sm-6">
                   <span className="tile-label">Study</span>
                   <span className="tile-value">{personalInfo.education.degree}</span>
                   <span className="tile-note">
@@ -196,7 +196,7 @@ export default function Home() {
                   </span>
                 </div>
 
-                <div className="tile tile-fact">
+                <div className="tile tile-fact span-3 md-6 sm-6">
                   <span className="tile-label">CGPA</span>
                   <span className="tile-value tile-number">
                     {personalInfo.education.cgpa}
@@ -204,13 +204,13 @@ export default function Home() {
                   </span>
                 </div>
 
-                <div className="tile tile-fact">
+                <div className="tile tile-fact span-3 md-6 sm-6">
                   <span className="tile-label">From</span>
                   <span className="tile-value">{personalInfo.hometown.city}</span>
                   <span className="tile-note">{personalInfo.hometown.region}</span>
                 </div>
 
-                <div className="tile tile-fact">
+                <div className="tile tile-fact span-3 md-6 sm-6">
                   <span className="tile-label">Status</span>
                   <span className="tile-value tile-status">
                     <span className="status-dot" aria-hidden="true" />
@@ -235,29 +235,40 @@ export default function Home() {
           <div className="scene-gap" aria-hidden="true" />
 
           <div className="scene-panel scene-overlay" id="achievements">
-            <div className="wrap" style={{ paddingBottom: '30px' }}>
+            <div className="wrap">
               <div className="section-head">
                 <h2 className="eyebrow">ACHIEVEMENTS</h2>
-                <span className="count" style={{ color: 'var(--muted-light)' }}>{String(achievements.length).padStart(2, '0')} TOTAL</span>
               </div>
-              <ul className="ach-list">
+              {/* Bento: the two featured wins as half-width tiles, the rest
+                  as quarter tiles. An award with a project page is a link
+                  tile; the event is the label, the result is the value. */}
+              <ul className="bento">
                 {achievements.map((ach) => {
                   const project = ach.slug ? projects.find((p) => p.slug === ach.slug) : undefined;
+                  const body = (
+                    <>
+                      <span className="tile-label">{ach.event}</span>
+                      <span className="ach-value">{ach.title}</span>
+                      <span className="tile-note">{project ? projectLabel(project) : ach.sub}</span>
+                      {ach.achievement && <span className="ach-detail">{ach.achievement}</span>}
+                      {project && <span className="ach-go" aria-hidden="true">View project →</span>}
+                    </>
+                  );
                   return (
-                    <li key={`${ach.title}-${ach.event}`} className="ach">
-                      <span className="ach-year">{ach.year}</span>
-                      <span>
-                        {project ? (
-                          <Link href={`/projects/${project.slug}`} className="ach-title ach-link">
-                            {ach.title}
-                          </Link>
-                        ) : (
-                          <span className="ach-title">{ach.title}</span>
-                        )}
-                        <span className="ach-event">{ach.event}</span>
-                        <span className="ach-sub">{project ? projectLabel(project) : ach.sub}</span>
-                        <span className="ach-sub ach-detail">{ach.achievement}</span>
-                      </span>
+                    <li
+                      key={`${ach.title}-${ach.event}`}
+                      className={ach.featured ? "span-6 md-6 sm-12" : "span-3 md-6 sm-12"}
+                    >
+                      {project ? (
+                        <Link
+                          href={`/projects/${project.slug}`}
+                          className={`tile ach-tile tile-link${ach.featured ? " is-featured" : ""}`}
+                        >
+                          {body}
+                        </Link>
+                      ) : (
+                        <div className={`tile ach-tile${ach.featured ? " is-featured" : ""}`}>{body}</div>
+                      )}
                     </li>
                   );
                 })}
