@@ -121,7 +121,7 @@ const YAW_END = Math.PI * 2 + YAW_EXTRA;
 // 215, collapsed to 325, out to the end. EDGE_SPEED is how much less scroll
 // a collapsed degree takes.
 const SPIN_BREAKS_DEG = [35, 145, 215, 325];
-const EDGE_SPEED = 0.35;
+const EDGE_SPEED = 0.22;
 
 /** Maps spin progress (0..1, linear in scroll) to yaw in radians. */
 function spinYaw(u: number): number {
@@ -183,6 +183,7 @@ uniform float uFwdScale;
 uniform float uZoom;
 uniform float uRayScale;
 uniform float uFocusW[SAMPLES];
+uniform float uExitGain;
 uniform float uTime;
 uniform vec3  uCam;
 uniform vec3  uPlaneN[PLANES];
@@ -268,15 +269,18 @@ void main() {
     // Emergent fan. Three overlapping widths: a hot core for definition, a
     // mid band for body, and a wide haze so the rays sit in atmosphere rather
     // than looking like stroked vectors.
-    if (dot(d, d) > 0.5) {
+    if (dot(d, d) > 0.5 && uExitGain > 0.001) {
       // Long enough to leave the frame at any pan/zoom (was 9, which ended
       // mid-screen on phones once the scroll travel zoomed in).
       vec3 far = p + d * 30.0;
       // uRayScale widens the mid band and haze with scroll so the fan grows
       // from hairlines into bands that fill the screen by the end.
-      spectrum += c * segmentGlow(ro, rd, p, far, 0.00055) * 2.6;
-      spectrum += c * segmentGlow(ro, rd, p, far, 0.0030 * uRayScale) * 0.85;
-      spectrum += c * segmentGlow(ro, rd, p, far, 0.0180 * uRayScale * uRayScale) * 0.20;
+      // uExitGain stays 1: while the prism is edge-on the fan is kept open
+      // by blending toward the rest-pose fan in the frame loop (owner: no
+      // white light, keep the rainbow).
+      spectrum += c * segmentGlow(ro, rd, p, far, 0.00055) * 2.6 * uExitGain;
+      spectrum += c * segmentGlow(ro, rd, p, far, 0.0030 * uRayScale) * 0.85 * uExitGain;
+      spectrum += c * segmentGlow(ro, rd, p, far, 0.0180 * uRayScale * uRayScale) * 0.20 * uExitGain;
 
       // A train of motes riding each ray, staggered per wavelength so the
       // fan reads as light in transit rather than static lines. Each fades
@@ -429,6 +433,7 @@ export default function PrismCanvas({
     const uZoom = u("uZoom");
     const uRayScale = u("uRayScale");
     const uFocusW = u("uFocusW[0]");
+    const uExitGain = u("uExitGain");
     const focusW = new Float32Array(SAMPLES).fill(1);
     let focus: { nm: number; t0: number } | null = null;
     const onFocus = (e: Event) => {
@@ -631,6 +636,46 @@ export default function PrismCanvas({
         focusW.fill(1);
       }
       ctx.uniform1fv(uFocusW, focusW);
+
+      // Fan width in degrees (vertical angle of each live exit ray). Below a
+      // few degrees the fan reads as one white line; owner: "I don't want
+      // this white light, I need the rainbow pattern". So as the real fan
+      // collapses (prism edge-on), each ray's direction eases toward the
+      // fan the prism makes at its rest pose. The glass still spins in true
+      // 3D and the rays still leave from the real exit points; only the
+      // edge-on directions are artistic.
+      let minA = Infinity;
+      let maxA = -Infinity;
+      for (let i = 0; i < SAMPLES; i++) {
+        const dx = path.exitDirs[i * 3];
+        const dy = path.exitDirs[i * 3 + 1];
+        const dz = path.exitDirs[i * 3 + 2];
+        if (dx * dx + dy * dy + dz * dz < 0.5) continue;
+        const a = (Math.atan2(dy, Math.hypot(dx, dz)) * 180) / Math.PI;
+        if (a < minA) minA = a;
+        if (a > maxA) maxA = a;
+      }
+      const fanDeg = maxA > minA ? maxA - minA : 0;
+      const keepOpen = 1 - smoothstep(3, 14, fanDeg);
+      if (keepOpen > 0) {
+        const ref = traceSpectrum(rotationMatrix(REST_PITCH, REST_YAW, REST_ROLL), BEAM_ORIGIN, BEAM_DIR, fanGain);
+        const dirs = path.exitDirs;
+        for (let i = 0; i < SAMPLES; i++) {
+          const o = i * 3;
+          const rx = ref.exitDirs[o], ry = ref.exitDirs[o + 1], rz = ref.exitDirs[o + 2];
+          if (rx * rx + ry * ry + rz * rz < 0.5) continue;
+          const ax = dirs[o], ay = dirs[o + 1], az = dirs[o + 2];
+          const alive = ax * ax + ay * ay + az * az > 0.5;
+          const bx = alive ? ax + (rx - ax) * keepOpen : rx;
+          const by = alive ? ay + (ry - ay) * keepOpen : ry;
+          const bz = alive ? az + (rz - az) * keepOpen : rz;
+          const len = Math.hypot(bx, by, bz) || 1;
+          dirs[o] = bx / len;
+          dirs[o + 1] = by / len;
+          dirs[o + 2] = bz / len;
+        }
+      }
+      ctx.uniform1f(uExitGain, 1);
       ctx.uniform1f(uArtSpin, 0);
       ctx.uniform1f(uSceneDim, sceneDim);
       ctx.uniform1f(uTime, t);

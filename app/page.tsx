@@ -1,18 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { personalInfo, experience, projects, achievements, skills, projectLabel, projectGroups } from "@/data/portfolioData";
+import { personalInfo, experience, projects, achievements, skills, projectLabel, skillId, spectrum } from "@/data/portfolioData";
 import ScrollSceneProvider from "@/components/ScrollSceneProvider";
 import PrismScene from "@/components/PrismScene";
 import LeadershipTimeline from "@/components/LeadershipTimeline";
+import WavelengthChips from "@/components/WavelengthChips";
+import ProjectsSection from "@/components/ProjectsSection";
+import CopyEmail from "@/components/CopyEmail";
 
-const SPECTRUM = [
-  { token: "--v400", nm: 400 },
-  { token: "--v450", nm: 450 },
-  { token: "--v500", nm: 500 },
-  { token: "--v560", nm: 560 },
-  { token: "--v600", nm: 600 },
-  { token: "--v680", nm: 680 },
-];
 
 export default function Home() {
   return (
@@ -24,12 +19,7 @@ export default function Home() {
 
         <div className="scene-content">
           <div className="wrap hero scene-overlay">
-            <div className="chipbar">
-              {SPECTRUM.map((s) => (
-                <span key={s.token} className="chip" style={{ background: `var(${s.token})` }}>{s.nm}nm</span>
-              ))}
-              <span className="quote">&quot;Learn something new every day.&quot;</span>
-            </div>
+            <WavelengthChips />
             <h1>{personalInfo.name.toUpperCase()}</h1>
           </div>
 
@@ -124,7 +114,7 @@ export default function Home() {
                       ))}
                     </p>
                     <div className="swatches" aria-hidden="true">
-                      {SPECTRUM.map((s) => (
+                      {spectrum.map((s) => (
                         <span key={s.token} className="sw" style={{ background: `var(${s.token})` }} />
                       ))}
                     </div>
@@ -168,47 +158,7 @@ export default function Home() {
           <div className="scene-gap" aria-hidden="true" />
 
           <div className="scene-panel scene-overlay">
-            <div className="wrap" id="projects">
-              <div className="section-head">
-                <h2 className="eyebrow">SELECTED WORK</h2>
-                <span className="count">{String(projects.length).padStart(2, '0')} TOTAL</span>
-              </div>
-
-              {projectGroups.map((group) => {
-                const list = projects.filter((p) => p.category === group.key);
-                return (
-                  <div key={group.key} className="pgroup">
-                    <h3 className="pgroup-head">
-                      <span>{group.label}</span>
-                      <span className="pgroup-count">{String(list.length).padStart(2, "0")}</span>
-                    </h3>
-                    <ul className="pgrid">
-                      {list.map((proj) => (
-                        <li key={proj.slug}>
-                          <Link
-                            href={`/projects/${proj.slug}`}
-                            className="pcard"
-                            id={`p${parseInt(proj.num)}`}
-                            style={{ "--card-accent": proj.color } as React.CSSProperties}
-                          >
-                            <span className="pcard-name">{proj.title}</span>
-                            {proj.subtitle && <span className="pcard-sub">{proj.subtitle}</span>}
-                            {/* Dot plus word: the dot names its colour (the
-                                project's main capability); the tag is plain text. */}
-                            <span className="pcard-meta">
-                              <span className="pdot" aria-hidden="true" />
-                              <span>{proj.skills[0]}</span>
-                              <span className="pcard-tag">{proj.tag}</span>
-                              <span className="pcard-go" aria-hidden="true">→</span>
-                            </span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                );
-              })}
-            </div>
+            <ProjectsSection />
           </div>
 
           {/* Achievements, Leadership and Skills are glass bands riding the
@@ -280,7 +230,7 @@ export default function Home() {
                 {skills.map((s, i) => {
                   const wide = i === 0 || i === skills.length - 1;
                   return (
-                    <li key={s.label} className={wide ? "span-6 md-6 sm-12" : "span-3 md-6 sm-12"}>
+                    <li key={s.label} id={skillId(s.label)} className={wide ? "span-6 md-6 sm-12" : "span-3 md-6 sm-12"}>
                       <div className="tile skill-tile" style={{ "--skill-color": s.color } as React.CSSProperties}>
                         <h3 className="skill-label">{s.label}</h3>
                         <ul className="skill-items">
@@ -306,10 +256,13 @@ export default function Home() {
                   detail (address, handle), not a bare "EMAIL" button. */}
               <ul className="bento contact-bento">
                 <li className="span-4 md-6 sm-12">
-                  <a className="tile tile-link contact-tile" href="mailto:pratiksurya1207@gmail.com">
+                  <div className="tile contact-tile">
                     <span className="tile-label">Email</span>
-                    <span className="contact-value">pratiksurya1207@gmail.com</span>
-                  </a>
+                    <a className="contact-value contact-link" href="mailto:pratiksurya1207@gmail.com">
+                      pratiksurya1207@gmail.com
+                    </a>
+                    <CopyEmail email="pratiksurya1207@gmail.com" />
+                  </div>
                 </li>
                 <li className="span-4 md-6 sm-12">
                   <a
