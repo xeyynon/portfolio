@@ -76,6 +76,17 @@
   --card-border:#23262d;
   --card-radius:16px;
 
+  /* ---- TYPE SCALE (Swiss Modernism 2.0, uistyleguide.com) ----
+     Perfect fourth, 1.333, from a 16px base. Labels stay below the scale
+     as small mono captions. */
+  --fs-16:1rem;
+  --fs-21:1.333rem;
+  --fs-28:1.777rem;
+  --fs-38:2.369rem;
+  --fs-50:3.157rem;
+  /* Bento Grid (uistyleguide.com): 16px gaps between tiles. */
+  --bento-gap:16px;
+
   /* ---- shadcn / Animate UI bridge ----
      shadcn components consume these names. Rather than run a second palette
      alongside the spectrum system, every one of them is aliased onto the
@@ -436,7 +447,7 @@ header.nav{
   color:var(--ink-hi);padding-bottom:10px;border-bottom:1px solid var(--line-dark);
 }
 .pgroup-count{color:var(--muted-dark);font-weight:400;}
-.pgrid{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px;}
+.pgrid{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:var(--bento-gap);margin-top:14px;}
 .pgrid > li{display:flex;}
 .pcard{
   flex:1;display:flex;flex-direction:column;gap:6px;
@@ -445,7 +456,7 @@ header.nav{
   transition:border-color .2s cubic-bezier(.16,1,.3,1),background .2s cubic-bezier(.16,1,.3,1);
 }
 .pcard:hover,.pcard:focus-visible{border-color:var(--card-accent);background:var(--card-bg-hover);}
-.pcard-name{font-family:var(--font-display);font-size:19px;font-weight:600;color:var(--ink-hi);letter-spacing:-.005em;}
+.pcard-name{font-family:var(--font-display);font-size:var(--fs-21);font-weight:600;color:var(--ink-hi);letter-spacing:-.005em;}
 .pcard-sub{font-size:13.5px;line-height:1.45;color:var(--muted-dark);}
 .pcard-meta{
   margin-top:auto;padding-top:12px;display:flex;align-items:center;gap:8px;
@@ -466,7 +477,7 @@ header.nav{
 .exp-company{color:var(--vwhite);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s;}
 .exp-company:hover{border-bottom-color:var(--vwhite);}
 .exp-period{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);margin-top:4px;}
-.exp-grid{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px;}
+.exp-grid{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:var(--bento-gap);margin-top:22px;}
 @media(max-width:1100px){.exp-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:640px){.exp-grid{grid-template-columns:1fr;}}
 /* Cards in a row stretch to the same height; Details sits at the bottom of
@@ -476,7 +487,7 @@ header.nav{
   background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);
 }
 .exp-more{margin-top:auto;padding-top:6px;}
-.exp-lead{font-size:14.5px;font-weight:600;line-height:1.35;color:var(--ink-hi);}
+.exp-lead{font-size:var(--fs-16);font-weight:600;line-height:1.35;color:var(--ink-hi);}
 .exp-summary{font-size:13.5px;line-height:1.55;color:var(--muted-dark);}
 .exp-more summary{
   display:inline-flex;align-items:center;gap:6px;cursor:pointer;list-style:none;
@@ -495,41 +506,65 @@ header.nav{
    OLED + Swiss type. One fact per solid tile, tiles of different sizes,
    small mono labels over large values, and the spectrum only as the six
    swatches. Row 1: photo + statement (3 columns). Row 2: four fact tiles. */
-.bento{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px;padding-bottom:56px;}
+/* One grid for every bento section: 12 columns (Swiss Modernism 2.0), each
+   tile declares its span. md-* applies at <= 900px, sm-* at <= 560px. */
+.bento{
+  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--bento-gap);
+  margin-top:22px;padding-bottom:56px;list-style:none;
+}
+.bento > li{display:flex;}
+.bento > li > .tile{flex:1;}
+.span-2{grid-column:span 2;}
+.span-3{grid-column:span 3;}
+.span-6{grid-column:span 6;}
+.span-9{grid-column:span 9;}
+.span-12{grid-column:span 12;}
+@media(max-width:900px){
+  .md-4{grid-column:span 4;}
+  .md-6{grid-column:span 6;}
+  .md-12{grid-column:span 12;}
+}
+@media(max-width:560px){
+  .sm-4{grid-column:span 4;}
+  .sm-6{grid-column:span 6;}
+  .sm-12{grid-column:span 12;}
+}
+
+/* Tiles that are links lift slightly on hover (Bento Grid: hover scale
+   1.02); colour change alone on reduced motion. */
+.tile-link{transition:transform .2s cubic-bezier(.16,1,.3,1),border-color .2s,background .2s;}
+.tile-link:hover,.tile-link:focus-visible{transform:scale(1.02);border-color:var(--muted-dark);background:var(--card-bg-hover);}
+@media(prefers-reduced-motion:reduce){.tile-link:hover,.tile-link:focus-visible{transform:none;}}
 .tile{
   position:relative;overflow:hidden;padding:20px 22px;
   background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);
 }
 .tile-photo{padding:0;min-height:300px;}
 .tile-photo img{object-position:50% 28%;}
-.tile-statement{grid-column:2 / span 3;display:flex;flex-direction:column;gap:12px;padding:28px 32px;}
+.tile-statement{display:flex;flex-direction:column;gap:12px;padding:28px 32px;}
 .bento-headline{
-  font-family:var(--font-display);font-size:clamp(26px,3vw,38px);font-weight:600;
+  font-family:var(--font-display);font-size:clamp(var(--fs-28),3vw,var(--fs-38));font-weight:600;
   line-height:1.1;letter-spacing:-.02em;color:var(--ink-hi);
 }
-.bento-focus{font-size:16px;line-height:1.6;color:var(--ink-hi);max-width:60ch;}
+.bento-focus{font-size:var(--fs-16);line-height:1.6;color:var(--ink-hi);max-width:60ch;}
 .bento-belief{font-size:14px;line-height:1.6;color:var(--muted-dark);max-width:60ch;}
 .bento-sign{margin-top:auto;padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
 .bento-motto{font-size:15px;font-weight:500;}
 .swatches span.sw{width:12px;height:12px;border-radius:3px;}
 .tile-fact{display:flex;flex-direction:column;gap:6px;min-height:150px;}
 .tile-label{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-dark);}
-.tile-value{margin-top:auto;font-family:var(--font-display);font-size:24px;font-weight:600;line-height:1.15;color:var(--ink-hi);}
-.tile-number{font-size:44px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
-.tile-unit{margin-left:4px;font-size:16px;font-weight:500;color:var(--muted-dark);}
+.tile-value{margin-top:auto;font-family:var(--font-display);font-size:var(--fs-28);font-weight:600;line-height:1.15;color:var(--ink-hi);}
+.tile-number{font-size:var(--fs-50);letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+.tile-unit{margin-left:4px;font-size:var(--fs-16);font-weight:500;color:var(--muted-dark);}
 .tile-note{font-size:13px;line-height:1.5;color:var(--muted-dark);}
 .tile-status{display:flex;align-items:center;gap:10px;}
 /* White, not a spectrum hue: every spectrum colour already means a capability. */
 .status-dot{width:9px;height:9px;border-radius:50%;background:var(--vwhite);flex-shrink:0;}
-@media(max-width:900px){
-  .bento{grid-template-columns:repeat(2,1fr);}
-  .tile-statement{grid-column:auto;padding:22px 24px;}
-}
+@media(max-width:900px){.tile-statement{padding:22px 24px;}}
 @media(max-width:560px){
-  .tile-photo,.tile-statement{grid-column:1 / -1;}
   .tile-photo{min-height:0;aspect-ratio:4 / 3;}
   .tile-fact{min-height:128px;}
-  .tile-number{font-size:38px;}
+  .tile-number{font-size:var(--fs-38);}
 }
 
 /* Apply .scene-overlay to any element whose text sits on the animated scene:
@@ -551,24 +586,27 @@ header.nav{
 .swatches{display:flex;gap:5px;align-items:center;}
 .swatches span.sw{width:15px;height:15px;}
 
-/* ACHIEVEMENTS */
-.ach-list{margin-top:20px;list-style:none;}
-.ach{
-  display:grid;grid-template-columns:74px 1fr;gap:20px;
-  border-top:1px solid var(--line-light);padding:16px 0;
+
+/* ACHIEVEMENTS — bento tiles: event as the label, the result as the value,
+   what it was for as the note. Featured wins get half-width tiles. */
+.ach-tile{display:flex;flex-direction:column;gap:6px;min-height:170px;}
+.ach-tile.is-featured{min-height:210px;padding:24px 28px;}
+.ach-value{
+  margin-top:auto;padding-top:14px;font-family:var(--font-display);font-size:var(--fs-21);
+  font-weight:600;line-height:1.2;color:var(--ink-hi);
 }
-.ach-year{font-family:var(--font-mono);font-size:11px;color:var(--muted-light);}
-.ach-title{font-size:13.5px;font-weight:500;color:var(--ink-lo);display:inline-block;}
-/* The event as a quiet chip after the award, instead of "Award — Event". */
-.ach-event{
-  display:inline-block;margin-left:10px;vertical-align:2px;
-  font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--muted-light);border:1px solid var(--line-light);padding:2px 7px;
+.ach-tile.is-featured .ach-value{font-size:var(--fs-28);letter-spacing:-.01em;}
+.ach-detail{font-size:13px;line-height:1.5;color:var(--ink-hi);}
+.ach-go{
+  margin-top:6px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted-dark);transition:color .2s;
 }
-.ach-link{transition:color .2s;}
-.ach-link:hover,.ach-link:focus-visible{color:var(--v500);}
-.ach-sub{display:block;font-family:var(--font-mono);font-size:11px;color:var(--muted-light);margin-top:3px;}
-.ach-detail{font-size:10.5px;margin-top:2px;}
+.tile-link:hover .ach-go,.tile-link:focus-visible .ach-go{color:var(--ink-hi);}
+@media(max-width:560px){
+  .ach-tile,.ach-tile.is-featured{min-height:0;}
+  .ach-tile.is-featured{padding:20px 22px;}
+  .ach-tile.is-featured .ach-value{font-size:var(--fs-21);}
+}
 
 /* SKILLS */
 .skill-grid{
@@ -658,7 +696,6 @@ header.nav{
 footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padding:20px 0 40px;border-top:1px solid var(--line-dark);margin-top:20px;display:flex;justify-content:space-between;}
 
 @media(max-width:640px){
-  .ach-event{margin:6px 0 0;display:table;}
 }
 
 /* ==========================================================================
@@ -927,15 +964,12 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
    Leadership Timeline
    ========================================================================== */
 
-.lead-bento{
-  display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:22px;padding-bottom:56px;
-}
-.lead-result{grid-column:span 3;display:flex;flex-direction:column;gap:6px;min-height:150px;padding:22px 26px;}
+.lead-result{display:flex;flex-direction:column;gap:6px;min-height:150px;padding:22px 26px;}
 .lead-result-value{
-  margin-top:auto;font-family:var(--font-display);font-size:clamp(24px,2.6vw,32px);
+  margin-top:auto;font-family:var(--font-display);font-size:var(--fs-28);
   font-weight:600;line-height:1.1;letter-spacing:-.015em;color:var(--ink-hi);
 }
-.lead-journey{grid-column:1 / -1;padding:26px 26px 24px;}
+.lead-journey{padding:26px 26px 24px;}
 
 /* The four roles as steps on one line. The track is a plain divider, not
    an accent stripe; the node of the latest role is filled. */
@@ -953,11 +987,9 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 }
 .lead-step[data-current] .lead-node{background:var(--vwhite);border-color:var(--vwhite);}
 .lead-range{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.04em;color:var(--muted-dark);}
-.lead-role{font-family:var(--font-display);font-size:18px;font-weight:600;line-height:1.2;color:var(--ink-hi);}
+.lead-role{font-family:var(--font-display);font-size:var(--fs-21);font-weight:600;line-height:1.2;color:var(--ink-hi);}
 
 @media(max-width:900px){
-  .lead-bento{grid-template-columns:repeat(3,1fr);}
-  .lead-result{grid-column:1 / -1;}
   .lead-steps{grid-template-columns:repeat(2,1fr);row-gap:22px;}
   .lead-steps::before{display:none;}
 }
@@ -970,7 +1002,7 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   .lead-step{padding-top:0;padding-left:28px;}
   .lead-node{top:3px;}
   .lead-bento .tile-fact{padding:16px 14px;min-height:112px;}
-  .lead-bento .tile-number{font-size:28px;}
+  .lead-bento .tile-number{font-size:var(--fs-28);}
 }
 
 /* ==========================================================================
