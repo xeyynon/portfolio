@@ -42,7 +42,7 @@ export default function Home() {
 
           {/* Positioned right after Hero, before Projects: the credential
               that makes every project below read as "already working the
-              job," not just student work — see FINAL_REVIEW.md §12. Accent
+              job," not just student work. Accent
               is --vwhite (all wavelengths combined), not a 7th spectrum
               hue — this is the light source the six capabilities disperse
               from, not another band in the spectrum. .scene-panel (not just
@@ -149,11 +149,10 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Leadership, Achievements, and Skills used to be their own
-              opaque .light-panel sections. They're glass bands now, riding
-              the same persistent scene as Hero/Projects/About — .scene-gap
-              is empty space (not padding) between each, so the prism/rainbow
-              is genuinely visible in the gap, not just tinted through glass. */}
+          {/* Leadership, Achievements and Skills are glass bands riding the
+              same persistent scene as Hero/Projects/About. .scene-gap is empty
+              space (not padding) between each, so the prism is genuinely
+              visible in the gap, not just tinted through glass. */}
           <div className="scene-gap" aria-hidden="true" />
 
           <div className="scene-panel scene-overlay">
@@ -209,7 +208,7 @@ export default function Home() {
                       <h3 className="skill-label">{s.label}</h3>
                       <p className="skill-items">{s.items.join(" · ")}</p>
 
-                      <div className="skill-meter" aria-label={`Proficiency ${s.level} of 4`}>
+                      <div className="skill-meter" role="img" aria-label={`Proficiency ${s.level} of 4`}>
                         <span className="skill-segs" aria-hidden="true">
                           {[1, 2, 3, 4].map((n) => (
                             <span
@@ -246,7 +245,7 @@ export default function Home() {
               <h2>Let&apos;s build something together.</h2>
               <p className="lede mb-4">Open to AI/ML, software and Flutter internships. Available to join immediately.</p>
               <span className="inline-flex items-center gap-2 text-xs font-mono text-[var(--muted-dark)] mb-8">
-                <span className="w-2 h-2 rounded-full bg-[var(--v500)] animate-pulse shadow-[0_0_8px_var(--v500)]" />
+                <span className="w-2 h-2 rounded-full bg-[var(--v500)] motion-safe:animate-pulse shadow-[0_0_8px_var(--v500)]" aria-hidden="true" />
                 Currently open to opportunities
               </span>
               <div className="contact-row">
@@ -255,7 +254,7 @@ export default function Home() {
                     now plain CSS (.btn-liquid) rather than the `motion`-backed
                     LiquidButton primitive; see .contact-row a.btn-liquid::after
                     in globals.css. */}
-                <a className="btn btn-liquid" href="mailto:pratiksurya1207@gmail.com" target="_blank" rel="noopener noreferrer">EMAIL →</a>
+                <a className="btn btn-liquid" href="mailto:pratiksurya1207@gmail.com">EMAIL →</a>
                 <a className="btn btn-liquid" href="https://github.com/xeyynon" target="_blank" rel="noopener noreferrer">GITHUB →</a>
                 <a className="btn btn-liquid" href="https://www.linkedin.com/in/suryapratik/" target="_blank" rel="noopener noreferrer">LINKEDIN →</a>
                 {/* Resume is the one conversion action in this row, so it alone
@@ -278,8 +277,8 @@ export default function Home() {
           {/* The sticky-pin technique always releases during the final
               viewport-height of .scene-content's scroll. Without this spacer
               that unpinned tail lands on real content instead of empty
-              buffer — verified in-browser earlier for a shorter scene-content
-              (D-0xx); the same reasoning holds regardless of how much real
+              buffer — verified in-browser for a shorter scene-content; the
+              same reasoning holds regardless of how much real
               content precedes it, as long as this stays the very last child. */}
           <div className="scene-spacer" aria-hidden="true" />
         </div>

@@ -60,6 +60,7 @@ export type Project = {
   /** Short name for cross-references (skill tooltips, achievement rows). */
   short: string;
   pipeline: string;
+  /** Derived, never written by hand: the spectrum colour of `skills[0]`. */
   color: string;
   tag: string;
   domain: string;
@@ -77,14 +78,13 @@ export type Project = {
   };
 };
 
-export const projects: Project[] = [
+const projectEntries: Omit<Project, "color">[] = [
   {
     slug: "tarang",
     num: "01",
     title: "TARANG – Oil-Spill Detection and Vessel Attribution",
     short: "TARANG",
     pipeline: "Sentinel-1 radar → slick → drift hindcast → AIS tracks → ranked ships",
-    color: "var(--v400)",
     tag: "SIH 2026",
     domain: "Remote Sensing, Maritime Forensics",
     description: "Oil spills at sea are rarely traced to the ship responsible. TARANG closes the loop in one workstation: it detects a slick in Sentinel-1 satellite radar, hindcasts its drift back to the release point with OpenDrift, and ranks nearby AIS vessels with a reason for every score. Built for Smart India Hackathon 2026 on an NTRO problem statement.",
@@ -105,7 +105,6 @@ export const projects: Project[] = [
     title: "DHARA – Dam Hazard Assessment and Routing",
     short: "DHARA",
     pipeline: "breach scenario → 2D flood solvers → depth & arrival time → people at risk",
-    color: "var(--v450)",
     tag: "SIH 2026",
     domain: "Disaster Management, Hydrodynamic Modelling",
     description: "India has seen 36 large dam failures, and the Dam Safety Act 2021 requires flood maps that most dam owners cannot produce. DHARA simulates dam-break, water-release and river-blockage scenarios and tells an officer when the water arrives, how deep it gets and who is affected. Built for Smart India Hackathon 2026 on an NTRO problem statement.",
@@ -126,7 +125,6 @@ export const projects: Project[] = [
     title: "Li-Fi Data Transmission System",
     short: "Li-Fi",
     pipeline: "laser → light pulse → solar receiver → decode",
-    color: "var(--v500)",
     tag: "AWARDED",
     domain: "Embedded Systems, Visible Light Communication",
     description: "Won Best Contemporary Project among 1,000+ teams at Engineering Clinics I (Fall 2024–25). A wireless link that sends data as laser light pulses and recovers it with a solar-panel receiver.",
@@ -146,7 +144,6 @@ export const projects: Project[] = [
     title: "ORCA – Satellite Collision-Risk Screening",
     short: "ORCA",
     pipeline: "orbit catalog → KD-tree search → refinement → risk tiers",
-    color: "var(--v560)",
     tag: "LIVE",
     domain: "Space Situational Awareness",
     description: "Commercial satellite conjunction tools are expensive and closed. ORCA is an open pipeline from raw orbit data (TLEs) to the close approaches that matter this week.",
@@ -166,7 +163,6 @@ export const projects: Project[] = [
     title: "SURRAG – Criminal Network Analysis",
     short: "SURRAG",
     pipeline: "police FIR → entity extraction → person resolution → case graph → leads",
-    color: "var(--v600)",
     tag: "LIVE",
     domain: "LLM Applications, Graph Analytics",
     description: "Links police first information reports (FIRs) into a searchable case graph, so investigators can see connections across cases with a citation behind every lead.",
@@ -187,7 +183,6 @@ export const projects: Project[] = [
     title: "CSI-Sense – Camera-Free Activity Detection over Wi-Fi",
     short: "CSI-Sense",
     pipeline: "Wi-Fi signal → ESP32-S3 + biquad antenna → CSI spectrograms → EfficientNetV2 → app",
-    color: "var(--v680)",
     tag: "TEAM",
     domain: "Wireless Sensing, Mobile Development",
     description: "Detects human presence and activity from Wi-Fi channel state information (CSI), with no camera. Team project for Engineering Clinics II (Winter 2025–26).",
@@ -206,7 +201,6 @@ export const projects: Project[] = [
     title: "EcoX – Industrial Emission and Worker-Safety Device",
     short: "EcoX",
     pipeline: "CO sensor → Raspberry Pi 4B → 4G/GPS → Flutter dashboard",
-    color: "var(--v400)",
     tag: "SEMI FINALIST",
     domain: "IoT, Industrial Safety",
     description: "A portable, low-cost emission and worker-safety device for small and medium industries. Smart India Hackathon 2025 Semi Finalist.",
@@ -225,7 +219,6 @@ export const projects: Project[] = [
     title: "FlowIQ – Smart Traffic App",
     short: "FlowIQ",
     pipeline: "citizen app → maps & directions → challans → payment",
-    color: "var(--v450)",
     tag: "98/100 R1",
     domain: "Smart Cities, Mobile Development",
     description: "Team Veda-Bytes' smart traffic management platform for RADIOTHON 2026, which scored 98/100 in Round 1. I built the citizen-facing mobile app.",
@@ -245,7 +238,6 @@ export const projects: Project[] = [
     title: "Telegram Drive – Encrypted Cloud Storage",
     short: "Telegram Drive",
     pipeline: "file → AES-256 chunks → Telegram → streamed back",
-    color: "var(--v500)",
     tag: "PERSONAL",
     domain: "Mobile Development, Encryption",
     description: "A Flutter app that turns Telegram into encrypted cloud storage.",
@@ -265,7 +257,6 @@ export const projects: Project[] = [
     title: "Water Quality Monitoring Node",
     short: "Water Node",
     pipeline: "pH · TDS · temperature → ESP32 → 433 MHz LoRa",
-    color: "var(--v560)",
     tag: "PROTOTYPE",
     domain: "IoT, Environmental Sensing",
     description: "An ESP32 sensor node that reports water quality over long-range LoRa radio.",
@@ -372,3 +363,21 @@ export const skills = [
   { label: "Languages",      items: ["Python", "Java", "Dart", "JavaScript", "TypeScript", "C/C++", "SQL"], color: "var(--v600)", level: 4 },
   { label: "Hardware",       items: ["Raspberry Pi (Embedded Linux, systemd)", "ESP32-S3", "Arduino", "I2C", "Bluetooth / BLE", "LoRa"], color: "var(--v680)", level: 4 }
 ];
+
+/**
+ * A project's colour is the spectrum colour of its primary capability (the
+ * first entry of its `skills`), so one colour means one capability on the
+ * project rows, the rail, the project page and the skills grid. Assigning
+ * colours by list position repeated them from project 7 with no meaning.
+ * Throws at build time if a project names a capability that does not exist.
+ */
+export function capabilityColor(label: string): string {
+  const group = skills.find((s) => s.label === label);
+  if (!group) throw new Error(`Unknown capability "${label}" — add it to skills or fix the project's skills list.`);
+  return group.color;
+}
+
+export const projects: Project[] = projectEntries.map((p) => ({
+  ...p,
+  color: capabilityColor(p.skills[0]),
+}));
