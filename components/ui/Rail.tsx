@@ -6,10 +6,10 @@ import { projects, projectLabel } from "@/data/portfolioData";
 
 const stops = [
   { id: "experience", label: "Experience", color: "var(--vwhite)" },
-  ...projects.map((p, i) => ({ id: `p${i + 1}`, label: projectLabel(p), color: p.color })),
   { id: "about", label: "About", color: "var(--vwhite)" },
-  { id: "leadership", label: "Leadership", color: "var(--vwhite)" },
+  ...projects.map((p, i) => ({ id: `p${i + 1}`, label: projectLabel(p), color: p.color })),
   { id: "achievements", label: "Achievements", color: "var(--vwhite)" },
+  { id: "leadership", label: "Leadership", color: "var(--vwhite)" },
   { id: "skills", label: "Skills", color: "var(--vwhite)" },
   { id: "contact", label: "Contact", color: "var(--vwhite)" },
 ];
