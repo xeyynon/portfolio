@@ -2,18 +2,12 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
-
 :root{
   --bg-dark:#0B0C0F;
   --bg-dark-2:#111318;
-  --bg-light:#F5F3EE;
   --ink-hi:#F2F0E9;
   --ink-lo:#14151A;
   --muted-dark:#7c7e86;
-  /* #8a8877 measured 3.2:1 on --bg-light (#F5F3EE) — fails WCAG AA (4.5:1).
-     Darkened within the same hue to 5.3:1; the light-theme override of this
-     token already passed and is unchanged. */
   --muted-light:#686552;
   --line-dark:#24262c;
   --line-light:#ddd9cd;
@@ -22,10 +16,9 @@
   --nav-bg:rgba(11,12,15,.86);
 
   /* ---- SPECTRUM ----
-     Two tunings of the same six hues. `bright` is legible on near-black,
-     `deep` on cream; each clears 4.5:1 on its own surface as text and border.
-     The active tuning is bound to the *surface*, not the theme, because the
-     cream panel exists in both themes — see the surface bindings below. */
+     Six hues tuned to clear 4.5:1 on near-black as text and border. The site
+     is dark-only (D-010); a cream-surface `deep` tuning existed until build
+     1036 and can be restored from git history if a light theme returns. */
   --spec-bright-400:#9B7EDE;
   --spec-bright-450:#7B93E0;
   --spec-bright-500:#4FD8E0;
@@ -34,29 +27,13 @@
   --spec-bright-680:#E8536B;
   --spec-bright-white:#EDEBE2;
 
-  --spec-deep-400:#5B3FA8;
-  --spec-deep-450:#3B54A8;
-  --spec-deep-500:#0E6E75;
-  --spec-deep-560:#1F7A34;
-  --spec-deep-600:#8A5210;
-  --spec-deep-680:#B01F3A;
-  --spec-deep-white:#14151A;
-
   /* ---- PINNED SCENE ----
-     Fixed, non-theme-swapped. About now sits on the persistent WebGL scene
-     (near-black, always) rather than the cream .light-panel surface, so it
-     needs its own tokens that don't participate in the :root.light surface
-     swap the way --ink-hi/--ink-lo/--v400.. do — the scene is never a light
-     surface regardless of site theme. */
+     Text tokens for anything that sits on the persistent WebGL scene. */
   --scene-ink-hi:#F2F0E9;
   --scene-ink-lo:#B9B7AE;
   --scene-scrim:rgba(8,9,12,0.88);
-  /* The scene's own base and the fallback SVG's outline stroke: both need to
-     stay the same colour regardless of theme, same reasoning as the two
-     tokens above. --scene-base stops the pinned scene from showing the
-     theme-swapped page background (cream, in light theme) through the gap
-     before WebGL mounts or if it fails — a background flip on top of a
-     proportion problem, not just the proportion problem alone. */
+  /* The scene's own base (shown before WebGL mounts, or if it fails) and the
+     fallback SVG's outline stroke. */
   --scene-base:#0B0C10;
   --scene-outline:#33353c;
 
@@ -122,10 +99,8 @@
   --radius: 0px;
 }
 
-/* Surface bindings. Read as: "whatever is dark here uses bright, whatever is
-   cream uses deep." The two theme rules simply swap which is which. */
-:root,
-:root.light .light-panel {
+/* Components only ever use --v400 … --v680 and --vwhite. */
+:root {
   --v400:var(--spec-bright-400);
   --v450:var(--spec-bright-450);
   --v500:var(--spec-bright-500);
@@ -133,17 +108,6 @@
   --v600:var(--spec-bright-600);
   --v680:var(--spec-bright-680);
   --vwhite:var(--spec-bright-white);
-}
-
-.light-panel,
-:root.light {
-  --v400:var(--spec-deep-400);
-  --v450:var(--spec-deep-450);
-  --v500:var(--spec-deep-500);
-  --v560:var(--spec-deep-560);
-  --v600:var(--spec-deep-600);
-  --v680:var(--spec-deep-680);
-  --vwhite:var(--spec-deep-white);
 }
 
 /* ---------- A11Y PRIMITIVES ---------- */
@@ -167,6 +131,9 @@ html{scroll-behavior:smooth;}
 /* Lenis drives scrolling once mounted. Native smooth behaviour has to yield or
    the two easing models fight and anchor jumps stutter. */
 html.lenis{scroll-behavior:auto;}
+/* Keeps section titles clear of the 53px sticky header on anchor jumps.
+   Lenis reads this too, so it is the one place the gap is set. */
+[id]{scroll-margin-top:72px;}
 html.lenis body{min-height:100%;}
 body{
   background:var(--bg-dark);
@@ -233,9 +200,6 @@ header.nav{
      defined elsewhere. */
   transition:background .3s ease,border-color .3s ease,box-shadow .3s ease;
 }
-:root.light header.nav{
-  box-shadow:0 8px 24px -12px rgba(20,21,26,0.18);
-}
 /* Was a <button> doubling as the theme toggle; light mode is gone (dark
    theme only now), so this is a plain logo link back to the top. */
 .logo{
@@ -251,10 +215,44 @@ header.nav{
 .nav-links::-webkit-scrollbar { display: none; }
 .nav-links { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Desktop: logo left, links right. Phones: the seven links no longer fit
+   (four were visible, three behind a scroll with no affordance), so they
+   collapse behind a Menu button — see components/ui/Header.tsx. */
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.nav-toggle{display:none;}
+
 @media(max-width:640px){
   .wrap { padding: 0 24px; }
   .rail{display:none;}
   header.nav{margin-left:0;}
+  .nav-toggle{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:44px;height:44px;margin:-12px -12px -12px 0;
+    background:none;border:0;color:var(--ink-hi);cursor:pointer;
+  }
+  .nav-links{display:none;}
+  .nav-links[data-open="true"]{
+    display:flex;flex-direction:column;gap:0;
+    position:absolute;left:0;right:0;top:100%;
+    background:var(--bg-dark);border-bottom:1px solid var(--line-dark);
+    /* Same inset as .wrap (5vw margin + 24px padding), so links line up with the logo. */
+    padding:4px calc(5vw + 24px) 12px;
+  }
+  .nav-links[data-open="true"] a{
+    padding:14px 0;font-size:12px;border-bottom:1px solid var(--line-dark);
+  }
+  .nav-links[data-open="true"] a:last-child{border-bottom:0;}
+}
+
+/* Touch: links that are only text get a 44px-tall hit area. An invisible
+   ::after does it rather than padding, which would push each link's
+   underline away from its text. */
+@media(pointer:coarse){
+  .nav-links a,.skill-used-link{position:relative;}
+  .nav-links a::after,.skill-used-link::after{
+    content:"";position:absolute;left:-4px;right:-4px;top:50%;
+    height:44px;transform:translateY(-50%);
+  }
 }
 
 /* ---------- SECTIONS ---------- */
@@ -264,14 +262,6 @@ header.nav{
 .scene-span{margin-left:26px;}
 @media(max-width:640px){.scene-span{margin-left:0;}}
 
-/* flow-root establishes a block formatting context on each panel, which stops
-   a first child's margin-top (e.g. .section-head's 44px) from collapsing
-   through the section and escaping into the gap between sections — without a
-   BFC, sections whose first child had no padding of its own rendered flush
-   against the colour edge with zero apparent top inset. Verified: leadership,
-   achievements, and skills sections all had this before the fix. */
-.dark-panel{background:var(--bg-dark);display:flow-root;}
-.light-panel{background:var(--bg-light);color:var(--ink-lo);display:flow-root;}
 
 /* ---------- GLASS ----------
    One shared surface treatment. `.glass` carries the blur (use sparingly —
@@ -384,13 +374,13 @@ header.nav{
 .animate-pulse-0 { animation: pulse-color-0 4.5s ease-in-out infinite; display: inline-block; }
 .animate-pulse-1 { animation: pulse-color-1 4.5s ease-in-out infinite; display: inline-block; }
 .animate-pulse-2 { animation: pulse-color-2 4.5s ease-in-out infinite; display: inline-block; }
+@media(prefers-reduced-motion:reduce){.animate-pulse-0,.animate-pulse-1,.animate-pulse-2{animation:none;}}
 
 /* PROJECTS */
 .section-head{
   display:flex;justify-content:space-between;align-items:baseline;
   border-top:1px solid var(--line-dark);padding-top:14px;margin-top:44px;
 }
-.light-panel .section-head{border-top:1px solid var(--line-light);}
 /* .eyebrow now lands on <h2>/<h3> elements (previously bare <span>s with no
    heading semantics — screen readers had no way to jump to "About",
    "Achievements", "Skills", etc). The base rule (shared with the project
@@ -417,7 +407,7 @@ header.nav{
 .pbar{height:30px;border-radius:1px;}
 .pnum{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);}
 .ptitle{font-size:14px;color:var(--ink-hi);font-weight:500;transition:color .2s;}
-.ppipe{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);margin-top:4px;letter-spacing:.01em;}
+.ppipe{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);margin-top:4px;letter-spacing:.01em;}
 /* border-color is always set inline (project.color) at every call site —
    the class only needs the width/style. */
 .ptag{font-family:var(--font-mono);font-size:9px;letter-spacing:.04em;border:1px solid;padding:4px 8px;white-space:nowrap;}
@@ -445,8 +435,8 @@ header.nav{
 .exp-highlights li{color:var(--muted-dark);}
 .exp-lead{display:block;color:var(--ink-hi);font-weight:600;margin-bottom:4px;}
 
-/* ABOUT — now an overlay on the persistent scene, not a .light-panel section.
-   See .about-overlay/.about-scrim below for how it stays readable. */
+/* ABOUT — an overlay on the persistent scene. See .about-overlay/.about-scrim
+   below for how it stays readable. */
 .about{padding-top:56px;padding-bottom:60px;}
 .about-grid{display:grid;grid-template-columns:140px 1fr;gap:30px;margin-top:22px;}
 .about-photo{
@@ -459,15 +449,7 @@ header.nav{
 }
 .about-copy p{font-size:14.5px;line-height:1.7;max-width:440px;color:var(--scene-ink-lo);}
 
-/* .about-overlay forces the "bright" spectrum tuning regardless of the
-   site's light/dark theme toggle. Without this, :root.light's deep tuning
-   (verified only against the cream .light-panel surface) would inherit onto
-   About once it leaves .light-panel — and About's background is always the
-   near-black scene now, never cream, in either theme. A direct declaration
-   on the element beats an inherited one regardless of the ancestor rule's
-   specificity, so this plain class rule is enough; no extra combinator
-   needed (contrast with how .light-panel itself has to fight :root.light —
-   here there's no competing rule targeting this element directly). */
+/* Text tokens for About, which sits on the scene behind a near-opaque scrim. */
 .about-overlay{
   --v400:var(--spec-bright-400); --v450:var(--spec-bright-450);
   --v500:var(--spec-bright-500); --v560:var(--spec-bright-560);
@@ -480,18 +462,9 @@ header.nav{
   position:relative;
 }
 
-/* The single, comprehensive "this text sits on the permanent dark scene"
-   rebind — every token a component might use for text, on any surface that
-   rides the persistent WebGL background, regardless of the site theme.
-   Originally only covered --ink-lo/--muted-light/--line-light (for
-   Leadership/Achievements/Skills, which leaned on those specific tokens as
-   inherited from their former .light-panel markup). That left --ink-hi and
-   --muted-dark unrebound, which is exactly the gap Projects, Contact, and
-   Hero fell into — all three use --ink-hi/--muted-dark directly and sit
-   on the same permanent scene, so they went dark-on-dark in light theme the
-   same way About would have without .about-overlay. Fixed once, here,
-   rather than per component: apply .scene-overlay to *any* element whose
-   text sits on the scene, and every token it might reach for is covered. */
+/* Apply .scene-overlay to any element whose text sits on the animated scene:
+   it rebinds every text token a component might reach for, including the
+   lighter --glass-muted that holds 4.5:1 over the brightest ray frame. */
 .scene-overlay{
   --v400:var(--spec-bright-400); --v450:var(--spec-bright-450);
   --v500:var(--spec-bright-500); --v560:var(--spec-bright-560);
@@ -536,17 +509,12 @@ header.nav{
 .ach-title{font-size:13.5px;font-weight:500;color:var(--ink-lo);display:inline-block;}
 .ach-link{transition:color .2s;}
 .ach-link:hover,.ach-link:focus-visible{color:var(--v500);}
-.ach-sub{display:block;font-family:var(--font-mono);font-size:10.5px;color:var(--muted-light);margin-top:3px;}
-.ach-detail{font-size:9.5px;margin-top:2px;}
+.ach-sub{display:block;font-family:var(--font-mono);font-size:11px;color:var(--muted-light);margin-top:3px;}
+.ach-detail{font-size:10.5px;margin-top:2px;}
 
 /* SKILLS */
-/* .skill-grid/.skill previously assumed the cream .light-panel surface
-   (solid --bg-light cards, --line-light grid seams) — both wrong now that
-   Skills is a dark glass panel: cards rendered as solid white/cream boxes
-   sitting inside the dark scene, a real visual break, not a subtle mismatch. */
 .skill-grid{
-  /* auto-fit, not auto-fill: empty trailing tracks would otherwise render as
-     bare gap colour where no card exists. */
+  /* Six groups: 3 × 2 here, 2 × 3 and 1 × 6 below — never an orphan card. */
   display:grid;grid-template-columns:repeat(3,1fr);
   gap:1px;background:var(--glass-border);border:1px solid var(--glass-border);
   margin-top:20px;
@@ -559,24 +527,20 @@ header.nav{
   background:var(--glass-veil);padding:22px;
   transition:background .25s cubic-bezier(.2,.8,.2,1);
 }
-/* Was color-mix(..., var(--bg-light) ...) — a near-white flash, correct only
-   while Skills sat on the cream .light-panel. Now it's a dark glass panel
-   like every other section riding the scene, so the hover needs the same
-   subtle-tint treatment as .project:hover, not a light background. */
 .skill:hover{background:var(--glass-fill);}
 @media(max-width:900px){.skill-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:560px){.skill-grid{grid-template-columns:1fr;}}
 .skill-bar{display:block;width:28px;height:3px;margin-bottom:10px;}
 .skill-label{font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-lo);}
-.skill-items{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-light);margin-top:6px;line-height:1.6;}
+.skill-items{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-light);margin-top:6px;line-height:1.6;}
 .skill-meter{display:flex;align-items:center;gap:12px;margin-top:12px;}
 .skill-segs{display:flex;gap:3px;}
 .skill-segs .seg{width:5px;height:12px;}
-.skill-level{font-family:var(--font-mono);font-size:8.5px;color:var(--muted-light);}
+.skill-level{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-light);}
 .skill-used{
   display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;
   margin-top:14px;padding-top:12px;border-top:1px dashed var(--line-light);
-  font-family:var(--font-mono);font-size:9px;
+  font-family:var(--font-mono);font-size:10px;
 }
 .skill-used-label{color:var(--muted-light);letter-spacing:.06em;text-transform:uppercase;}
 .skill-used-link{
@@ -610,8 +574,7 @@ header.nav{
 /* CSS-only replacements for the `motion`-backed LiquidButton/RippleButton
    primitives (removed — a 719KB animation library for three button hovers
    contradicted this project's own no-animation-library stance, see
-   AGENTS.md/DECISIONS.md D-001, and was flagged as avoidable waste in
-   AUDIT.md/CODE_REVIEW.md). Both effects are transform/opacity only, so
+   MD/decisions.md D-001). Both effects are transform/opacity only, so
    they stay on the compositor same as everything else in this file. */
 .contact-row a.btn-liquid{overflow:hidden;}
 .contact-row a.btn-liquid::after{
@@ -637,8 +600,13 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 
 @media(max-width:640px){
   .about-grid{grid-template-columns:1fr;}
-  .prow{grid-template-columns:4px 20px 1fr auto;}
-  .ptag{display:none;}
+  /* The tag (LIVE, SIH 2026, AWARDED) used to be display:none here, which
+     hid the most scannable fact on a phone. It drops to a second row under
+     the title instead. */
+  .prow{grid-template-columns:4px 20px 1fr auto;row-gap:8px;}
+  .pbar,.pnum{grid-row:1 / span 2;}
+  .ptag{grid-column:3;grid-row:2;justify-self:start;}
+  .pchev{grid-column:4;grid-row:1 / span 2;}
 }
 
 /* ==========================================================================
@@ -776,8 +744,17 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 .project-page .ppipe {
   font-size: 11px;
   margin-top: 0;
-  margin-bottom: 40px;
+  margin-bottom: 14px;
 }
+
+.pp-caps {
+  display: flex; flex-wrap: wrap; gap: 6px 18px;
+  list-style: none; margin-bottom: 40px;
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .04em;
+  color: var(--muted-dark);
+}
+.pp-caps li { display: inline-flex; align-items: center; gap: 7px; }
+.pp-cap-dot { width: 8px; height: 8px; flex-shrink: 0; }
 
 /* Was just a border-top divider — plain text on the page background, no
    panel at all. Requested directly: content should read as "widgets", the
@@ -911,11 +888,7 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 .leadership-item::before {
   content: ""; position: absolute; left: -28px; top: 50%; transform: translateY(-50%);
   width: 9px; height: 9px; border-radius: 50%;
-  /* Was --bg-light (blends with the cream .light-panel this used to sit on)
-     — a filled cream dot on the dark glass panel now, instead of the
-     intended hollow-outline look. --bg-dark-2 blended correctly in dark
-     theme but is itself theme-swapped, so it went cream again in light
-     theme — same bug, different token. --glass-veil is fixed. */
+  /* Hollow ring: the fill matches the glass panel behind it. */
   background: var(--glass-veil); border: 2px solid var(--muted-light);
 }
 .leadership-item.current::before {
@@ -1125,21 +1098,6 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 .deck-frame iframe { width: 100%; height: 100%; border: 0; background: #fff; }
 @media (min-width: 640px) { .deck-frame { height: 700px; } }
 
-/* Light theme: the two surfaces trade places. Spectrum tuning follows the
-   surface automatically via the bindings at the top of this file. */
-:root.light {
-  --bg-dark: #F5F3EE;
-  --bg-dark-2: #EAE8E2;
-  --bg-light: #0B0C0F;
-  --ink-hi: #14151A;
-  --ink-lo: #F2F0E9;
-  --muted-dark: #6a6858;
-  --muted-light: #9c9ea6;
-  --line-dark: #ddd9cd;
-  --line-light: #24262c;
-  --tick-idle: #c9c5b8;
-  --nav-bg: rgba(245,243,238,.86);
-}
 
 /* ==========================================================================
    Intro Sequence Overlay
@@ -1223,39 +1181,6 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   --radius-4xl:calc(var(--radius) * 2.6);
 }
 
-.dark {
-  --background:oklch(0.145 0 0);
-  --foreground:oklch(0.985 0 0);
-  --card:oklch(0.205 0 0);
-  --card-foreground:oklch(0.985 0 0);
-  --popover:oklch(0.205 0 0);
-  --popover-foreground:oklch(0.985 0 0);
-  --primary:oklch(0.922 0 0);
-  --primary-foreground:oklch(0.205 0 0);
-  --secondary:oklch(0.269 0 0);
-  --secondary-foreground:oklch(0.985 0 0);
-  --muted:oklch(0.269 0 0);
-  --muted-foreground:oklch(0.708 0 0);
-  --accent:oklch(0.269 0 0);
-  --accent-foreground:oklch(0.985 0 0);
-  --destructive:oklch(0.704 0.191 22.216);
-  --border:oklch(1 0 0 / 10%);
-  --input:oklch(1 0 0 / 15%);
-  --ring:oklch(0.556 0 0);
-  --chart-1:oklch(0.87 0 0);
-  --chart-2:oklch(0.556 0 0);
-  --chart-3:oklch(0.439 0 0);
-  --chart-4:oklch(0.371 0 0);
-  --chart-5:oklch(0.269 0 0);
-  --sidebar:oklch(0.205 0 0);
-  --sidebar-foreground:oklch(0.985 0 0);
-  --sidebar-primary:oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground:oklch(0.985 0 0);
-  --sidebar-accent:oklch(0.269 0 0);
-  --sidebar-accent-foreground:oklch(0.985 0 0);
-  --sidebar-border:oklch(1 0 0 / 10%);
-  --sidebar-ring:oklch(0.556 0 0);
-}
 
 @layer base {
   * {

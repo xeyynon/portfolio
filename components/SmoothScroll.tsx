@@ -56,14 +56,21 @@ export default function SmoothScroll() {
       if (!target) return;
 
       e.preventDefault();
-      lenis.scrollTo(target as HTMLElement, { offset: -80 });
+      // No offset here: Lenis honours CSS scroll-margin-top, which globals.css
+      // sets on every [id] — one value for both the Lenis and native paths.
+      lenis.scrollTo(target as HTMLElement);
       history.pushState(null, "", hash);
     };
 
-    document.addEventListener("click", onClick);
+    // Capture phase, so this runs before next/link's own onClick. Link calls
+    // preventDefault() on every local href and then scrolls instantly with
+    // no header offset — which left section titles under the sticky header
+    // and meant every <Link> anchor bypassed Lenis entirely. Link skips its
+    // navigation when the event is already defaultPrevented.
+    document.addEventListener("click", onClick, true);
 
     return () => {
-      document.removeEventListener("click", onClick);
+      document.removeEventListener("click", onClick, true);
       cancelAnimationFrame(raf);
       document.documentElement.classList.remove("lenis");
       lenis.destroy();

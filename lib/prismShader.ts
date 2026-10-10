@@ -6,7 +6,7 @@
  * number of simultaneous rays differ, which stays in each component's own
  * fragment shader.
  *
- * Extracted rather than left duplicated (CODE_REVIEW.md, "duplicated logic")
+ * Extracted rather than left duplicated
  * because the two copies had already drifted once (see the git history of
  * this file's predecessor blocks) — one shared source is the only way a
  * future tuning pass (like the mote fade above) reaches both renderers by

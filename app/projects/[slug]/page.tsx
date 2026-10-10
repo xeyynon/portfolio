@@ -1,4 +1,4 @@
-import { projects } from "@/data/portfolioData";
+import { capabilityColor, projects } from "@/data/portfolioData";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -83,6 +83,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       )}
 
       <p className="ppipe">{project.pipeline}</p>
+
+      {/* Names the colours: the project's accent is its first capability's
+          spectrum colour, and colour is never the only cue. */}
+      <ul className="pp-caps" aria-label="Capabilities">
+        {project.skills.map((label) => (
+          <li key={label}>
+            <span className="pp-cap-dot" style={{ background: capabilityColor(label) }} aria-hidden="true" />
+            {label}
+          </li>
+        ))}
+      </ul>
 
       <section className="pp-section">
         <h2 className="eyebrow">OVERVIEW</h2>
