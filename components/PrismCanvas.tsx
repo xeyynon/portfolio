@@ -98,22 +98,66 @@ const ASPECT_MAX = 2.6;
 // this gain is the only thing scroll drives, so it needed more range to
 // still read as a clear scroll-linked effect on its own.
 const FAN_GAIN_MIN = 1.1;
-const FAN_GAIN_MAX = 8.0;
+const FAN_GAIN_MAX = 6.0;
 
-// ARTISTIC — scroll travel. Owner, 2026-10-11: by the end of the page the
-// rainbow should cover the whole screen, the prism moving with each scroll.
-// Between SCROLL_TRAVEL_START and the end of the page the picture pans so
-// the prism climbs toward the upper left (x is in screen heights, scaled by
-// the clamped aspect so it works on phones and ultrawides) and zooms in
-// slightly, while the fan widens. At progress 0 the pan and zoom are exactly
-// neutral, so the opening frame (and the hero/prism-base alignment in
-// globals.css) is unchanged.
+// SCROLL SPIN — owner, 2026-10-11: "rotate the prism in 3D, like the Earth
+// rotates", linked to scroll, with real optics. The prism spins about its
+// vertical axis (yaw) as the page scrolls: one full turn plus YAW_EXTRA,
+// from REST_YAW at the top to YAW_END at the bottom. The beam and the
+// prism's position stay put.
+// Measured by sweeping lib/prism.ts: every yaw keeps all 10 wavelengths,
+// but between ~35 and ~145 degrees (and the same half-turn later) the beam
+// crosses the prism's flat end faces, so the fan collapses to one white
+// line, as a real spinning prism does. YAW_EXTRA = 25 degrees lands in the
+// wide part (fan ~73 degrees at FAN_GAIN_MAX); 35 degrees would collapse.
 const SCROLL_TRAVEL_START = 0.08;
-const SCROLL_PAN_X = 0.78;
-const SCROLL_PAN_Y = -0.62;
-const SCROLL_ZOOM_END = 0.72;
+const YAW_EXTRA = (25 * Math.PI) / 180;
+const YAW_END = Math.PI * 2 + YAW_EXTRA;
+
+// The spin is not linear in scroll: it moves slowly while the rainbow is out
+// and quickly through the edge-on stretches (fan collapsed), so the rainbow
+// is visible for ~70% of the page instead of ~45%. Breakpoints in degrees
+// along the path, from the sweep: fan out until 35, collapsed to 145, out to
+// 215, collapsed to 325, out to the end. EDGE_SPEED is how much less scroll
+// a collapsed degree takes.
+const SPIN_BREAKS_DEG = [35, 145, 215, 325];
+const EDGE_SPEED = 0.22;
+
+/** Maps spin progress (0..1, linear in scroll) to yaw in radians. */
+function spinYaw(u: number): number {
+  const start = (REST_YAW * 180) / Math.PI;
+  const end = (YAW_END * 180) / Math.PI;
+  const stops = [start, ...SPIN_BREAKS_DEG, end];
+  // Scroll weight of each segment: full for rainbow segments, EDGE_SPEED
+  // for the collapsed ones (odd-indexed segments).
+  const weights = stops.slice(1).map((d, i) => (d - stops[i]) * (i % 2 === 1 ? EDGE_SPEED : 1));
+  const total = weights.reduce((a, b) => a + b, 0);
+  let target = u * total;
+  for (let i = 0; i < weights.length; i++) {
+    if (target <= weights[i] || i === weights.length - 1) {
+      const f = weights[i] === 0 ? 0 : Math.min(1, target / weights[i]);
+      return ((stops[i] + (stops[i + 1] - stops[i]) * f) * Math.PI) / 180;
+    }
+    target -= weights[i];
+  }
+  return YAW_END;
+}
+const SCROLL_ZOOM_END = 0.8;
 // How much the rays' glow bands widen by the end (1 = unchanged).
 const SCROLL_RAY_SCALE_END = 2.4;
+
+// FOCUS — clicking a wavelength chip in the hero dispatches a
+// "prism:focus" event with that chip's nm; the rays near it brighten and the
+// rest dim, easing back over FOCUS_MS. Sample i sits at
+// FOCUS_NM_MIN + i * step, matching lib/prism.ts's LAMBDA_MIN/MAX.
+const FOCUS_MS = 3200;
+const FOCUS_NM_MIN = 410;
+const FOCUS_NM_MAX = 690;
+const FOCUS_SIGMA_NM = 32;
+
+// PERFORMANCE — after IDLE_MS with no scroll or pointer movement the loop
+// draws every other frame (about 30 fps): the slow motes don't need 60.
+const IDLE_MS = 2000;
 
 // ARTISTIC — how much the glass's environment-derived lighting recedes as
 // scroll progress moves through the scene, so the background stays
@@ -136,9 +180,10 @@ precision highp float;
 
 uniform vec2  uRes;
 uniform float uFwdScale;
-uniform vec2  uPan;
 uniform float uZoom;
 uniform float uRayScale;
+uniform float uFocusW[SAMPLES];
+uniform float uExitGain;
 uniform float uTime;
 uniform vec3  uCam;
 uniform vec3  uPlaneN[PLANES];
@@ -158,10 +203,9 @@ ${PRISM_GLSL_COMMON}
 
 void main() {
   vec2 uv = (gl_FragCoord.xy * 2.0 - uRes) / uRes.y;
-  // Scroll travel (see SCROLL_PAN_* in the frame loop): a screen-space pan
-  // and zoom of the whole picture, prism, beam and fan together. Framing
-  // only; the optics are untouched.
-  uv = uv * uZoom + uPan;
+  // Scroll zoom (SCROLL_ZOOM_END in the frame loop): a slight screen-space
+  // zoom of the whole picture. Framing only; the optics are untouched.
+  uv = uv * uZoom;
 
   /*
    * ARTISTIC SCROLL ROLL — screen-space only, not physics.
@@ -213,7 +257,9 @@ void main() {
      multiply gates the whole stage. */
   vec3 spectrum = vec3(0.0);
   for (int i = 0; i < SAMPLES; i++) {
-    vec3 c = uColor[i];
+    // uFocusW brightens the wavelengths near a chosen colour for a moment
+    // (hero chips, see FOCUS_* below); 1.0 everywhere otherwise.
+    vec3 c = uColor[i] * uFocusW[i];
     vec3 p = uExitP[i];
     vec3 d = uExitD[i];
 
@@ -223,15 +269,18 @@ void main() {
     // Emergent fan. Three overlapping widths: a hot core for definition, a
     // mid band for body, and a wide haze so the rays sit in atmosphere rather
     // than looking like stroked vectors.
-    if (dot(d, d) > 0.5) {
+    if (dot(d, d) > 0.5 && uExitGain > 0.001) {
       // Long enough to leave the frame at any pan/zoom (was 9, which ended
       // mid-screen on phones once the scroll travel zoomed in).
       vec3 far = p + d * 30.0;
       // uRayScale widens the mid band and haze with scroll so the fan grows
       // from hairlines into bands that fill the screen by the end.
-      spectrum += c * segmentGlow(ro, rd, p, far, 0.00055) * 2.6;
-      spectrum += c * segmentGlow(ro, rd, p, far, 0.0030 * uRayScale) * 0.85;
-      spectrum += c * segmentGlow(ro, rd, p, far, 0.0180 * uRayScale * uRayScale) * 0.20;
+      // uExitGain stays 1: while the prism is edge-on the fan is kept open
+      // by blending toward the rest-pose fan in the frame loop (owner: no
+      // white light, keep the rainbow).
+      spectrum += c * segmentGlow(ro, rd, p, far, 0.00055) * 2.6 * uExitGain;
+      spectrum += c * segmentGlow(ro, rd, p, far, 0.0030 * uRayScale) * 0.85 * uExitGain;
+      spectrum += c * segmentGlow(ro, rd, p, far, 0.0180 * uRayScale * uRayScale) * 0.20 * uExitGain;
 
       // A train of motes riding each ray, staggered per wavelength so the
       // fan reads as light in transit rather than static lines. Each fades
@@ -381,9 +430,24 @@ export default function PrismCanvas({
     const u = (name: string) => gl.getUniformLocation(prog, name);
     const uRes = u("uRes");
     const uFwdScale = u("uFwdScale");
-    const uPan = u("uPan");
     const uZoom = u("uZoom");
     const uRayScale = u("uRayScale");
+    const uFocusW = u("uFocusW[0]");
+    const uExitGain = u("uExitGain");
+    const focusW = new Float32Array(SAMPLES).fill(1);
+    let focus: { nm: number; t0: number } | null = null;
+    const onFocus = (e: Event) => {
+      const nm = (e as CustomEvent<number>).detail;
+      if (typeof nm === "number") focus = { nm, t0: performance.now() };
+      markActive();
+    };
+    let lastActive = performance.now();
+    let frameNo = 0;
+    const markActive = () => {
+      lastActive = performance.now();
+    };
+    window.addEventListener("prism:focus", onFocus);
+    window.addEventListener("scroll", markActive, { passive: true });
     const uTime = u("uTime");
     const uCam = u("uCam");
     const uPlaneN = u("uPlaneN[0]");
@@ -435,15 +499,23 @@ export default function PrismCanvas({
       pointer.y = ((e.clientY - r.top) / r.height) * 2 - 1;
     };
     window.addEventListener("pointermove", onPointer, { passive: true });
+    window.addEventListener("pointermove", markActive, { passive: true });
 
     // 1.1M fragments/frame — a wider budget than the project-page ray gets
     // (lib/prismShader.ts), since this canvas is full-viewport and carries
     // the scroll-driven animation the ray doesn't.
-    const ro = observePrismResize(cv, ctx, 1_100_000);
+    // Lowered from 1.1M in build 1046 for smoother scrolling on mid-range
+    // laptops; the difference is not visible at this blur level.
+    const ro = observePrismResize(cv, ctx, 900_000);
 
     const frame = (now: number) => {
-      if (!visible) {
+      if (!visible || document.hidden) {
         raf = 0;
+        return;
+      }
+      frameNo++;
+      if (now - lastActive > IDLE_MS && frameNo % 2 === 1 && !focus) {
+        raf = requestAnimationFrame(frame);
         return;
       }
       elapsed = (now - start) / 1000;
@@ -494,8 +566,9 @@ export default function PrismCanvas({
       // inline style permanently authoritative once JS is running.
       if (sceneEl) sceneEl.style.transform = `translateY(${shiftPx}px)`;
 
-      // The prism and its incident beam hold one fixed rest pose — no idle
-      // time-based drift, no scroll-driven tilt, no pointer-driven rotation.
+      // The incident beam holds one fixed pose; the prism's only motion is
+      // the scroll-linked spin about its vertical axis (spinYaw, above) —
+      // no idle time-based drift, no pointer-driven rotation.
       // Previously pitch/yaw/roll all wobbled continuously (autonomous sine
       // waves) and pitch/yaw also reacted to both scroll and pointer, which
       // moved the entry point where the beam appears to strike the glass
@@ -506,7 +579,8 @@ export default function PrismCanvas({
       // standalone for a horizontal beam, not by the yawFloor safety margin
       // the old scroll-driven range needed — there is no range to protect
       // now that this is a single constant pose, so that clamp is gone.
-      const rot: Mat3 = rotationMatrix(REST_PITCH, REST_YAW, REST_ROLL);
+      const yaw = still ? REST_YAW : spinYaw(smoothstep(SCROLL_TRAVEL_START, 1, s));
+      const rot: Mat3 = rotationMatrix(REST_PITCH, yaw, REST_ROLL);
 
       // The gain passed here only reshapes how far each already-traced ray
       // sits from the fan's mean (see spreadFan in lib/prism.ts) — it cannot
@@ -547,10 +621,61 @@ export default function PrismCanvas({
       ctx.uniform2f(uRes, cv.width, cv.height);
       ctx.uniform1f(uFwdScale, fwdScale);
       const travel = still ? 0 : smoothstep(SCROLL_TRAVEL_START, 1, s);
-      const panAspect = Math.min(Math.max(aspect, ASPECT_MIN), ASPECT_MAX);
-      ctx.uniform2f(uPan, travel * SCROLL_PAN_X * panAspect, travel * SCROLL_PAN_Y);
       ctx.uniform1f(uZoom, 1 + travel * (SCROLL_ZOOM_END - 1));
       ctx.uniform1f(uRayScale, 1 + travel * (SCROLL_RAY_SCALE_END - 1));
+      if (focus) {
+        const k = Math.max(0, 1 - (now - focus.t0) / FOCUS_MS);
+        const strength = k * k * (3 - 2 * k);
+        for (let i = 0; i < SAMPLES; i++) {
+          const nm = FOCUS_NM_MIN + (i * (FOCUS_NM_MAX - FOCUS_NM_MIN)) / (SAMPLES - 1);
+          const g = Math.exp(-((nm - focus.nm) ** 2) / (2 * FOCUS_SIGMA_NM ** 2));
+          focusW[i] = 1 + strength * (1.8 * g - 0.6 * (1 - g));
+        }
+        if (k === 0) focus = null;
+      } else {
+        focusW.fill(1);
+      }
+      ctx.uniform1fv(uFocusW, focusW);
+
+      // Fan width in degrees (vertical angle of each live exit ray). Below a
+      // few degrees the fan reads as one white line; owner: "I don't want
+      // this white light, I need the rainbow pattern". So as the real fan
+      // collapses (prism edge-on), each ray's direction eases toward the
+      // fan the prism makes at its rest pose. The glass still spins in true
+      // 3D and the rays still leave from the real exit points; only the
+      // edge-on directions are artistic.
+      let minA = Infinity;
+      let maxA = -Infinity;
+      for (let i = 0; i < SAMPLES; i++) {
+        const dx = path.exitDirs[i * 3];
+        const dy = path.exitDirs[i * 3 + 1];
+        const dz = path.exitDirs[i * 3 + 2];
+        if (dx * dx + dy * dy + dz * dz < 0.5) continue;
+        const a = (Math.atan2(dy, Math.hypot(dx, dz)) * 180) / Math.PI;
+        if (a < minA) minA = a;
+        if (a > maxA) maxA = a;
+      }
+      const fanDeg = maxA > minA ? maxA - minA : 0;
+      const keepOpen = 1 - smoothstep(3, 14, fanDeg);
+      if (keepOpen > 0) {
+        const ref = traceSpectrum(rotationMatrix(REST_PITCH, REST_YAW, REST_ROLL), BEAM_ORIGIN, BEAM_DIR, fanGain);
+        const dirs = path.exitDirs;
+        for (let i = 0; i < SAMPLES; i++) {
+          const o = i * 3;
+          const rx = ref.exitDirs[o], ry = ref.exitDirs[o + 1], rz = ref.exitDirs[o + 2];
+          if (rx * rx + ry * ry + rz * rz < 0.5) continue;
+          const ax = dirs[o], ay = dirs[o + 1], az = dirs[o + 2];
+          const alive = ax * ax + ay * ay + az * az > 0.5;
+          const bx = alive ? ax + (rx - ax) * keepOpen : rx;
+          const by = alive ? ay + (ry - ay) * keepOpen : ry;
+          const bz = alive ? az + (rz - az) * keepOpen : rz;
+          const len = Math.hypot(bx, by, bz) || 1;
+          dirs[o] = bx / len;
+          dirs[o + 1] = by / len;
+          dirs[o + 2] = bz / len;
+        }
+      }
+      ctx.uniform1f(uExitGain, 1);
       ctx.uniform1f(uArtSpin, 0);
       ctx.uniform1f(uSceneDim, sceneDim);
       ctx.uniform1f(uTime, t);
@@ -605,10 +730,22 @@ export default function PrismCanvas({
     );
     io.observe(cv);
 
+    const onVisibility = () => {
+      if (!document.hidden && visible && !raf) {
+        start = performance.now() - elapsed * 1000;
+        raf = requestAnimationFrame(frame);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     raf = requestAnimationFrame(frame);
 
     return () => {
       cancelAnimationFrame(raf);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("prism:focus", onFocus);
+      window.removeEventListener("scroll", markActive);
+      window.removeEventListener("pointermove", markActive);
       io.disconnect();
       ro.disconnect();
       window.removeEventListener("pointermove", onPointer);

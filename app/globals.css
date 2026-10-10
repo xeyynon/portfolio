@@ -187,7 +187,7 @@ a{color:inherit;text-decoration:none;}
    height reflowed it and nudged every sibling on hover. The box stays 16px and
    only the paint scales, so the column never relayouts. */
 .rail .tick{
-  appearance:none;border:0;padding:0;
+  display:block;appearance:none;border:0;padding:0;
   width:3px;height:16px;border-radius:1px;
   cursor:pointer;
   transition:transform .35s cubic-bezier(.2,.8,.2,1),background .35s,box-shadow .35s;
@@ -388,7 +388,9 @@ header.nav{
    there) — so the text needs a fixed dark colour to match, not --bg-dark
    (theme-swapped, was only correct by coincidence when the background swapped
    with it). --scene-base is the same fixed near-black the scene itself uses. */
-.chipbar span.chip{padding:5px 9px;color:var(--scene-base);font-weight:500;}
+.chipbar .chip{padding:5px 9px;color:var(--scene-base);font-weight:500;transition:filter .2s;}
+/* The chips are links to their skills group (WavelengthChips). */
+.chipbar a.chip:hover{filter:brightness(1.15);}
 .chipbar span.quote{padding:5px 10px;color:var(--muted-dark);}
 
 .hero h1{
@@ -829,10 +831,25 @@ footer{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);pad
    same fixed tokens .skill uses — safe to reuse plainly now that light
    mode is gone and every surface is permanently dark. */
 .pp-section {
-  margin-top: 24px;
-  padding: 24px;
-  background: var(--glass-veil);
-  border: 1px solid var(--glass-border);
+  margin-top: 16px;
+  padding: 24px 26px;
+  background: var(--card-sheen), var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+}
+
+/* Case study results: the project's key numbers as tiles. */
+.pp-metrics { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--bento-gap); }
+.pp-metric { display: flex; flex-direction: column; gap: 6px; min-height: 120px; }
+.pp-metric-value {
+  margin-top: auto; font-family: var(--font-display); font-size: var(--fs-38);
+  font-weight: 600; line-height: 1.05; letter-spacing: -.02em; color: var(--ink-hi);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  .pp-metrics { grid-template-columns: 1fr; }
+  .pp-metric { min-height: 0; }
+  .pp-metric-value { font-size: var(--fs-28); }
 }
 
 /* The shared base for every section eyebrow label — homepage section heads
@@ -1271,3 +1288,56 @@ footer{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);pad
     @apply font-sans;
   }
 }
+
+/* ---------- Build 1047 ---------- */
+
+/* Skills tile reached from a hero chip: its own colour rings it, then
+   settles to a quiet ring. */
+@keyframes target-ring{from{box-shadow:0 0 0 3px var(--skill-color);}to{box-shadow:0 0 0 1px var(--skill-color);}}
+.bento li:target > .tile,.bento li.is-flash > .tile{border-color:var(--skill-color);animation:target-ring 1.6s cubic-bezier(.16,1,.3,1) both;}
+@media(prefers-reduced-motion:reduce){.bento li:target > .tile,.bento li.is-flash > .tile{animation:none;box-shadow:0 0 0 1px var(--skill-color);}}
+
+/* Contact: the email tile holds a link and a copy button. */
+.contact-link{text-decoration:none;}
+.contact-link:hover{text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--muted-dark);}
+.copy-email{
+  position:absolute;top:16px;right:16px;
+  display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;
+  border-radius:10px;cursor:pointer;color:var(--muted-dark);
+  background:transparent;border:1px solid var(--card-border);
+  transition:color .2s,border-color .2s,background .2s;
+}
+.copy-email:hover{color:var(--ink-hi);border-color:var(--muted-dark);background:var(--card-bg-hover);}
+.copy-email[data-state="copied"]{color:var(--ink-hi);border-color:var(--ink-hi);}
+@media(pointer:coarse){.copy-email{width:44px;height:44px;top:12px;right:12px;}}
+/* Keep the address clear of the corner button. */
+.contact-tile .contact-link{padding-right:44px;}
+
+/* Selected Work filter chips. */
+.pfilter{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+.pfilter-chip{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border-radius:999px;cursor:pointer;
+  font-size:13px;color:var(--muted-dark);background:transparent;border:1px solid var(--card-border);
+  transition:color .2s,border-color .2s,background .2s;
+}
+.pfilter-chip:hover{color:var(--ink-hi);border-color:var(--muted-dark);}
+.pfilter-chip[aria-pressed="true"]{color:var(--ink-hi);background:var(--card-bg-hover);border-color:var(--chip-color,var(--ink-hi));}
+.pfilter-dot{width:7px;height:7px;border-radius:50%;background:var(--chip-color);}
+@media(pointer:coarse){.pfilter-chip{min-height:44px;}}
+
+/* 404: a beam that never reaches the glass. */
+.nf{padding-top:72px;padding-bottom:120px;margin-left:26px;}
+@media(max-width:640px){.nf{margin-left:0;}}
+.nf-art{width:min(520px,100%);height:auto;display:block;margin-bottom:28px;}
+.nf-beam{stroke:var(--ink-hi);stroke-width:2;stroke-linecap:round;}
+.nf-prism{fill:var(--card-bg);stroke:var(--muted-dark);stroke-width:1.5;}
+.nf-code{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted-dark);}
+.nf-title{margin-top:10px;font-family:var(--font-display);font-size:clamp(var(--fs-28),5vw,var(--fs-50));font-weight:600;line-height:1.1;letter-spacing:-.02em;color:var(--ink-hi);}
+.nf-text{margin-top:14px;max-width:46ch;font-size:var(--fs-16);line-height:1.6;color:var(--muted-dark);}
+.nf-home{
+  display:inline-block;margin-top:28px;padding:12px 18px;border-radius:var(--card-radius);
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-hi);background:var(--card-bg);border:1px solid var(--card-border);
+  transition:border-color .2s;
+}
+.nf-home:hover{border-color:var(--muted-dark);}
