@@ -98,7 +98,22 @@ const ASPECT_MAX = 2.6;
 // this gain is the only thing scroll drives, so it needed more range to
 // still read as a clear scroll-linked effect on its own.
 const FAN_GAIN_MIN = 1.1;
-const FAN_GAIN_MAX = 4.6;
+const FAN_GAIN_MAX = 8.0;
+
+// ARTISTIC — scroll travel. Owner, 2026-10-11: by the end of the page the
+// rainbow should cover the whole screen, the prism moving with each scroll.
+// Between SCROLL_TRAVEL_START and the end of the page the picture pans so
+// the prism climbs toward the upper left (x is in screen heights, scaled by
+// the clamped aspect so it works on phones and ultrawides) and zooms in
+// slightly, while the fan widens. At progress 0 the pan and zoom are exactly
+// neutral, so the opening frame (and the hero/prism-base alignment in
+// globals.css) is unchanged.
+const SCROLL_TRAVEL_START = 0.08;
+const SCROLL_PAN_X = 0.78;
+const SCROLL_PAN_Y = -0.62;
+const SCROLL_ZOOM_END = 0.72;
+// How much the rays' glow bands widen by the end (1 = unchanged).
+const SCROLL_RAY_SCALE_END = 2.4;
 
 // ARTISTIC — how much the glass's environment-derived lighting recedes as
 // scroll progress moves through the scene, so the background stays
@@ -121,6 +136,9 @@ precision highp float;
 
 uniform vec2  uRes;
 uniform float uFwdScale;
+uniform vec2  uPan;
+uniform float uZoom;
+uniform float uRayScale;
 uniform float uTime;
 uniform vec3  uCam;
 uniform vec3  uPlaneN[PLANES];
@@ -140,6 +158,10 @@ ${PRISM_GLSL_COMMON}
 
 void main() {
   vec2 uv = (gl_FragCoord.xy * 2.0 - uRes) / uRes.y;
+  // Scroll travel (see SCROLL_PAN_* in the frame loop): a screen-space pan
+  // and zoom of the whole picture, prism, beam and fan together. Framing
+  // only; the optics are untouched.
+  uv = uv * uZoom + uPan;
 
   /*
    * ARTISTIC SCROLL ROLL — screen-space only, not physics.
@@ -202,10 +224,14 @@ void main() {
     // mid band for body, and a wide haze so the rays sit in atmosphere rather
     // than looking like stroked vectors.
     if (dot(d, d) > 0.5) {
-      vec3 far = p + d * 9.0;
+      // Long enough to leave the frame at any pan/zoom (was 9, which ended
+      // mid-screen on phones once the scroll travel zoomed in).
+      vec3 far = p + d * 30.0;
+      // uRayScale widens the mid band and haze with scroll so the fan grows
+      // from hairlines into bands that fill the screen by the end.
       spectrum += c * segmentGlow(ro, rd, p, far, 0.00055) * 2.6;
-      spectrum += c * segmentGlow(ro, rd, p, far, 0.0030) * 0.85;
-      spectrum += c * segmentGlow(ro, rd, p, far, 0.0180) * 0.20;
+      spectrum += c * segmentGlow(ro, rd, p, far, 0.0030 * uRayScale) * 0.85;
+      spectrum += c * segmentGlow(ro, rd, p, far, 0.0180 * uRayScale * uRayScale) * 0.20;
 
       // A train of motes riding each ray, staggered per wavelength so the
       // fan reads as light in transit rather than static lines. Each fades
@@ -355,6 +381,9 @@ export default function PrismCanvas({
     const u = (name: string) => gl.getUniformLocation(prog, name);
     const uRes = u("uRes");
     const uFwdScale = u("uFwdScale");
+    const uPan = u("uPan");
+    const uZoom = u("uZoom");
+    const uRayScale = u("uRayScale");
     const uTime = u("uTime");
     const uCam = u("uCam");
     const uPlaneN = u("uPlaneN[0]");
@@ -517,6 +546,11 @@ export default function PrismCanvas({
 
       ctx.uniform2f(uRes, cv.width, cv.height);
       ctx.uniform1f(uFwdScale, fwdScale);
+      const travel = still ? 0 : smoothstep(SCROLL_TRAVEL_START, 1, s);
+      const panAspect = Math.min(Math.max(aspect, ASPECT_MIN), ASPECT_MAX);
+      ctx.uniform2f(uPan, travel * SCROLL_PAN_X * panAspect, travel * SCROLL_PAN_Y);
+      ctx.uniform1f(uZoom, 1 + travel * (SCROLL_ZOOM_END - 1));
+      ctx.uniform1f(uRayScale, 1 + travel * (SCROLL_RAY_SCALE_END - 1));
       ctx.uniform1f(uArtSpin, 0);
       ctx.uniform1f(uSceneDim, sceneDim);
       ctx.uniform1f(uTime, t);
