@@ -45,12 +45,13 @@ AUDIT.md
 CODE_REVIEW.md
 FINAL_REVIEW.md
 SESSION_HANDOFF.md
-AGENTS.md
-ARCHITECTURE.md
 CLAUDE.md
-DECISIONS.md
-PRD.md
-TASKS.md
+# No markdown is published from this repo: project docs (MD/), CHANGELOG,
+# SETUP and any other notes stay local. README.md is already tracked and is
+# unaffected by this pattern; its local edits are kept out of commits with
+# `git update-index --skip-worktree README.md`.
+/MD/
+*.md
 .impeccable/
 
 # Claude Code local tooling config (not site code)
