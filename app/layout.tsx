@@ -25,7 +25,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Surya Pratik — Computer Science Engineer",
+  title: "Surya Pratik · Computer Science Engineer",
   description:
     "Portfolio of Surya Pratik, a Computer Science Engineering student at VIT-AP building AI products: a multilingual voice AI caller, Flutter apps, and an offline waste-sorting bin.",
 };

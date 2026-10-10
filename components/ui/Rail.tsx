@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { projects } from "@/data/portfolioData";
+import { projects, projectLabel } from "@/data/portfolioData";
 
 const stops = [
   { id: "experience", label: "Experience", color: "var(--vwhite)" },
-  ...projects.map((p, i) => ({ id: `p${i + 1}`, label: p.title, color: p.color })),
+  ...projects.map((p, i) => ({ id: `p${i + 1}`, label: projectLabel(p), color: p.color })),
   { id: "about", label: "About", color: "var(--vwhite)" },
   { id: "leadership", label: "Leadership", color: "var(--vwhite)" },
   { id: "achievements", label: "Achievements", color: "var(--vwhite)" },
