@@ -335,16 +335,15 @@ export type LeadershipStage = {
   date: string;
   role: string;
   range: string;
-  /** 1-4, drives the signal-gain meter. */
-  gain: number;
-  tag?: string;
+  /** The latest role; its timeline node is drawn filled. */
+  current?: boolean;
 };
 
 export const leadership: LeadershipStage[] = [
-  { date: "Dec 2023", role: "Hi-Tech Team Member", range: "Dec 2023 → Jun 2024", gain: 1 },
-  { date: "Jul 2024", role: "Club Manager",        range: "Jul 2024 → Jul 2025", gain: 2 },
-  { date: "Jul 2025", role: "President",           range: "Jul 2025 → Dec 2025", gain: 3 },
-  { date: "Dec 2025", role: "Chief Advisor",       range: "Dec 2025 → Jul 2026", gain: 4, tag: "LAST POSITION" }
+  { date: "Dec 2023", role: "Hi-Tech Team Member", range: "Dec 2023 → Jun 2024" },
+  { date: "Jul 2024", role: "Club Manager",        range: "Jul 2024 → Jul 2025" },
+  { date: "Jul 2025", role: "President",           range: "Jul 2025 → Dec 2025" },
+  { date: "Dec 2025", role: "Chief Advisor",       range: "Dec 2025 → Jul 2026", current: true }
 ];
 
 export type Achievement = {
