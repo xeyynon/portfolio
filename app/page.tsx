@@ -147,34 +147,76 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="wrap about about-overlay" id="about">
-            <div className="about-scrim" aria-hidden="true" />
-            <div className="section-head">
-              <h2 className="eyebrow">ABOUT</h2>
-            </div>
-            <div className="about-grid">
-              <div className="about-photo">
-                <Image src="/sources/myImage.jpg" alt="Surya Pratik" fill sizes="140px" className="object-cover" />
+          <div className="scene-gap" aria-hidden="true" />
+
+          {/* ABOUT as a bento (Bento Grid + dark OLED + Swiss type, chosen by
+              the owner 2026-10-11): one fact per solid tile, tiles of
+              different sizes, the spectrum only as small marks. */}
+          <div className="scene-panel scene-overlay">
+            <div className="wrap" id="about">
+              <div className="section-head">
+                <h2 className="eyebrow">ABOUT</h2>
               </div>
-              <div className="about-copy">
-                <p style={{ fontWeight: '500', marginBottom: '12px', fontSize: '16px' }}>
-                  {personalInfo.title.split('.').filter(Boolean).map((word, i) => {
-                    return (
-                      <span
-                        key={i}
-                        className={`animate-pulse-${i % 3} mr-1.5 inline-block`}
-                      >
-                        {word.trim()}.
-                      </span>
-                    );
-                  })}
-                </p>
-                <p>{personalInfo.education}</p>
-                <p style={{ marginTop: '12px' }}>{personalInfo.summary}</p>
-                <div className="swatches" aria-hidden="true">
-                  {SPECTRUM.map((s) => (
-                    <span key={s.token} className="sw" style={{ background: `var(${s.token})` }} />
-                  ))}
+              <div className="bento">
+                <div className="tile tile-photo">
+                  <Image
+                    src="/sources/myImage.jpg"
+                    alt="Surya Pratik speaking at a lectern"
+                    fill
+                    sizes="(max-width: 560px) 90vw, (max-width: 900px) 45vw, 25vw"
+                    className="object-cover"
+                  />
+                </div>
+
+                <div className="tile tile-statement">
+                  <p className="bento-headline">{personalInfo.headline}</p>
+                  <p className="bento-focus">{personalInfo.focus}</p>
+                  <p className="bento-belief">{personalInfo.belief}</p>
+                  <div className="bento-sign">
+                    <p className="bento-motto">
+                      {personalInfo.title.split(".").filter(Boolean).map((word, i) => (
+                        <span key={i} className={`animate-pulse-${i % 3} mr-1.5 inline-block`}>
+                          {word.trim()}.
+                        </span>
+                      ))}
+                    </p>
+                    <div className="swatches" aria-hidden="true">
+                      {SPECTRUM.map((s) => (
+                        <span key={s.token} className="sw" style={{ background: `var(${s.token})` }} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="tile tile-fact">
+                  <span className="tile-label">Study</span>
+                  <span className="tile-value">{personalInfo.education.degree}</span>
+                  <span className="tile-note">
+                    {personalInfo.education.school} · {personalInfo.education.years}
+                  </span>
+                </div>
+
+                <div className="tile tile-fact">
+                  <span className="tile-label">CGPA</span>
+                  <span className="tile-value tile-number">
+                    {personalInfo.education.cgpa}
+                    <span className="tile-unit">/10</span>
+                  </span>
+                </div>
+
+                <div className="tile tile-fact">
+                  <span className="tile-label">From</span>
+                  <span className="tile-value">{personalInfo.hometown.city}</span>
+                  <span className="tile-note">{personalInfo.hometown.region}</span>
+                </div>
+
+                <div className="tile tile-fact">
+                  <span className="tile-label">Status</span>
+                  <span className="tile-value tile-status">
+                    <span className="status-dot" aria-hidden="true" />
+                    {personalInfo.availability.headline}
+                  </span>
+                  <span className="tile-note">{personalInfo.availability.detail}</span>
                 </div>
               </div>
             </div>
