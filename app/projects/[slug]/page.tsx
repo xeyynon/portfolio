@@ -97,8 +97,25 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         ))}
       </ul>
 
+      {/* A case study, in reading order: the result first (key numbers, each
+          already stated in the project's text), then the context, what was
+          built, the stack, and what would change next time where the notes
+          give one. */}
+      {project.metrics && project.metrics.length > 0 && (
+        <section className="pp-results" aria-label="Results">
+          <ul className="pp-metrics">
+            {project.metrics.map((m) => (
+              <li key={m.label} className="tile pp-metric">
+                <span className="pp-metric-value">{m.value}</span>
+                <span className="tile-note">{m.label}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section className="pp-section">
-        <h2 className="eyebrow">OVERVIEW</h2>
+        <h2 className="eyebrow">THE PROBLEM AND THE IDEA</h2>
         <p className="pp-desc">{project.description}</p>
       </section>
 
@@ -117,6 +134,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           ))}
         </div>
       </section>
+
+      {project.nextTime && (
+        <section className="pp-section">
+          <h2 className="eyebrow">WHAT I&apos;D DO DIFFERENTLY</h2>
+          <p className="pp-desc">{project.nextTime}</p>
+        </section>
+      )}
 
       {project.links?.demo && (
         <section className="pp-section" id="presentation">
