@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { personalInfo, experience, projects, achievements, skills } from "@/data/portfolioData";
+import { personalInfo, experience, projects, achievements, skills, projectLabel } from "@/data/portfolioData";
 import ScrollSceneProvider from "@/components/ScrollSceneProvider";
 import PrismScene from "@/components/PrismScene";
 import LeadershipTimeline from "@/components/LeadershipTimeline";
@@ -61,7 +61,7 @@ export default function Home() {
                 <span className="exp-bar" style={{ background: "var(--vwhite)" }} />
                 <div>
                   <div className="exp-role">
-                    {experience.role} —{" "}
+                    {experience.role} <span className="exp-at">at</span>{" "}
                     {experience.companyUrl ? (
                       <a
                         href={experience.companyUrl}
@@ -105,7 +105,10 @@ export default function Home() {
                     <span className="pbar" style={{ background: proj.color }}></span>
                     <span className="pnum">{proj.num}</span>
                     <span>
-                      <div className="ptitle">{proj.title}</div>
+                      <div className="ptitle">
+                        {proj.title}
+                        {proj.subtitle && <span className="psub">{proj.subtitle}</span>}
+                      </div>
                       <div className="ppipe">{proj.pipeline}</div>
                     </span>
                     <span className="ptag" style={{ color: proj.color, borderColor: proj.color }}>{proj.tag}</span>
@@ -176,12 +179,13 @@ export default function Home() {
                       <span>
                         {project ? (
                           <Link href={`/projects/${project.slug}`} className="ach-title ach-link">
-                            {ach.title} — {ach.event}
+                            {ach.title}
                           </Link>
                         ) : (
-                          <span className="ach-title">{ach.title} — {ach.event}</span>
+                          <span className="ach-title">{ach.title}</span>
                         )}
-                        <span className="ach-sub">{project?.title ?? ach.sub}</span>
+                        <span className="ach-event">{ach.event}</span>
+                        <span className="ach-sub">{project ? projectLabel(project) : ach.sub}</span>
                         <span className="ach-sub ach-detail">{ach.achievement}</span>
                       </span>
                     </li>
@@ -269,7 +273,7 @@ export default function Home() {
             <div className="wrap">
               <footer>
                 <span>© 2026 {personalInfo.name.toUpperCase()}</span>
-                <span>400–680nm</span>
+                <span>400 → 680 nm</span>
               </footer>
             </div>
           </div>

@@ -407,6 +407,8 @@ header.nav{
 .pbar{height:30px;border-radius:1px;}
 .pnum{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);}
 .ptitle{font-size:14px;color:var(--ink-hi);font-weight:500;transition:color .2s;}
+/* Name and subtitle are told apart by weight and tone, not by a separator. */
+.psub{margin-left:10px;font-weight:400;color:var(--muted-dark);}
 .ppipe{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);margin-top:4px;letter-spacing:.01em;}
 /* border-color is always set inline (project.color) at every call site —
    the class only needs the width/style. */
@@ -422,6 +424,7 @@ header.nav{
 .exp-row{display:flex;gap:16px;align-items:flex-start;}
 .exp-bar{width:4px;align-self:stretch;border-radius:1px;flex-shrink:0;}
 .exp-role{font-family:var(--font-display);font-size:20px;font-weight:500;color:var(--ink-hi);}
+.exp-at{font-weight:400;color:var(--muted-dark);}
 .exp-company{color:var(--vwhite);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s;}
 .exp-company:hover{border-bottom-color:var(--vwhite);}
 .exp-period{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);margin-top:4px;}
@@ -431,7 +434,7 @@ header.nav{
   .pp-highlights.exp-highlights{display:grid;grid-template-columns:repeat(2,1fr);gap:28px 40px;}
 }
 .exp-highlights li{line-height:1.6;max-width:68ch;}
-.exp-highlights li::before{color:var(--vwhite);}
+.exp-highlights li::before{background:var(--vwhite);}
 .exp-highlights li{color:var(--muted-dark);}
 .exp-lead{display:block;color:var(--ink-hi);font-weight:600;margin-bottom:4px;}
 
@@ -507,6 +510,12 @@ header.nav{
 }
 .ach-year{font-family:var(--font-mono);font-size:11px;color:var(--muted-light);}
 .ach-title{font-size:13.5px;font-weight:500;color:var(--ink-lo);display:inline-block;}
+/* The event as a quiet chip after the award, instead of "Award — Event". */
+.ach-event{
+  display:inline-block;margin-left:10px;vertical-align:2px;
+  font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted-light);border:1px solid var(--line-light);padding:2px 7px;
+}
 .ach-link{transition:color .2s;}
 .ach-link:hover,.ach-link:focus-visible{color:var(--v500);}
 .ach-sub{display:block;font-family:var(--font-mono);font-size:11px;color:var(--muted-light);margin-top:3px;}
@@ -607,6 +616,8 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   .pbar,.pnum{grid-row:1 / span 2;}
   .ptag{grid-column:3;grid-row:2;justify-self:start;}
   .pchev{grid-column:4;grid-row:1 / span 2;}
+  .psub{display:block;margin-left:0;margin-top:2px;}
+  .ach-event{margin:6px 0 0;display:table;}
 }
 
 /* ==========================================================================
@@ -717,6 +728,13 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   color: var(--muted-dark);
 }
 
+.pp-subtitle {
+  font-family: var(--font-display);
+  font-size: 18px; line-height: 1.35;
+  color: var(--muted-dark);
+  margin: -4px 0 14px;
+}
+
 .pp-head h1 {
   font-family: var(--font-display);
   font-size: 32px;
@@ -810,11 +828,15 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   color: var(--muted-dark); 
 }
 
+/* A small square in the project's spectrum colour, the same mark as the
+   About swatches, instead of a dash glyph (no em or en dashes on the page,
+   MD/rules.md). 0.5lh centres it on the first line at any line-height. */
 .pp-highlights li::before {
-  content: "—";
-  position: absolute; 
-  left: 0;
-  color: var(--project-accent, var(--v500));
+  content: "";
+  position: absolute;
+  left: 2px; top: calc(.5lh - 3px);
+  width: 6px; height: 6px;
+  background: var(--project-accent, var(--v500));
 }
 
 .stack { 

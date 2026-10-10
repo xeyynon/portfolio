@@ -1,4 +1,4 @@
-import { capabilityColor, projects } from "@/data/portfolioData";
+import { capabilityColor, projectLabel, projects } from "@/data/portfolioData";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -47,6 +47,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               {project.tag}
             </span>
           </div>
+          {project.subtitle && <p className="pp-subtitle">{project.subtitle}</p>}
         </>
       ) : (
         <>
@@ -59,6 +60,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               {project.tag}
             </span>
           </div>
+          {project.subtitle && <p className="pp-subtitle">{project.subtitle}</p>}
         </>
       )}
 
@@ -129,7 +131,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             <span className="w-1 h-8" style={{ background: prev.color }} />
             <div className="min-w-0">
               <div className="text-[9px] font-mono text-[var(--muted-dark)] uppercase">PREV</div>
-              <div className="text-sm group-hover:text-[var(--project-accent)] transition-colors text-[var(--ink-hi)] truncate">{prev.title}</div>
+              <div className="text-sm group-hover:text-[var(--project-accent)] transition-colors text-[var(--ink-hi)] truncate">{projectLabel(prev)}</div>
             </div>
           </Link>
         ) : <div className="hidden sm:block" />}
@@ -137,7 +139,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           <Link href={`/projects/${next.slug}`} className="group flex items-center gap-3 text-left sm:text-right w-full sm:max-w-[45%] justify-start sm:justify-end">
             <div className="hidden sm:block min-w-0">
               <div className="text-[9px] font-mono text-[var(--muted-dark)] uppercase">NEXT</div>
-              <div className="text-sm group-hover:text-[var(--project-accent)] transition-colors text-[var(--ink-hi)] truncate">{next.title}</div>
+              <div className="text-sm group-hover:text-[var(--project-accent)] transition-colors text-[var(--ink-hi)] truncate">{projectLabel(next)}</div>
             </div>
             <span className="w-1 h-8 shrink-0 hidden sm:block" style={{ background: next.color }} />
 
@@ -145,7 +147,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             <span className="w-1 h-8 shrink-0 sm:hidden" style={{ background: next.color }} />
             <div className="sm:hidden min-w-0">
               <div className="text-[9px] font-mono text-[var(--muted-dark)] uppercase">NEXT</div>
-              <div className="text-sm group-hover:text-[var(--project-accent)] transition-colors text-[var(--ink-hi)] truncate">{next.title}</div>
+              <div className="text-sm group-hover:text-[var(--project-accent)] transition-colors text-[var(--ink-hi)] truncate">{projectLabel(next)}</div>
             </div>
           </Link>
         ) : <div className="hidden sm:block" />}

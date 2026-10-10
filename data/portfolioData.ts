@@ -5,7 +5,7 @@
 export const personalInfo = {
   name: "Surya Pratik",
   title: "Learning. Building. Improving",
-  education: "B.Tech Computer Science and Engineering, VIT-AP University (2023 – 2027) · CGPA 8.34/10",
+  education: "B.Tech Computer Science and Engineering, VIT-AP University · 2023 → 2027 · CGPA 8.34/10",
   summary: "Hi, I'm Surya Pratik from Bhilai, Chhattisgarh. I build AI products that ship: voice agents, LLM-backed tools, Flutter apps and, when a product needs it, the hardware they run on. I'm currently an engineering intern at Alfaleus Technologies and open to AI/ML, software and Flutter internships, available to join immediately. I believe growth comes from challenging yourself, embracing failures, and learning something new every day."
 };
 
@@ -29,17 +29,17 @@ export const experience: Experience = {
   company: "Alfaleus Technologies",
   companyUrl: "https://alfaleus.com",
   role: "Embedded Engineer Intern",
-  period: "Jul 2026 — Present · Hyderabad",
+  period: "Since Jul 2026 · Hyderabad",
   status: "current",
   pipeline: "voice AI → mobile apps → on-device ML → hardware builds",
   highlights: [
     {
       lead: "Multilingual voice AI caller (Raspberry Pi)",
-      text: "Built a phone agent that answers calls over Bluetooth HFP with no cloud telephony, tested in Telugu, Hindi and English. Replies in 1.2–2.5 s on real calls through a streaming Sarvam Saaras STT → Gemini 2.5 Flash → Google TTS pipeline, chosen after evaluating 6 STT, 4 LLM and 4 TTS options."
+      text: "Built a phone agent that answers calls over Bluetooth HFP with no cloud telephony, tested in Telugu, Hindi and English. Replies in 1.2 to 2.5 s on real calls through a streaming Sarvam Saaras STT → Gemini 2.5 Flash → Google TTS pipeline, chosen after evaluating 6 STT, 4 LLM and 4 TTS options."
     },
     {
       lead: "HR mobile app (Flutter, Android)",
-      text: "Put a desktop-only HR portal with no API on employees' phones: attendance, leave, payslips and claims. Piloted with 8–10 employees; shipped 4 releases in 4 days with 401 automated tests and CI. PAN, Aadhaar and bank data stay masked until a biometric check."
+      text: "Put a desktop-only HR portal with no API on employees' phones: attendance, leave, payslips and claims. Piloted with 8 to 10 employees; shipped 4 releases in 4 days with 401 automated tests and CI. PAN, Aadhaar and bank data stay masked until a biometric check."
     },
     {
       lead: "GARBAE AI waste-sorting bin (v3.0)",
@@ -56,7 +56,10 @@ export const experience: Experience = {
 export type Project = {
   slug: string;
   num: string;
+  /** The project's name, e.g. "TARANG". */
   title: string;
+  /** What it is, shown as a quieter second part beside or under the name. */
+  subtitle?: string;
   /** Short name for cross-references (skill tooltips, achievement rows). */
   short: string;
   pipeline: string;
@@ -82,7 +85,8 @@ const projectEntries: Omit<Project, "color">[] = [
   {
     slug: "tarang",
     num: "01",
-    title: "TARANG – Oil-Spill Detection and Vessel Attribution",
+    title: "TARANG",
+    subtitle: "Oil-Spill Detection and Vessel Attribution",
     short: "TARANG",
     pipeline: "Sentinel-1 radar → slick → drift hindcast → AIS tracks → ranked ships",
     tag: "SIH 2026",
@@ -102,7 +106,8 @@ const projectEntries: Omit<Project, "color">[] = [
   {
     slug: "dhara",
     num: "02",
-    title: "DHARA – Dam Hazard Assessment and Routing",
+    title: "DHARA",
+    subtitle: "Dam Hazard Assessment and Routing",
     short: "DHARA",
     pipeline: "breach scenario → 2D flood solvers → depth & arrival time → people at risk",
     tag: "SIH 2026",
@@ -127,7 +132,7 @@ const projectEntries: Omit<Project, "color">[] = [
     pipeline: "laser → light pulse → solar receiver → decode",
     tag: "AWARDED",
     domain: "Embedded Systems, Visible Light Communication",
-    description: "Won Best Contemporary Project among 1,000+ teams at Engineering Clinics I (Fall 2024–25). A wireless link that sends data as laser light pulses and recovers it with a solar-panel receiver.",
+    description: "Won Best Contemporary Project among 1,000+ teams at Engineering Clinics I (Fall 2024/25). A wireless link that sends data as laser light pulses and recovers it with a solar-panel receiver.",
     highlights: [
       "Laser transmitter on an Arduino Mega using on-off keying",
       "Solar-panel receiver with an LM358 amplifier",
@@ -141,7 +146,8 @@ const projectEntries: Omit<Project, "color">[] = [
   {
     slug: "orca",
     num: "04",
-    title: "ORCA – Satellite Collision-Risk Screening",
+    title: "ORCA",
+    subtitle: "Satellite Collision-Risk Screening",
     short: "ORCA",
     pipeline: "orbit catalog → KD-tree search → refinement → risk tiers",
     tag: "LIVE",
@@ -160,7 +166,8 @@ const projectEntries: Omit<Project, "color">[] = [
   {
     slug: "surrag",
     num: "05",
-    title: "SURRAG – Criminal Network Analysis",
+    title: "SURRAG",
+    subtitle: "Criminal Network Analysis",
     short: "SURRAG",
     pipeline: "police FIR → entity extraction → person resolution → case graph → leads",
     tag: "LIVE",
@@ -180,12 +187,13 @@ const projectEntries: Omit<Project, "color">[] = [
   {
     slug: "human-presence-detection",
     num: "06",
-    title: "CSI-Sense – Camera-Free Activity Detection over Wi-Fi",
+    title: "CSI-Sense",
+    subtitle: "Camera-Free Activity Detection over Wi-Fi",
     short: "CSI-Sense",
     pipeline: "Wi-Fi signal → ESP32-S3 + biquad antenna → CSI spectrograms → EfficientNetV2 → app",
     tag: "TEAM",
     domain: "Wireless Sensing, Mobile Development",
-    description: "Detects human presence and activity from Wi-Fi channel state information (CSI), with no camera. Team project for Engineering Clinics II (Winter 2025–26).",
+    description: "Detects human presence and activity from Wi-Fi channel state information (CSI), with no camera. Team project for Engineering Clinics II (Winter 2025/26).",
     highlights: [
       "Built the Flutter app that shows live presence and activity",
       "Helped the team build the custom biquad antenna",
@@ -198,7 +206,8 @@ const projectEntries: Omit<Project, "color">[] = [
   {
     slug: "ecox-industrial-safety",
     num: "07",
-    title: "EcoX – Industrial Emission and Worker-Safety Device",
+    title: "EcoX",
+    subtitle: "Industrial Emission and Worker-Safety Device",
     short: "EcoX",
     pipeline: "CO sensor → Raspberry Pi 4B → 4G/GPS → Flutter dashboard",
     tag: "SEMI FINALIST",
@@ -216,7 +225,8 @@ const projectEntries: Omit<Project, "color">[] = [
   {
     slug: "flowiq",
     num: "08",
-    title: "FlowIQ – Smart Traffic App",
+    title: "FlowIQ",
+    subtitle: "Smart Traffic App",
     short: "FlowIQ",
     pipeline: "citizen app → maps & directions → challans → payment",
     tag: "98/100 R1",
@@ -235,7 +245,8 @@ const projectEntries: Omit<Project, "color">[] = [
   {
     slug: "telegram-drive",
     num: "09",
-    title: "Telegram Drive – Encrypted Cloud Storage",
+    title: "Telegram Drive",
+    subtitle: "Encrypted Cloud Storage",
     short: "Telegram Drive",
     pipeline: "file → AES-256 chunks → Telegram → streamed back",
     tag: "PERSONAL",
@@ -285,10 +296,10 @@ export type LeadershipStage = {
 };
 
 export const leadership: LeadershipStage[] = [
-  { date: "Dec 2023", role: "Hi-Tech Team Member", range: "Dec 2023 – Jun 2024", gain: 1 },
-  { date: "Jul 2024", role: "Club Manager",        range: "Jul 2024 – Jul 2025", gain: 2 },
-  { date: "Jul 2025", role: "President",           range: "Jul 2025 – Dec 2025", gain: 3 },
-  { date: "Dec 2025", role: "Chief Advisor",       range: "Dec 2025 – Jul 2026", gain: 4, tag: "LAST POSITION" }
+  { date: "Dec 2023", role: "Hi-Tech Team Member", range: "Dec 2023 → Jun 2024", gain: 1 },
+  { date: "Jul 2024", role: "Club Manager",        range: "Jul 2024 → Jul 2025", gain: 2 },
+  { date: "Jul 2025", role: "President",           range: "Jul 2025 → Dec 2025", gain: 3 },
+  { date: "Dec 2025", role: "Chief Advisor",       range: "Dec 2025 → Jul 2026", gain: 4, tag: "LAST POSITION" }
 ];
 
 export type Achievement = {
@@ -340,7 +351,7 @@ export const achievements: Achievement[] = [
   },
   {
     title: "Best Contemporary Project",
-    event: "Engineering Clinics I (Fall 2024–25)",
+    event: "Engineering Clinics I (Fall 2024/25)",
     year: "2024",
     slug: "lifi-data-transmission-system",
     achievement: "Awarded among 1,000+ teams"
@@ -373,7 +384,7 @@ export const skills = [
  */
 export function capabilityColor(label: string): string {
   const group = skills.find((s) => s.label === label);
-  if (!group) throw new Error(`Unknown capability "${label}" — add it to skills or fix the project's skills list.`);
+  if (!group) throw new Error(`Unknown capability "${label}": add it to skills or fix the project's skills list.`);
   return group.color;
 }
 
@@ -381,3 +392,12 @@ export const projects: Project[] = projectEntries.map((p) => ({
   ...p,
   color: capabilityColor(p.skills[0]),
 }));
+
+/**
+ * Name and subtitle as one plain string, for places that only take text
+ * (rail tooltips, prev/next links, achievement subtitles). A colon joins
+ * them: the site uses no em or en dashes (MD/rules.md).
+ */
+export function projectLabel(p: Pick<Project, "title" | "subtitle">): string {
+  return p.subtitle ? `${p.title}: ${p.subtitle}` : p.title;
+}
