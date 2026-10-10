@@ -97,6 +97,11 @@ export type Project = {
   stack: string[];
   /** Skill labels this project demonstrates. Drives the skills-to-work join. */
   skills: string[];
+  /** Key numbers for the case study's Results tiles, each already stated in
+   *  the project's own text (no new facts). */
+  metrics?: { value: string; label: string }[];
+  /** "What I'd do differently", only where the owner's notes give one. */
+  nextTime?: string;
   links?: {
     github?: string;
     /** Slide deck PDF, rendered by DeckViewer. */
@@ -121,6 +126,8 @@ const projectEntries: Omit<Project, "color">[] = [
     highlights: [],
     stack: [],
     skills: ["AI / ML", "Web & Backend", "Cloud & DevOps", "Languages"],
+    metrics: [],
+    nextTime: "",
     links: {}
   },
   {
@@ -137,6 +144,7 @@ const projectEntries: Omit<Project, "color">[] = [
     highlights: [],
     stack: [],
     skills: ["Web & Backend", "Cloud & DevOps", "Languages"],
+    metrics: [],
     links: {}
   },
   {
@@ -157,6 +165,10 @@ const projectEntries: Omit<Project, "color">[] = [
     ],
     stack: ["Arduino Mega", "Laser Module", "Solar Panel", "LM358", "Embedded C"],
     skills: ["Hardware", "Languages"],
+    metrics: [
+      { value: "50 m", label: "Link range" },
+      { value: "1,000+", label: "Teams in the contest it won" },
+    ],
     links: { github: "https://github.com/xeyynon/Lifi-Data-Transmission-System", demo: "/sources/PPTs/LIFI.pdf" }
   },
   {
@@ -178,6 +190,11 @@ const projectEntries: Omit<Project, "color">[] = [
     ],
     stack: ["Python", "FastAPI", "React", "three.js", "Docker", "Oracle Cloud"],
     skills: ["Web & Backend", "Cloud & DevOps", "Languages"],
+    metrics: [
+      { value: "15,968", label: "Objects screened" },
+      { value: "19 s", label: "For one day of close approaches" },
+      { value: "5", label: "Risk tiers" },
+    ],
     links: { live: "https://orca-vitap.vercel.app" }
   },
   {
@@ -200,6 +217,10 @@ const projectEntries: Omit<Project, "color">[] = [
     ],
     stack: ["Python", "FastAPI", "LLM", "spaCy", "Neo4j", "Qdrant"],
     skills: ["AI / ML", "Web & Backend", "Cloud & DevOps", "Languages"],
+    metrics: [
+      { value: "783", label: "Districts of hotspot data" },
+      { value: "~20", label: "API endpoints" },
+    ],
     links: { live: "https://crimelink-frontend.vercel.app" }
   },
   {
@@ -220,6 +241,9 @@ const projectEntries: Omit<Project, "color">[] = [
     ],
     stack: ["Flutter", "Dart", "ESP32-S3", "EfficientNetV2-S"],
     skills: ["Mobile", "Hardware"],
+    metrics: [
+      { value: "4", label: "ESP32-S3 receivers" },
+    ],
     links: { github: "https://github.com/xeyynon/CSI-Sense", demo: "/sources/PPTs/CSI.pdf" }
   },
   {
@@ -261,6 +285,9 @@ const projectEntries: Omit<Project, "color">[] = [
     ],
     stack: ["Flutter", "Dart", "Supabase", "Google Maps API", "Directions API"],
     skills: ["Mobile", "Cloud & DevOps"],
+    metrics: [
+      { value: "98/100", label: "Round 1, RADIOTHON 2026" },
+    ],
     links: { github: "https://github.com/xeyynon/TUA", demo: "/sources/PPTs/FLOWIQ.pdf" }
   },
   {
@@ -282,6 +309,10 @@ const projectEntries: Omit<Project, "color">[] = [
     ],
     stack: ["Flutter", "Dart", "Telegram Bot API", "AES-256-CTR"],
     skills: ["Mobile", "Languages"],
+    metrics: [
+      { value: "AES-256", label: "On-device encryption" },
+      { value: "48 MB", label: "Chunks, each with its own IV" },
+    ],
     links: { github: "https://github.com/xeyynon/TelegramDriveStorage" }
   },
   {
@@ -301,6 +332,11 @@ const projectEntries: Omit<Project, "color">[] = [
     ],
     stack: ["ESP32", "LoRa (433 MHz)", "pH / TDS / temperature sensors", "Arduino C++"],
     skills: ["Hardware", "Languages"],
+    metrics: [
+      { value: "3 s", label: "Reporting interval" },
+      { value: "433 MHz", label: "LoRa radio" },
+      { value: "10", label: "Samples averaged per reading" },
+    ],
     links: { github: "https://github.com/xeyynon/Water-Monitoring-Hardware", demo: "/sources/PPTs/Water.pdf" }
   }
 ];
@@ -484,3 +520,19 @@ export const projectGroups = [
 export const projectsInPageOrder: Project[] = projectGroups.flatMap((g) =>
   projects.filter((p) => p.category === g.key)
 );
+
+/** Anchor id for a skill group's tile, e.g. "skill-ai-ml". */
+export function skillId(label: string): string {
+  return "skill-" + label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+/** The six spectrum colours, in wavelength order. Each is a capability (the
+ *  skills group with the same colour). */
+export const spectrum = [
+  { token: "--v400", nm: 400 },
+  { token: "--v450", nm: 450 },
+  { token: "--v500", nm: 500 },
+  { token: "--v560", nm: 560 },
+  { token: "--v600", nm: 600 },
+  { token: "--v680", nm: 680 },
+] as const;
