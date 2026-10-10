@@ -10,8 +10,11 @@ export const personalInfo = {
 };
 
 export type ExperienceHighlight = {
-  /** Bold lead-in, e.g. the product name. */
+  /** The product name, shown as the card heading. */
   lead: string;
+  /** One-line result shown on the card; drawn from `text`, never new facts. */
+  summary: string;
+  /** The full description, one click away behind "Details". */
   text: string;
 };
 
@@ -35,27 +38,35 @@ export const experience: Experience = {
   highlights: [
     {
       lead: "Multilingual voice AI caller (Raspberry Pi)",
+      summary: "Answers phone calls in Telugu, Hindi and English, replying in 1.2 to 2.5 s with no cloud telephony.",
       text: "Built a phone agent that answers calls over Bluetooth HFP with no cloud telephony, tested in Telugu, Hindi and English. Replies in 1.2 to 2.5 s on real calls through a streaming Sarvam Saaras STT → Gemini 2.5 Flash → Google TTS pipeline, chosen after evaluating 6 STT, 4 LLM and 4 TTS options."
     },
     {
       lead: "HR mobile app (Flutter, Android)",
+      summary: "Put a desktop-only HR portal on employees' phones: 4 releases in 4 days, 401 automated tests.",
       text: "Put a desktop-only HR portal with no API on employees' phones: attendance, leave, payslips and claims. Piloted with 8 to 10 employees; shipped 4 releases in 4 days with 401 automated tests and CI. PAN, Aadhaar and bank data stay masked until a biometric check."
     },
     {
       lead: "GARBAE AI waste-sorting bin (v3.0)",
+      summary: "Sorts waste fully offline on a Raspberry Pi; classification cut from ~14.6 s to ~2 s per item.",
       text: "Moved inference and servo control from ESP32-S3 + cloud onto a Raspberry Pi 4B that sorts fully offline, deployed in a corporate cafeteria. Cut classification from ~14.6 s to ~2 s per item and raised balanced accuracy from 45.8% to 71.5% by benchmarking models on real captures."
     },
     {
       lead: "Droptor (eye-drop adherence device)",
+      summary: "50 working units built and validated in one week with the team; 1st place at GLAUCOPAT 2026.",
       text: "With the team, built and validated 50 working units in one week for the Glaucoma Society of India conference (GLAUCOPAT 2026), where it won 1st place in the product exhibition."
     }
   ],
 };
 
 /** Stable short label used wherever a project is referenced compactly. */
+export type ProjectCategory = "software" | "embedded";
+
 export type Project = {
   slug: string;
   num: string;
+  /** Which homepage group it sits in: software, or embedded / hardware. */
+  category: ProjectCategory;
   /** The project's name, e.g. "TARANG". */
   title: string;
   /** What it is, shown as a quieter second part beside or under the name. */
@@ -84,6 +95,7 @@ export type Project = {
 const projectEntries: Omit<Project, "color">[] = [
   {
     slug: "tarang",
+    category: "software",
     num: "01",
     title: "TARANG",
     subtitle: "Oil-Spill Detection and Vessel Attribution",
@@ -105,6 +117,7 @@ const projectEntries: Omit<Project, "color">[] = [
   },
   {
     slug: "dhara",
+    category: "software",
     num: "02",
     title: "DHARA",
     subtitle: "Dam Hazard Assessment and Routing",
@@ -126,6 +139,7 @@ const projectEntries: Omit<Project, "color">[] = [
   },
   {
     slug: "lifi-data-transmission-system",
+    category: "embedded",
     num: "03",
     title: "Li-Fi Data Transmission System",
     short: "Li-Fi",
@@ -145,6 +159,7 @@ const projectEntries: Omit<Project, "color">[] = [
   },
   {
     slug: "orca",
+    category: "software",
     num: "04",
     title: "ORCA",
     subtitle: "Satellite Collision-Risk Screening",
@@ -165,6 +180,7 @@ const projectEntries: Omit<Project, "color">[] = [
   },
   {
     slug: "surrag",
+    category: "software",
     num: "05",
     title: "SURRAG",
     subtitle: "Criminal Network Analysis",
@@ -186,6 +202,7 @@ const projectEntries: Omit<Project, "color">[] = [
   },
   {
     slug: "human-presence-detection",
+    category: "embedded",
     num: "06",
     title: "CSI-Sense",
     subtitle: "Camera-Free Activity Detection over Wi-Fi",
@@ -205,6 +222,7 @@ const projectEntries: Omit<Project, "color">[] = [
   },
   {
     slug: "ecox-industrial-safety",
+    category: "embedded",
     num: "07",
     title: "EcoX",
     subtitle: "Industrial Emission and Worker-Safety Device",
@@ -224,6 +242,7 @@ const projectEntries: Omit<Project, "color">[] = [
   },
   {
     slug: "flowiq",
+    category: "software",
     num: "08",
     title: "FlowIQ",
     subtitle: "Smart Traffic App",
@@ -244,6 +263,7 @@ const projectEntries: Omit<Project, "color">[] = [
   },
   {
     slug: "telegram-drive",
+    category: "software",
     num: "09",
     title: "Telegram Drive",
     subtitle: "Encrypted Cloud Storage",
@@ -264,6 +284,7 @@ const projectEntries: Omit<Project, "color">[] = [
   },
   {
     slug: "smart-water-quality",
+    category: "embedded",
     num: "10",
     title: "Water Quality Monitoring Node",
     short: "Water Node",
