@@ -66,6 +66,8 @@ const SPECTRUM_FADE_S = 0.6;
 // to push the beam line straight through the wordmark ("the prism top is
 // overflowing"). The 10%-of-height term still tapers it further on very
 // short viewports (phones) where even TOP_SHIFT_MAX_PX would be too much.
+// Mirrored in app/globals.css (.hero min-height), which ends the hero at
+// the prism's base. Change these three and FOV_K/ASPECT_* there too.
 const TOP_SHIFT_MAX_PX = 90;
 const TOP_SHIFT_VH = 10;
 const TOP_SHIFT_END = 0.12;

@@ -5,6 +5,12 @@ import ScrollSceneProvider from "@/components/ScrollSceneProvider";
 import PrismScene from "@/components/PrismScene";
 import LeadershipTimeline from "@/components/LeadershipTimeline";
 
+// Homepage project groups, by kind of work (TARANG: group by kind of claim).
+const PROJECT_GROUPS = [
+  { key: "software", label: "SOFTWARE" },
+  { key: "embedded", label: "EMBEDDED" },
+] as const;
+
 const SPECTRUM = [
   { token: "--v400", nm: 400 },
   { token: "--v450", nm: 450 },
@@ -38,7 +44,7 @@ export default function Home() {
             <h1>{personalInfo.name.toUpperCase()}</h1>
           </div>
 
-          <div className="scene-gap" aria-hidden="true" />
+          {/* No gap here: the hero already ends at the prism's base. */}
 
           {/* Positioned right after Hero, before Projects: the credential
               that makes every project below read as "already working the
@@ -57,8 +63,7 @@ export default function Home() {
                   <span className="count">CURRENT</span>
                 )}
               </div>
-              <div className="exp-row">
-                <span className="exp-bar" style={{ background: "var(--vwhite)" }} />
+              <div>
                 <div>
                   <div className="exp-role">
                     {experience.role} <span className="exp-at">at</span>{" "}
@@ -76,12 +81,18 @@ export default function Home() {
                     )}
                   </div>
                   <div className="exp-period">{experience.period}</div>
-                  <div className="ppipe">{experience.pipeline}</div>
-                  <ul className="pp-highlights exp-highlights">
+                  {/* One result line per product; the full description stays
+                      one click away (relocate, don't delete). Native
+                      <details> is keyboard-operable with no script. */}
+                  <ul className="exp-grid">
                     {experience.highlights.map((h) => (
-                      <li key={h.lead}>
-                        <strong className="exp-lead">{h.lead}</strong>
-                        {h.text}
+                      <li key={h.lead} className="exp-card">
+                        <h3 className="exp-lead">{h.lead}</h3>
+                        <p className="exp-summary">{h.summary}</p>
+                        <details className="exp-more">
+                          <summary>Details</summary>
+                          <p>{h.text}</p>
+                        </details>
                       </li>
                     ))}
                   </ul>
@@ -99,23 +110,40 @@ export default function Home() {
                 <span className="count">{String(projects.length).padStart(2, '0')} TOTAL</span>
               </div>
 
-              {projects.map((proj) => (
-                <Link href={`/projects/${proj.slug}`} key={proj.slug} className="project block" id={`p${parseInt(proj.num)}`}>
-                  <div className="prow">
-                    <span className="pbar" style={{ background: proj.color }}></span>
-                    <span className="pnum">{proj.num}</span>
-                    <span>
-                      <div className="ptitle">
-                        {proj.title}
-                        {proj.subtitle && <span className="psub">{proj.subtitle}</span>}
-                      </div>
-                      <div className="ppipe">{proj.pipeline}</div>
-                    </span>
-                    <span className="ptag" style={{ color: proj.color, borderColor: proj.color }}>{proj.tag}</span>
-                    <span className="pchev">→</span>
+              {PROJECT_GROUPS.map((group) => {
+                const list = projects.filter((p) => p.category === group.key);
+                return (
+                  <div key={group.key} className="pgroup">
+                    <h3 className="pgroup-head">
+                      <span>{group.label}</span>
+                      <span className="pgroup-count">{String(list.length).padStart(2, "0")}</span>
+                    </h3>
+                    <ul className="pgrid">
+                      {list.map((proj) => (
+                        <li key={proj.slug}>
+                          <Link
+                            href={`/projects/${proj.slug}`}
+                            className="pcard"
+                            id={`p${parseInt(proj.num)}`}
+                            style={{ "--card-accent": proj.color } as React.CSSProperties}
+                          >
+                            <span className="pcard-name">{proj.title}</span>
+                            {proj.subtitle && <span className="pcard-sub">{proj.subtitle}</span>}
+                            {/* Dot plus word: the dot names its colour (the
+                                project's main capability); the tag is plain text. */}
+                            <span className="pcard-meta">
+                              <span className="pdot" aria-hidden="true" />
+                              <span>{proj.skills[0]}</span>
+                              <span className="pcard-tag">{proj.tag}</span>
+                              <span className="pcard-go" aria-hidden="true">→</span>
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -207,8 +235,7 @@ export default function Home() {
                   const usedIn = projectsUsing(s.label);
 
                   return (
-                    <div key={s.label} className="skill">
-                      <span className="skill-bar" style={{ background: `linear-gradient(90deg, ${s.color}, transparent)` }} />
+                    <div key={s.label} className="skill" style={{ "--skill-color": s.color } as React.CSSProperties}>
                       <h3 className="skill-label">{s.label}</h3>
                       <p className="skill-items">{s.items.join(" · ")}</p>
 

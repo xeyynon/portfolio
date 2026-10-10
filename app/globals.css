@@ -67,6 +67,16 @@
      the same spirit as the surface-bound spectrum (D-002). */
   --glass-muted:#b3b5bf;
 
+  /* ---- CARDS ----
+     Content cards are solid, not glass (TARANG Build 1144: content cards
+     solid, glass only for small floating controls). Over the translucent
+     panel a translucent card read as two backgrounds stacked, with the
+     prism showing through both (owner, 2026-10-11: "less glassy"). */
+  --card-bg:#111319;
+  --card-bg-hover:#16191f;
+  --card-border:#23262d;
+  --card-radius:12px;
+
   /* ---- shadcn / Animate UI bridge ----
      shadcn components consume these names. Rather than run a second palette
      alongside the spectrum system, every one of them is aliased onto the
@@ -211,7 +221,7 @@ header.nav{
 .nav-links{display:flex;gap:22px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.07em;color:var(--muted-dark);}
 .nav-links a{padding-bottom:3px;border-bottom:1px solid transparent;transition:color .2s,border-color .2s;}
 .nav-links a:hover,.nav-links a.current{color:var(--v500);border-color:var(--v500);}
-.nav-links a:focus-visible,.tick:focus-visible,a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--v500);outline-offset:2px;}
+.nav-links a:focus-visible,.tick:focus-visible,a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--v500);outline-offset:2px;}
 .nav-links::-webkit-scrollbar { display: none; }
 .nav-links { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -331,7 +341,26 @@ header.nav{
 /* padding-bottom widened from 40px: the pinned prism sits full-viewport
    behind everything now, and 40px left almost no unobstructed scene visible
    between the wordmark and the glass projects panel starting. */
-.hero{padding-top:64px;padding-bottom:168px;}
+/* The hero ends exactly at the bottom edge of the prism, so the first
+   screen is the name and the whole prism and Experience starts right under
+   it (owner, 2026-10-11: "the experience section should start at the bottom
+   of the prism").
+
+   Pure CSS, so it is right on first paint with no layout shift. It mirrors
+   PrismCanvas.tsx: the scene is H = 100dvh tall, drawn shifted up by
+   min(TOP_SHIFT_MAX_PX, TOP_SHIFT_VH% of H) at the top of the page, and the
+   prism scales with fwdScale = FOV_K * clamp(aspect, ASPECT_MIN, ASPECT_MAX),
+   i.e. with clamp(W, 0.5H, 2.6H) in pixels. 0.090 is the base's offset below
+   the scene centre in those units, measured from renders at 390 to 2560px
+   wide (constant to ±0.001). Change those constants and this goes with them. */
+.hero{
+  --scene-w:calc(100vw - 26px);
+  --prism-scale:clamp(50dvh, var(--scene-w), 260dvh);
+  --prism-shift:min(90px, 10dvh);
+  padding-top:64px;padding-bottom:0;
+  min-height:calc(50dvh - var(--prism-shift) + 0.090 * var(--prism-scale));
+}
+@media(max-width:640px){.hero{--scene-w:100vw;}}
 .chipbar{
   display:inline-flex;align-items:center;border:1px solid var(--line-dark);
   font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;margin-bottom:22px;
@@ -391,52 +420,75 @@ header.nav{
 .section-head .eyebrow{margin-bottom:0;}
 .section-head .count{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);}
 
-/* Rows sit inside the already-blurred .projects-panel, so they get the glass
-   *fill* on hover without a blur pass of their own — the pane behind them
-   has already done that work. */
-.project{
-  border-top:1px solid var(--line-dark);
-  padding:15px 0;cursor:pointer;
-  transition:background .28s cubic-bezier(.2,.8,.2,1);
-}
-.project:hover,.project:focus-visible{background:var(--glass-fill);}
-.project:last-child{border-bottom:1px solid var(--line-dark);}
-.prow{
-  display:grid;grid-template-columns:4px 26px 1fr auto auto;align-items:center;gap:14px;
-}
-.pbar{height:30px;border-radius:1px;}
-.pnum{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);}
-.ptitle{font-size:14px;color:var(--ink-hi);font-weight:500;transition:color .2s;}
-/* Name and subtitle are told apart by weight and tone, not by a separator. */
-.psub{margin-left:10px;font-weight:400;color:var(--muted-dark);}
-.ppipe{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);margin-top:4px;letter-spacing:.01em;}
-/* border-color is always set inline (project.color) at every call site —
-   the class only needs the width/style. */
-.ptag{font-family:var(--font-mono);font-size:9px;letter-spacing:.04em;border:1px solid;padding:4px 8px;white-space:nowrap;}
-.pchev{font-family:var(--font-mono);font-size:10px;color:var(--muted-dark);transition:transform .2s, color .2s;}
-.project:hover .pchev,.project:focus-visible .pchev{transform:translateX(4px);color:var(--vwhite);}
-.project:hover .ptitle,.project:focus-visible .ptitle{color:var(--v500);}
 
-/* EXPERIENCE — one entry, styled as a single wide "row" echoing .prow's
-   bar+content shape rather than inventing a new primitive. --vwhite (all
-   wavelengths combined) is the accent, not a 7th spectrum hue: this is the
-   light source the six capabilities disperse from, not another band. */
-.exp-row{display:flex;gap:16px;align-items:flex-start;}
-.exp-bar{width:4px;align-self:stretch;border-radius:1px;flex-shrink:0;}
+/* .pnum, .ppipe and .ptag remain for the project page header. */
+.pnum{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);}
+.ppipe{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);margin-top:4px;letter-spacing:.01em;}
+.ptag{font-family:var(--font-mono);font-size:9px;letter-spacing:.04em;border:1px solid;padding:4px 8px;white-space:nowrap;}
+
+/* PROJECTS — two groups (software, embedded) of calm cards. No stripe and
+   no boxed coloured tag (TARANG: no accent stripes; status is a dot plus a
+   word). The dot is the project's main capability colour and is named by
+   the word beside it. The pipeline lives on the project page only. */
+.pgroup{margin-top:30px;}
+.pgroup-head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:.14em;
+  color:var(--ink-hi);padding-bottom:10px;border-bottom:1px solid var(--line-dark);
+}
+.pgroup-count{color:var(--muted-dark);font-weight:400;}
+.pgrid{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px;}
+.pgrid > li{display:flex;}
+.pcard{
+  flex:1;display:flex;flex-direction:column;gap:6px;
+  padding:18px 20px;
+  background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);
+  transition:border-color .2s cubic-bezier(.16,1,.3,1),background .2s cubic-bezier(.16,1,.3,1);
+}
+.pcard:hover,.pcard:focus-visible{border-color:var(--card-accent);background:var(--card-bg-hover);}
+.pcard-name{font-family:var(--font-display);font-size:19px;font-weight:600;color:var(--ink-hi);letter-spacing:-.005em;}
+.pcard-sub{font-size:13.5px;line-height:1.45;color:var(--muted-dark);}
+.pcard-meta{
+  margin-top:auto;padding-top:12px;display:flex;align-items:center;gap:8px;
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.05em;color:var(--muted-dark);
+}
+.pdot{width:7px;height:7px;border-radius:50%;background:var(--card-accent);flex-shrink:0;}
+.pcard-tag{margin-left:auto;color:var(--ink-hi);}
+.pcard-go{transition:transform .2s,color .2s;}
+.pcard:hover .pcard-go,.pcard:focus-visible .pcard-go{transform:translateX(3px);color:var(--ink-hi);}
+@media(max-width:760px){.pgrid{grid-template-columns:1fr;}}
+
+/* EXPERIENCE — the role, then one card per product: heading, a one-line
+   result, and the full description behind a native <details>. --vwhite (all
+   wavelengths combined) is the company colour: the light source the six
+   capabilities disperse from. */
 .exp-role{font-family:var(--font-display);font-size:20px;font-weight:500;color:var(--ink-hi);}
 .exp-at{font-weight:400;color:var(--muted-dark);}
 .exp-company{color:var(--vwhite);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s;}
 .exp-company:hover{border-bottom-color:var(--vwhite);}
 .exp-period{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);margin-top:4px;}
-.exp-highlights{margin-top:20px;}
-@media(min-width:900px){
-  /* Doubled class: .pp-highlights (later in this file) sets display:flex. */
-  .pp-highlights.exp-highlights{display:grid;grid-template-columns:repeat(2,1fr);gap:28px 40px;}
+.exp-grid{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px;}
+@media(max-width:1100px){.exp-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:640px){.exp-grid{grid-template-columns:1fr;}}
+/* Cards in a row stretch to the same height; Details sits at the bottom of
+   each so the four line up whatever the length of their summary. */
+.exp-card{
+  display:flex;flex-direction:column;gap:8px;padding:18px 20px;
+  background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);
 }
-.exp-highlights li{line-height:1.6;max-width:68ch;}
-.exp-highlights li::before{background:var(--vwhite);}
-.exp-highlights li{color:var(--muted-dark);}
-.exp-lead{display:block;color:var(--ink-hi);font-weight:600;margin-bottom:4px;}
+.exp-more{margin-top:auto;padding-top:6px;}
+.exp-lead{font-size:14.5px;font-weight:600;line-height:1.35;color:var(--ink-hi);}
+.exp-summary{font-size:13.5px;line-height:1.55;color:var(--muted-dark);}
+.exp-more summary{
+  display:inline-flex;align-items:center;gap:6px;cursor:pointer;list-style:none;
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted-dark);transition:color .2s;
+}
+.exp-more summary::-webkit-details-marker{display:none;}
+.exp-more summary::after{content:"+";font-size:13px;line-height:1;}
+.exp-more[open] summary::after{content:"\00d7";}
+.exp-more summary:hover{color:var(--ink-hi);}
+.exp-more p{margin-top:8px;font-size:13px;line-height:1.6;color:var(--muted-dark);}
 
 /* ABOUT — an overlay on the persistent scene. See .about-overlay/.about-scrim
    below for how it stays readable. */
@@ -539,8 +591,9 @@ header.nav{
 .skill:hover{background:var(--glass-fill);}
 @media(max-width:900px){.skill-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:560px){.skill-grid{grid-template-columns:1fr;}}
-.skill-bar{display:block;width:28px;height:3px;margin-bottom:10px;}
-.skill-label{font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-lo);}
+.skill-label{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-lo);}
+/* A square in the capability's colour beside its name, instead of a stripe. */
+.skill-label::before{content:"";width:8px;height:8px;flex-shrink:0;background:var(--skill-color);}
 .skill-items{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-light);margin-top:6px;line-height:1.6;}
 .skill-meter{display:flex;align-items:center;gap:12px;margin-top:12px;}
 .skill-segs{display:flex;gap:3px;}
@@ -609,14 +662,6 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 
 @media(max-width:640px){
   .about-grid{grid-template-columns:1fr;}
-  /* The tag (LIVE, SIH 2026, AWARDED) used to be display:none here, which
-     hid the most scannable fact on a phone. It drops to a second row under
-     the title instead. */
-  .prow{grid-template-columns:4px 20px 1fr auto;row-gap:8px;}
-  .pbar,.pnum{grid-row:1 / span 2;}
-  .ptag{grid-column:3;grid-row:2;justify-self:start;}
-  .pchev{grid-column:4;grid-row:1 / span 2;}
-  .psub{display:block;margin-left:0;margin-top:2px;}
   .ach-event{margin:6px 0 0;display:table;}
 }
 
