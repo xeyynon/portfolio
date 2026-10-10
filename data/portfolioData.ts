@@ -331,18 +331,57 @@ export const leadershipHighlight = {
   ],
 };
 
+/** Chapter events coordinated as Student Coordinator (LinkedIn, volunteer
+ *  section), oldest first. Part of the "8+ events" figure. */
+export const leadershipEvents = [
+  { name: "DSA Quest", when: "Sep 2024" },
+  { name: "Hack Arcade", when: "Jan 2025" },
+  { name: "Morse Mystique", when: "Feb 2025" },
+  { name: "CS Quest", when: "Apr 2025" },
+  { name: "DSA Quest: F&F Edition", when: "Aug 2025" },
+  { name: "The Matrix Hackathon '25", when: "Sep 2025" },
+  { name: "The Cipher Saga", when: "Sep 2025" },
+];
+
+/** Roles outside the Microsoft chapter (LinkedIn experience section). */
+export const otherRoles = [
+  {
+    org: "Vectr",
+    role: "Co-Founder, head of the Technical Department",
+    range: "Sep 2023 → Feb 2024",
+    note: "A student-ecosystem startup.",
+  },
+  {
+    org: "Entrepreneurship Club, VIT-AP",
+    role: "Founding Partner, then Technical Team Lead",
+    range: "May 2024 → Dec 2024",
+    note: "Helped found the club; led its technical team.",
+  },
+];
+
+/** Volunteer roles outside the chapter (LinkedIn volunteering), oldest first. */
+export const volunteering = [
+  { role: "Organising team", event: "Women in Entrepreneurship", org: "IIC VIT-AP", when: "Apr 2024" },
+  { role: "Discipline team", event: "World Environment Day", org: "VIT-AP", when: "Jun 2024" },
+  { role: "Technical team", event: "VITAURA'24", org: "VIT-AP", when: "Oct 2024" },
+  { role: "Feedback team", event: "IHEF 2024", org: "VIT-AP", when: "Nov 2024" },
+];
+
 export type LeadershipStage = {
   date: string;
   role: string;
   range: string;
+  /** What the role involved, condensed from the LinkedIn role description.
+   *  Omitted when there is no source (Chief Advisor has none). */
+  did?: string;
   /** The latest role; its timeline node is drawn filled. */
   current?: boolean;
 };
 
 export const leadership: LeadershipStage[] = [
-  { date: "Dec 2023", role: "Hi-Tech Team Member", range: "Dec 2023 → Jun 2024" },
-  { date: "Jul 2024", role: "Club Manager",        range: "Jul 2024 → Jul 2025" },
-  { date: "Jul 2025", role: "President",           range: "Jul 2025 → Dec 2025" },
+  { date: "Dec 2023", role: "Hi-Tech Team Member", range: "Dec 2023 → Jun 2024", did: "Made the chapter's reels, posts and promotional content." },
+  { date: "Jul 2024", role: "Club Manager",        range: "Jul 2024 → Jul 2025", did: "Ran club operations and events; mentored the Hi-Tech team." },
+  { date: "Jul 2025", role: "President",           range: "Jul 2025 → Dec 2025", did: "Set the chapter's direction; led operations and outreach." },
   { date: "Dec 2025", role: "Chief Advisor",       range: "Dec 2025 → Jul 2026", current: true }
 ];
 
@@ -408,14 +447,15 @@ export const achievements: Achievement[] = [
   }
 ];
 
-/** Ordered for the target roles (AI/ML and software first); rendered in this order. */
+/** Ordered for the target roles (AI/ML and software first); rendered in this order.
+ *  No proficiency level: a 1-4 self-rating was an invented scale (build 1043). */
 export const skills = [
-  { label: "AI / ML",        items: ["LLM integration (Gemini)", "Speech-to-text & text-to-speech streaming", "Computer vision (SigLIP2)", "INT8 quantization", "Voice activity detection", "scikit-learn"], color: "var(--v400)", level: 3 },
-  { label: "Mobile",         items: ["Flutter", "Dart", "Android", "Biometric auth", "On-device OCR"], color: "var(--v450)", level: 3 },
-  { label: "Web & Backend",  items: ["FastAPI", "React", "Node.js", "REST APIs"], color: "var(--v500)", level: 2 },
-  { label: "Cloud & DevOps", items: ["Firebase", "Supabase", "PostgreSQL", "Neo4j", "Docker", "Git", "CI/CD (GitHub Actions)"], color: "var(--v560)", level: 3 },
-  { label: "Languages",      items: ["Python", "Java", "Dart", "JavaScript", "TypeScript", "C/C++", "SQL"], color: "var(--v600)", level: 4 },
-  { label: "Hardware",       items: ["Raspberry Pi (Embedded Linux, systemd)", "ESP32-S3", "Arduino", "I2C", "Bluetooth / BLE", "LoRa"], color: "var(--v680)", level: 4 }
+  { label: "AI / ML",        items: ["LLM integration (Gemini)", "Speech-to-text & text-to-speech streaming", "Computer vision (SigLIP2)", "INT8 quantization", "Voice activity detection", "scikit-learn"], color: "var(--v400)" },
+  { label: "Mobile",         items: ["Flutter", "Dart", "Android", "Biometric auth", "On-device OCR"], color: "var(--v450)" },
+  { label: "Web & Backend",  items: ["FastAPI", "React", "Node.js", "REST APIs"], color: "var(--v500)" },
+  { label: "Cloud & DevOps", items: ["Firebase", "Supabase", "PostgreSQL", "Neo4j", "Docker", "Git", "CI/CD (GitHub Actions)"], color: "var(--v560)" },
+  { label: "Languages",      items: ["Python", "Java", "Dart", "JavaScript", "TypeScript", "C/C++", "SQL"], color: "var(--v600)" },
+  { label: "Hardware",       items: ["Raspberry Pi (Embedded Linux, systemd)", "ESP32-S3", "Arduino", "I2C", "Bluetooth / BLE", "LoRa"], color: "var(--v680)" }
 ];
 
 /**

@@ -71,8 +71,15 @@
      solid, glass only for small floating controls). Over the translucent
      panel a translucent card read as two backgrounds stacked, with the
      prism showing through both (owner, 2026-10-11: "less glassy"). */
-  --card-bg:#111319;
-  --card-bg-hover:#16191f;
+  /* Owner, 2026-10-11: solid cards hid the prism; make them "a little
+     mirror, not exactly as its background". So: 62% opaque (the prism shows
+     faintly through) plus a soft diagonal sheen, still no backdrop-filter.
+     Contrast: over the panel's worst-case backdrop (a blown-out ray core,
+     rgb(65,66,70)) this lands near rgb(52,53,57); --glass-muted (#b3b5bf)
+     is ~6:1 on that, primary text far higher. */
+  --card-bg:rgba(17,19,25,.62);
+  --card-bg-hover:rgba(26,29,36,.72);
+  --card-sheen:linear-gradient(155deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,.015) 38%,rgba(255,255,255,0) 62%,rgba(255,255,255,.025) 100%);
   --card-border:#23262d;
   --card-radius:16px;
 
@@ -268,8 +275,8 @@ header.nav{
    ::after does it rather than padding, which would push each link's
    underline away from its text. */
 @media(pointer:coarse){
-  .nav-links a,.skill-used-link{position:relative;}
-  .nav-links a::after,.skill-used-link::after{
+  .nav-links a{position:relative;}
+  .nav-links a::after{
     content:"";position:absolute;left:-4px;right:-4px;top:50%;
     height:44px;transform:translateY(-50%);
   }
@@ -441,6 +448,7 @@ header.nav{
    word). The dot is the project's main capability colour and is named by
    the word beside it. The pipeline lives on the project page only. */
 .pgroup{margin-top:30px;}
+.pgroup:last-child{padding-bottom:56px;}
 .pgroup-head{
   display:flex;justify-content:space-between;align-items:baseline;
   font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:.14em;
@@ -452,10 +460,10 @@ header.nav{
 .pcard{
   flex:1;display:flex;flex-direction:column;gap:6px;
   padding:18px 20px;
-  background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);
+  background:var(--card-sheen),var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);
   transition:border-color .2s cubic-bezier(.16,1,.3,1),background .2s cubic-bezier(.16,1,.3,1);
 }
-.pcard:hover,.pcard:focus-visible{border-color:var(--card-accent);background:var(--card-bg-hover);}
+.pcard:hover,.pcard:focus-visible{border-color:var(--card-accent);background:var(--card-sheen),var(--card-bg-hover);}
 .pcard-name{font-family:var(--font-display);font-size:var(--fs-21);font-weight:600;color:var(--ink-hi);letter-spacing:-.005em;}
 .pcard-sub{font-size:13.5px;line-height:1.45;color:var(--muted-dark);}
 .pcard-meta{
@@ -477,14 +485,14 @@ header.nav{
 .exp-company{color:var(--vwhite);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s;}
 .exp-company:hover{border-bottom-color:var(--vwhite);}
 .exp-period{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);margin-top:4px;}
-.exp-grid{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:var(--bento-gap);margin-top:22px;}
+.exp-grid{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:var(--bento-gap);margin-top:22px;margin-bottom:56px;}
 @media(max-width:1100px){.exp-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:640px){.exp-grid{grid-template-columns:1fr;}}
 /* Cards in a row stretch to the same height; Details sits at the bottom of
    each so the four line up whatever the length of their summary. */
 .exp-card{
   display:flex;flex-direction:column;gap:8px;padding:18px 20px;
-  background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);
+  background:var(--card-sheen),var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);
 }
 .exp-more{margin-top:auto;padding-top:6px;}
 .exp-lead{font-size:var(--fs-16);font-weight:600;line-height:1.35;color:var(--ink-hi);}
@@ -516,13 +524,17 @@ header.nav{
 .bento > li > .tile{flex:1;}
 .span-2{grid-column:span 2;}
 .span-3{grid-column:span 3;}
+.span-4{grid-column:span 4;}
 .span-6{grid-column:span 6;}
+.span-8{grid-column:span 8;}
 .span-9{grid-column:span 9;}
 .span-12{grid-column:span 12;}
+.rows-2{grid-row:span 2;}
 @media(max-width:900px){
   .md-4{grid-column:span 4;}
   .md-6{grid-column:span 6;}
   .md-12{grid-column:span 12;}
+  .rows-2{grid-row:auto;}
 }
 @media(max-width:560px){
   .sm-4{grid-column:span 4;}
@@ -533,11 +545,27 @@ header.nav{
 /* Tiles that are links lift slightly on hover (Bento Grid: hover scale
    1.02); colour change alone on reduced motion. */
 .tile-link{transition:transform .2s cubic-bezier(.16,1,.3,1),border-color .2s,background .2s;}
-.tile-link:hover,.tile-link:focus-visible{transform:scale(1.02);border-color:var(--muted-dark);background:var(--card-bg-hover);}
+.tile-link:hover,.tile-link:focus-visible{transform:scale(1.02);border-color:var(--muted-dark);background:var(--card-sheen),var(--card-bg-hover);}
 @media(prefers-reduced-motion:reduce){.tile-link:hover,.tile-link:focus-visible{transform:none;}}
+
+/* Smooth entrance: cards and tiles rise 18px and fade in as they scroll
+   into view. Pure CSS scroll-driven animation (no JS, no library), on the
+   compositor. It animates `translate`, not `transform`, so the link tiles'
+   hover scale is untouched. Browsers without view timelines simply show
+   the tiles; reduced motion turns it off. */
+@keyframes tile-in{from{opacity:0;translate:0 18px;}to{opacity:1;translate:0 0;}}
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion: no-preference){
+    .tile,.exp-card,.pcard{
+      animation:tile-in cubic-bezier(.16,1,.3,1) both;
+      animation-timeline:view();
+      animation-range:entry 0% entry 70%;
+    }
+  }
+}
 .tile{
   position:relative;overflow:hidden;padding:20px 22px;
-  background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);
+  background:var(--card-sheen),var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);
 }
 .tile-photo{padding:0;min-height:300px;}
 .tile-photo img{object-position:50% 28%;}
@@ -608,92 +636,34 @@ header.nav{
   .ach-tile.is-featured .ach-value{font-size:var(--fs-21);}
 }
 
-/* SKILLS */
-.skill-grid{
-  /* Six groups: 3 × 2 here, 2 × 3 and 1 × 6 below — never an orphan card. */
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:1px;background:var(--glass-border);border:1px solid var(--glass-border);
-  margin-top:20px;
+/* SKILLS — bento tiles: the group's name beside its colour square and its
+   skills as quiet chips. Nothing else. */
+.skill-tile{display:flex;flex-direction:column;gap:16px;padding:24px 26px;}
+.skill-label{
+  display:flex;align-items:center;gap:10px;font-family:var(--font-display);
+  font-size:var(--fs-21);font-weight:600;line-height:1.2;color:var(--ink-hi);
 }
-.skill{
-  /* --bg-dark-2 is theme-swapped (cream in light theme) — wrong here, since
-     .scene-overlay's text tokens stay bright-tuned in both themes (the panel
-     never stops being the dark scene). --glass-veil is fixed, matching how
-     .scene-panel itself is styled. */
-  background:var(--glass-veil);padding:22px;
-  transition:background .25s cubic-bezier(.2,.8,.2,1);
-}
-.skill:hover{background:var(--glass-fill);}
-@media(max-width:900px){.skill-grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:560px){.skill-grid{grid-template-columns:1fr;}}
-.skill-label{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-lo);}
 /* A square in the capability's colour beside its name, instead of a stripe. */
-.skill-label::before{content:"";width:8px;height:8px;flex-shrink:0;background:var(--skill-color);}
-.skill-items{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-light);margin-top:6px;line-height:1.6;}
-.skill-meter{display:flex;align-items:center;gap:12px;margin-top:12px;}
-.skill-segs{display:flex;gap:3px;}
-.skill-segs .seg{width:5px;height:12px;}
-.skill-level{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-light);}
-.skill-used{
-  display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;
-  margin-top:14px;padding-top:12px;border-top:1px dashed var(--line-light);
-  font-family:var(--font-mono);font-size:10px;
+.skill-label::before{content:"";width:10px;height:10px;border-radius:3px;flex-shrink:0;background:var(--skill-color);}
+.skill-items{list-style:none;display:flex;flex-wrap:wrap;gap:8px;}
+/* Quiet chips: each skill gets a clear edge without separator characters. */
+.skill-items li{
+  padding:5px 11px;border-radius:999px;
+  font-size:13.5px;line-height:1.3;color:var(--ink-hi);
+  background:var(--card-bg-hover);border:1px solid var(--card-border);
 }
-.skill-used-label{color:var(--muted-light);letter-spacing:.06em;text-transform:uppercase;}
-.skill-used-link{
-  color:var(--ink-lo);border-bottom:1px solid var(--line-light);
-  transition:color .2s,border-color .2s;
-}
-.skill-used-link:hover,.skill-used-link:focus-visible{color:var(--v500);border-color:var(--v500);}
 
-/* CONTACT (dark, bookend) */
-.contact{padding-top:64px;padding-bottom:70px;border-top:1px solid var(--line-dark);}
-.contact h2{font-family:var(--font-display);font-size:clamp(30px,5vw,44px);font-weight:600;letter-spacing:-.01em;}
-.contact p.lede{color:var(--muted-dark);font-size:14px;margin-top:12px;max-width:420px;}
-.contact-row{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap;}
-/* Glass fill + edge, no blur: contact sits on an opaque panel, where a
-   backdrop-filter would sample a flat colour and cost a compositor pass for
-   nothing. */
-.contact-row a.btn{
-  position:relative;
-  font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;
-  background:var(--glass-fill);
-  border:1px solid var(--glass-border);padding:11px 18px;
-  transition:border-color .2s,color .2s,background .2s;color:var(--ink-hi);
+/* CONTACT — headline, one line, then link tiles that show the detail. */
+.contact{padding-top:64px;border-top:1px solid var(--line-dark);}
+.contact h2{font-family:var(--font-display);font-size:clamp(var(--fs-28),5vw,44px);font-weight:600;letter-spacing:-.01em;}
+.contact p.lede{color:var(--muted-dark);font-size:var(--fs-16);line-height:1.6;margin-top:12px;max-width:46ch;}
+.contact-bento{margin-top:28px;padding-bottom:40px;}
+.contact-tile{display:flex;flex-direction:column;gap:6px;min-height:118px;}
+.contact-value{
+  margin-top:auto;font-family:var(--font-display);font-size:var(--fs-21);font-weight:600;
+  line-height:1.2;color:var(--ink-hi);overflow-wrap:anywhere;
 }
-.contact-row a.btn::before{
-  content:"";position:absolute;inset:0 0 auto 0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--glass-edge) 18%,var(--glass-edge) 82%,transparent);
-  pointer-events:none;
-}
-.contact-row a.btn:hover{border-color:var(--v500);color:var(--v500);}
-
-/* CSS-only replacements for the `motion`-backed LiquidButton/RippleButton
-   primitives (removed — a 719KB animation library for three button hovers
-   contradicted this project's own no-animation-library stance, see
-   MD/decisions.md D-001). Both effects are transform/opacity only, so
-   they stay on the compositor same as everything else in this file. */
-.contact-row a.btn-liquid{overflow:hidden;}
-.contact-row a.btn-liquid::after{
-  content:"";position:absolute;inset:0;
-  background:var(--v500);opacity:.14;
-  transform:scaleX(0);transform-origin:left;
-  transition:transform .5s cubic-bezier(.22,.61,.24,1);
-  pointer-events:none;
-}
-.contact-row a.btn-liquid:hover::after{transform:scaleX(1);}
-
-.contact-row a.btn-ripple{overflow:hidden;}
-.contact-row a.btn-ripple::after{
-  content:"";position:absolute;left:50%;top:50%;width:0;height:0;
-  background:radial-gradient(circle,var(--v500) 0%,transparent 70%);
-  opacity:.4;border-radius:50%;
-  transform:translate(-50%,-50%);
-  transition:width .5s cubic-bezier(.22,.61,.24,1),height .5s cubic-bezier(.22,.61,.24,1);
-  pointer-events:none;
-}
-.contact-row a.btn-ripple:active::after{width:240%;height:240%;transition:width .05s,height .05s;}
-footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padding:20px 0 40px;border-top:1px solid var(--line-dark);margin-top:20px;display:flex;justify-content:space-between;}
+footer{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);padding:20px 0 32px;border-top:1px solid var(--line-dark);display:flex;justify-content:space-between;}
 
 @media(max-width:640px){
 }
@@ -975,7 +945,7 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
    an accent stripe; the node of the latest role is filled. */
 .lead-steps{
   position:relative;list-style:none;
-  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
 }
 .lead-steps::before{
   content:"";position:absolute;left:5px;right:0;top:5px;height:1px;background:var(--card-border);
@@ -983,11 +953,28 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 .lead-step{position:relative;display:flex;flex-direction:column;gap:6px;padding-top:26px;}
 .lead-node{
   position:absolute;left:0;top:0;width:11px;height:11px;border-radius:50%;
-  background:var(--card-bg);border:2px solid var(--muted-dark);
+  background:var(--bg-dark-2);border:2px solid var(--muted-dark);
 }
 .lead-step[data-current] .lead-node{background:var(--vwhite);border-color:var(--vwhite);}
 .lead-range{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.04em;color:var(--muted-dark);}
 .lead-role{font-family:var(--font-display);font-size:var(--fs-21);font-weight:600;line-height:1.2;color:var(--ink-hi);}
+.lead-did{font-size:13.5px;line-height:1.5;color:var(--muted-dark);max-width:28ch;}
+.lead-events{display:flex;flex-direction:column;gap:14px;}
+.lead-other{display:flex;flex-direction:column;gap:6px;min-height:150px;}
+.lead-other-org{margin-top:auto;font-family:var(--font-display);font-size:var(--fs-21);font-weight:600;line-height:1.2;color:var(--ink-hi);}
+.lead-other-role{font-size:14px;line-height:1.45;color:var(--ink-hi);}
+.lead-vol{display:flex;flex-direction:column;gap:14px;}
+.lead-vol-list{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.lead-vol-list li{display:flex;flex-direction:column;gap:4px;}
+.lead-vol-event{font-size:15px;font-weight:600;color:var(--ink-hi);}
+@media(max-width:900px){.lead-vol-list{grid-template-columns:repeat(2,1fr);}}
+.lead-event-list{list-style:none;display:flex;flex-direction:column;}
+.lead-event-list li{
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  padding:9px 0;border-top:1px solid var(--card-border);font-size:14px;color:var(--ink-hi);
+}
+.lead-event-list li:first-child{border-top:0;padding-top:0;}
+.lead-event-when{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.04em;color:var(--muted-dark);white-space:nowrap;}
 
 @media(max-width:900px){
   .lead-steps{grid-template-columns:repeat(2,1fr);row-gap:22px;}
@@ -1015,8 +1002,7 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
    then keeps .scene-pin glued to the viewport for as long as .scene-content
    (now the entire page — Hero through Footer) is taller than one viewport,
    so pin duration falls out of real content height rather than a
-   hand-tuned vh multiplier. .scene-spacer at the very end of .scene-content
-   is what the trailing unpin lands on. */
+   hand-tuned vh multiplier. */
 .scene-span { position: relative; }
 
 .scene-pin {
@@ -1029,14 +1015,11 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   margin-top: calc(-1 * 100dvh);
 }
 
-/* Sacrificial trailing buffer: the sticky-pin technique always unpins during
-   the final 100dvh of .scene-content's own scroll, no matter how tall real
-   content is (fundamental to the technique, not tunable away). Without this,
-   that unpinned tail lands on whatever real content happens to be last —
-   here, About — releasing the background before the user finishes reading
-   it. Appending a full 100dvh of empty space after the real content moves
-   the release into the buffer instead. */
-.scene-spacer { height: 100dvh; }
+/* No trailing spacer: .scene-span is the whole page, so at max scroll its
+   bottom is the viewport bottom and the pinned scene still fills the screen.
+   The old 100dvh spacer (from when content followed the scene) only added
+   empty scroll after the footer; removed in build 1043. */
+
 
 /* Real empty space between glass panels — not padding on the panels
    themselves — so the prism/rainbow is genuinely visible in the gap, not

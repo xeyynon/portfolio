@@ -8,10 +8,10 @@ import { Menu, X } from "lucide-react";
 // top to bottom the way the page scrolls.
 const SECTIONS = [
   { id: "experience", label: "EXPERIENCE" },
-  { id: "projects", label: "PROJECTS" },
   { id: "about", label: "ABOUT" },
-  { id: "leadership", label: "LEADERSHIP" },
+  { id: "projects", label: "PROJECTS" },
   { id: "achievements", label: "ACHIEVEMENTS" },
+  { id: "leadership", label: "LEADERSHIP" },
   { id: "skills", label: "SKILLS" },
   { id: "contact", label: "CONTACT" },
 ];
