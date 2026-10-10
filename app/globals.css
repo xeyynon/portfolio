@@ -159,7 +159,9 @@
 }
 .skip-link:focus{left:34px;top:10px;}
 
-*{box-sizing:border-box;margin:0;padding:0;}
+/* margin/padding reset lives in Tailwind's preflight (@layer base). An
+   unlayered `*{margin:0;padding:0}` here outranks every layered utility, so
+   mb-4 / mt-14 / mr-1.5 silently did nothing. */
 html{scroll-behavior:smooth;}
 
 /* Lenis drives scrolling once mounted. Native smooth behaviour has to yield or
@@ -256,8 +258,11 @@ header.nav{
 }
 
 /* ---------- SECTIONS ---------- */
-section{margin-left:26px;}
-@media(max-width:640px){section{margin-left:0;}}
+/* Clears the fixed 26px rail. Scoped to the page-level scene rather than
+   every <section>: nested sections (Leadership, the project page's
+   .pp-section cards) were picking it up too and sat 26px out of line. */
+.scene-span{margin-left:26px;}
+@media(max-width:640px){.scene-span{margin-left:0;}}
 
 /* flow-root establishes a block formatting context on each panel, which stops
    a first child's margin-top (e.g. .section-head's 44px) from collapsing
@@ -430,9 +435,15 @@ section{margin-left:26px;}
 .exp-company{color:var(--vwhite);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s;}
 .exp-company:hover{border-bottom-color:var(--vwhite);}
 .exp-period{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);margin-top:4px;}
-.exp-highlights{margin-top:16px;}
+.exp-highlights{margin-top:20px;}
+@media(min-width:900px){
+  /* Doubled class: .pp-highlights (later in this file) sets display:flex. */
+  .pp-highlights.exp-highlights{display:grid;grid-template-columns:repeat(2,1fr);gap:28px 40px;}
+}
+.exp-highlights li{line-height:1.6;max-width:68ch;}
 .exp-highlights li::before{color:var(--vwhite);}
 .exp-highlights li{color:var(--muted-dark);}
+.exp-lead{display:block;color:var(--ink-hi);font-weight:600;margin-bottom:4px;}
 
 /* ABOUT — now an overlay on the persistent scene, not a .light-panel section.
    See .about-overlay/.about-scrim below for how it stays readable. */
@@ -462,6 +473,9 @@ section{margin-left:26px;}
   --v500:var(--spec-bright-500); --v560:var(--spec-bright-560);
   --v600:var(--spec-bright-600); --v680:var(--spec-bright-680);
   --vwhite:var(--spec-bright-white);
+  /* The tagline's pulse keyframes rest on --ink-lo; unbound here it fell
+     through to the near-black :root value and two of three words vanished. */
+  --ink-lo:var(--scene-ink-hi);
   color:var(--scene-ink-hi);
   position:relative;
 }
@@ -533,7 +547,7 @@ section{margin-left:26px;}
 .skill-grid{
   /* auto-fit, not auto-fill: empty trailing tracks would otherwise render as
      bare gap colour where no card exists. */
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  display:grid;grid-template-columns:repeat(3,1fr);
   gap:1px;background:var(--glass-border);border:1px solid var(--glass-border);
   margin-top:20px;
 }
@@ -550,6 +564,8 @@ section{margin-left:26px;}
    like every other section riding the scene, so the hover needs the same
    subtle-tint treatment as .project:hover, not a light background. */
 .skill:hover{background:var(--glass-fill);}
+@media(max-width:900px){.skill-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.skill-grid{grid-template-columns:1fr;}}
 .skill-bar{display:block;width:28px;height:3px;margin-bottom:10px;}
 .skill-label{font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-lo);}
 .skill-items{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-light);margin-top:6px;line-height:1.6;}
@@ -755,10 +771,11 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
   letter-spacing: 0.05em;
 }
 
-.ppipe {
-  font-family: var(--font-mono);
+/* Scoped: an unscoped .ppipe here overrode the homepage rule above and added
+   40px under every project row and the Experience pipeline. */
+.project-page .ppipe {
   font-size: 11px;
-  color: var(--muted-dark);
+  margin-top: 0;
   margin-bottom: 40px;
 }
 
@@ -873,6 +890,10 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
 .leadership-org {
   font-family: var(--font-mono); font-size: 11px; color: var(--muted-light);
   margin-top: 6px; margin-bottom: 8px;
+}
+.leadership-summary {
+  font-family: var(--font-sans); font-size: 13px; color: var(--muted-light);
+  max-width: 60ch;
 }
 
 .leadership-list { position: relative; padding-left: 28px; margin-top: 24px; list-style: none; }

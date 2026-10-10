@@ -2,7 +2,7 @@ import { projects } from "@/data/portfolioData";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Code, FileText } from "lucide-react";
+import { Code, ExternalLink, FileText } from "lucide-react";
 import DeckViewer from "@/components/DeckViewer";
 import { SHOW_PROJECT_PAGES } from "@/lib/flags";
 
@@ -64,6 +64,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
       {project.links && (
         <div className="pp-links">
+          {project.links.live && (
+            <a href={project.links.live} target="_blank" rel="noopener noreferrer" className="link-btn">
+              <ExternalLink size={13} /> LIVE DEMO
+            </a>
+          )}
           {project.links.github && (
             <a href={project.links.github} target="_blank" rel="noopener noreferrer" className="link-btn">
               <Code size={13} /> CODE

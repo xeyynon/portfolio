@@ -27,7 +27,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Surya Pratik — Computer Science Engineer",
   description:
-    "Portfolio of Surya Pratik, a Computer Science Engineering student building embedded systems, IoT, and applied machine learning projects. LiFi transmission, Wi-Fi CSI sensing, LoRa mesh networks.",
+    "Portfolio of Surya Pratik, a Computer Science Engineering student at VIT-AP building AI products: a multilingual voice AI caller, Flutter apps, and an offline waste-sorting bin.",
 };
 
 export default function RootLayout({
