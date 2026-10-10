@@ -319,7 +319,17 @@ const projectEntries: Omit<Project, "color">[] = [
 
 export const leadershipOrg = "Microsoft Student Chapter, VIT-AP";
 
-export const leadershipSummary = "Led the chapter to Best Student Chapter (Fall 2025) as President; ran 8+ events and 5+ webinars for 300+ members.";
+/** The chapter's result and scale, split out of the former one-sentence
+ *  summary so each number gets its own tile. */
+export const leadershipHighlight = {
+  result: "Best Student Chapter",
+  when: "Fall 2025, as President",
+  stats: [
+    { value: "8+", label: "Events run" },
+    { value: "5+", label: "Webinars" },
+    { value: "300+", label: "Members" },
+  ],
+};
 
 export type LeadershipStage = {
   date: string;

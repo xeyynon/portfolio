@@ -927,51 +927,56 @@ footer{font-family:var(--font-mono);font-size:9.5px;color:var(--muted-dark);padd
    Leadership Timeline
    ========================================================================== */
 
-.leadership-org {
-  font-family: var(--font-mono); font-size: 11px; color: var(--muted-light);
-  margin-top: 6px; margin-bottom: 8px;
+.lead-bento{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:22px;padding-bottom:56px;
 }
-.leadership-summary {
-  font-family: var(--font-sans); font-size: 13px; color: var(--muted-light);
-  max-width: 60ch;
+.lead-result{grid-column:span 3;display:flex;flex-direction:column;gap:6px;min-height:150px;padding:22px 26px;}
+.lead-result-value{
+  margin-top:auto;font-family:var(--font-display);font-size:clamp(24px,2.6vw,32px);
+  font-weight:600;line-height:1.1;letter-spacing:-.015em;color:var(--ink-hi);
 }
+.lead-journey{grid-column:1 / -1;padding:22px 26px 24px;}
 
-.leadership-list { position: relative; padding-left: 28px; margin-top: 24px; list-style: none; }
-.leadership-list::before {
-  content: ""; position: absolute; left: 5px; top: 8px; bottom: 8px;
-  width: 1px; background: var(--line-light);
+/* The four roles as steps on one line. The track is a plain divider, not
+   an accent stripe; the node of the latest role is filled. */
+.lead-steps{
+  position:relative;list-style:none;margin-top:18px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
 }
+.lead-steps::before{
+  content:"";position:absolute;left:5px;right:0;top:5px;height:1px;background:var(--card-border);
+}
+.lead-step{position:relative;display:flex;flex-direction:column;gap:6px;padding-top:26px;}
+.lead-node{
+  position:absolute;left:0;top:0;width:11px;height:11px;border-radius:50%;
+  background:var(--card-bg);border:2px solid var(--muted-dark);
+}
+.lead-step[data-current] .lead-node{background:var(--vwhite);border-color:var(--vwhite);}
+.lead-range{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.04em;color:var(--muted-dark);}
+.lead-role{font-family:var(--font-display);font-size:18px;font-weight:600;line-height:1.2;color:var(--ink-hi);}
+.lead-now{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-hi);}
+.lead-now .status-dot{width:7px;height:7px;}
+.li-gain{display:flex;gap:3px;margin-top:4px;}
+.li-gain .seg{width:6px;height:14px;border-radius:2px;background:var(--card-border);}
+.li-gain .seg.filled{background:var(--v500);}
 
-.leadership-item {
-  position: relative;
-  display: grid; grid-template-columns: 90px 1fr auto;
-  align-items: center; gap: 20px;
-  padding: 16px 0;
+@media(max-width:900px){
+  .lead-bento{grid-template-columns:repeat(3,1fr);}
+  .lead-result{grid-column:1 / -1;}
+  .lead-steps{grid-template-columns:repeat(2,1fr);row-gap:22px;}
+  .lead-steps::before{display:none;}
 }
-.leadership-item::before {
-  content: ""; position: absolute; left: -28px; top: 50%; transform: translateY(-50%);
-  width: 9px; height: 9px; border-radius: 50%;
-  /* Hollow ring: the fill matches the glass panel behind it. */
-  background: var(--glass-veil); border: 2px solid var(--muted-light);
+@media(max-width:560px){
+  .lead-result{padding:20px 22px;}
+  .lead-journey{padding:20px 22px;}
+  /* Phones: a vertical timeline, nodes on one line down the left. */
+  .lead-steps{grid-template-columns:1fr;row-gap:20px;}
+  .lead-steps::before{display:block;left:5px;right:auto;top:6px;bottom:6px;width:1px;height:auto;}
+  .lead-step{padding-top:0;padding-left:28px;}
+  .lead-node{top:3px;}
+  .lead-bento .tile-fact{padding:16px 14px;min-height:112px;}
+  .lead-bento .tile-number{font-size:28px;}
 }
-.leadership-item.current::before {
-  background: var(--v500); border-color: var(--v500);
-  box-shadow: 0 0 8px 1px var(--v500);
-}
-
-.li-date { font-family: var(--font-mono); font-size: 11px; color: var(--muted-light); }
-.li-role { font-size: 14px; font-weight: 500; color: var(--ink-lo); display: flex; align-items: center; gap: 8px; }
-.li-range { display: block; font-family: var(--font-mono); font-size: 10px; color: var(--muted-light); margin-top: 3px; }
-.li-tag {
-  font-family: var(--font-mono); font-size: 8.5px; letter-spacing: .06em;
-  color: var(--v500); border: 1px solid var(--v500); padding: 2px 6px;
-  white-space: nowrap;
-}
-
-.li-gain { display: flex; gap: 3px; }
-.li-gain .seg { width: 5px; height: 14px; background: var(--line-light); }
-.li-gain .seg.filled { background: var(--v500); }
-.leadership-item.current .li-gain .seg.filled { background: var(--v500); box-shadow: 0 0 4px var(--v500); }
 
 /* ==========================================================================
    Persistent Pinned Prism Scene (Phase 1: Hero + Projects + About)
