@@ -121,7 +121,7 @@ const YAW_END = Math.PI * 2 + YAW_EXTRA;
 // 215, collapsed to 325, out to the end. EDGE_SPEED is how much less scroll
 // a collapsed degree takes.
 const SPIN_BREAKS_DEG = [35, 145, 215, 325];
-const EDGE_SPEED = 0.22;
+const EDGE_SPEED = 0.75;
 
 /** Maps spin progress (0..1, linear in scroll) to yaw in radians. */
 function spinYaw(u: number): number {
@@ -157,7 +157,12 @@ const FOCUS_SIGMA_NM = 32;
 
 // PERFORMANCE — after IDLE_MS with no scroll or pointer movement the loop
 // draws every other frame (about 30 fps): the slow motes don't need 60.
-const IDLE_MS = 2000;
+const IDLE_MS = 6000;
+
+// SMOOTHNESS — the prism's pose, fan, zoom and dimming follow scroll through
+// a critically damped ease with this time constant (seconds), so wheel
+// ticks and sudden stops glide instead of stepping. Frame-rate independent.
+const SCROLL_EASE_S = 0.22;
 
 // ARTISTIC — how much the glass's environment-derived lighting recedes as
 // scroll progress moves through the scene, so the background stays
@@ -487,6 +492,8 @@ export default function PrismCanvas({
     // complaint that removing parallax entirely was fixing before.
     const pointer = { x: 0, y: 0 };
     const eased = { x: 0, y: 0 };
+    let sEased = -1;
+    let lastNow = performance.now();
     let visible = true;
     let fade = 0;
     let raf = 0;
@@ -541,7 +548,16 @@ export default function PrismCanvas({
         ? 1
         : smoothstep(BEAM_TRAVEL_S, BEAM_TRAVEL_S + SPECTRUM_FADE_S, elapsed);
 
-      const s = still ? 0 : Math.min(1, Math.max(0, sceneStoreRef.current?.get() ?? 0));
+      const sRaw = still ? 0 : Math.min(1, Math.max(0, sceneStoreRef.current?.get() ?? 0));
+      // Eased copy of scroll for everything the eye follows (spin, fan,
+      // zoom, dim). The vertical top shift below keeps the raw value so the
+      // prism stays aligned with the hero text at the top of the page.
+      const dt = Math.min(0.1, Math.max(0, (now - lastNow) / 1000));
+      lastNow = now;
+      if (still || sEased < 0) sEased = sRaw;
+      else sEased += (sRaw - sEased) * (1 - Math.exp(-dt / SCROLL_EASE_S));
+      if (Math.abs(sRaw - sEased) > 1e-4) lastActive = now;
+      const s = sEased;
 
       // On load, the scene renders near the top of the pinned box — close
       // to the wordmark above it — rather than centered. As soon as
@@ -551,7 +567,7 @@ export default function PrismCanvas({
       // not a one-shot animation. TOP_SHIFT_VH/TOP_SHIFT_END are the only
       // two numbers governing this — how far up "top" sits, and how much
       // scroll progress it takes to settle.
-      const topProgress = smoothstep(0, TOP_SHIFT_END, s);
+      const topProgress = smoothstep(0, TOP_SHIFT_END, sRaw);
       const maxShift = Math.min(TOP_SHIFT_MAX_PX, TOP_SHIFT_VH * 0.01 * cv.clientHeight);
       const shiftPx = (1 - topProgress) * -maxShift;
       // Always set explicitly, never cleared to "" — shiftPx reaches exactly
