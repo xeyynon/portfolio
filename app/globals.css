@@ -575,6 +575,7 @@ header.nav{
 .bento-headline{
   font-family:var(--font-display);font-size:clamp(var(--fs-28),3vw,var(--fs-38));font-weight:600;
   line-height:1.1;letter-spacing:-.02em;color:var(--ink-hi);
+  text-wrap:balance;
 }
 .bento-focus{font-size:var(--fs-16);line-height:1.6;color:var(--ink-hi);max-width:60ch;}
 .bento-belief{font-size:14px;line-height:1.6;color:var(--muted-dark);max-width:60ch;}
@@ -592,6 +593,8 @@ header.nav{
 .status-dot{width:9px;height:9px;border-radius:50%;background:var(--vwhite);flex-shrink:0;}
 @media(max-width:900px){.tile-statement{padding:22px 24px;}}
 @media(max-width:560px){
+  /* The headline is a full sentence now; at 28px it ran five lines. */
+  .bento-headline{font-size:24px;line-height:1.15;}
   .tile-photo{min-height:0;aspect-ratio:4 / 3;}
   .tile-fact{min-height:128px;}
   .tile-number{font-size:var(--fs-38);}
