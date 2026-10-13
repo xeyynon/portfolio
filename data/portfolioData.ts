@@ -7,7 +7,7 @@ export const personalInfo = {
   title: "Learning. Building. Improving",
   /** About section, one fact per tile. Taken from the former one-paragraph
    *  summary; "intern at Alfaleus" lives in Experience, so it is not here. */
-  headline: "I build AI products that ship.",
+  headline: "AI that answers phone calls, sorts waste offline and traces oil spills to ships. I build it.",
   focus: "Voice agents, LLM-backed tools, Flutter apps and, when a product needs it, the hardware they run on.",
   belief: "Growth comes from challenging yourself, embracing failures, and learning something new every day.",
   education: {
