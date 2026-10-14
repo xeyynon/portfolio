@@ -25,7 +25,12 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Surya Pratik · Computer Science Engineer",
+  // Short in the tab: just the name on the homepage, "Project · Surya
+  // Pratik" on project pages (the template applies to child routes).
+  title: {
+    default: "Surya Pratik",
+    template: "%s · Surya Pratik",
+  },
   description:
     "Portfolio of Surya Pratik, a Computer Science Engineering student at VIT-AP building AI products: a multilingual voice AI caller, Flutter apps, and the TARANG oil-spill attribution and DHARA dam-break flood tools for Smart India Hackathon 2026.",
 };

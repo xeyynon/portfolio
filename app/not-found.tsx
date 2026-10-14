@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Not found · Surya Pratik",
+  title: "Not found",
 };
 
 /** 404 in the site's language: a beam that never reaches the glass. */
