@@ -1,0 +1,472 @@
+/* Sections: one per part of the home page. They place organisms and
+   molecules on a grid and hold no colours of their own beyond tokens. */
+
+.section {
+  padding: clamp(64px, 10vw, 120px) 0;
+  background: var(--bg-dark-2);
+}
+.wrap {
+  width: min(1120px, 100%);
+  margin-inline: auto;
+  padding-inline: clamp(16px, 5vw, 48px);
+}
+
+/* One 12-column grid for every section. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.c3 { grid-column: span 3; }
+.c4 { grid-column: span 4; }
+.c6 { grid-column: span 6; }
+.c8 { grid-column: span 8; }
+.c9 { grid-column: span 9; }
+.c12 { grid-column: span 12; }
+@media (max-width: 900px) {
+  .c3, .c4 { grid-column: span 6; }
+  .c8, .c9 { grid-column: span 12; }
+}
+@media (max-width: 560px) {
+  .c3, .c4, .c6 { grid-column: span 12; }
+  .half { grid-column: span 6; }
+}
+
+.lede {
+  margin: 0;
+  max-width: 62ch;
+  font-size: clamp(15px, 1.7vw, 18px);
+  line-height: 1.6;
+  color: var(--ink-hi);
+}
+.muted {
+  color: var(--glass-muted);
+}
+
+/* About */
+.photo {
+  position: relative;
+  min-height: 280px;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--line-dark);
+  border-radius: 16px;
+}
+.photoImage {
+  object-fit: cover;
+}
+.statement {
+  justify-content: center;
+  gap: 14px;
+  padding: clamp(20px, 3vw, 36px);
+}
+.headline {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(22px, 3.2vw, 36px);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.capName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+.capItems {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--glass-muted);
+}
+.subhead {
+  grid-column: 1 / -1;
+  margin: 24px 0 0;
+}
+
+.areasHint {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--glass-muted);
+}
+
+/* What I am doing */
+.role {
+  margin: 0 0 6px;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(20px, 2.6vw, 28px);
+  font-weight: 600;
+  line-height: 1.25;
+}
+.roleAt {
+  color: var(--glass-muted);
+  font-weight: 400;
+}
+.roleLink {
+  color: inherit;
+  text-decoration-color: var(--home-gold);
+  text-underline-offset: 4px;
+}
+.period {
+  margin: 0 0 28px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--glass-muted);
+}
+.workTitle {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.workText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--glass-muted);
+}
+.more summary {
+  width: fit-content;
+  min-height: 28px;
+  cursor: pointer;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-hi);
+}
+.more summary:focus-visible {
+  outline: 2px solid var(--home-gold);
+  outline-offset: 2px;
+}
+.more p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-hi);
+}
+
+/* Projects */
+.projectTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.projectNum {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--glass-muted);
+}
+.projectName {
+  margin: 4px 0 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.projectSub {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--glass-muted);
+}
+.projectCap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 12px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--glass-muted);
+}
+.projectGo {
+  margin-left: auto;
+  color: var(--ink-hi);
+}
+
+/* Quote */
+.quoteFigure {
+  margin: 0 0 36px;
+}
+.quote {
+  margin: 0;
+  max-width: 24ch;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(26px, 4.6vw, 52px);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--ink-hi);
+}
+.quoteWide {
+  max-width: 30ch;
+}
+.quote p {
+  margin: 0;
+  /* the opening quote mark hangs in the margin, so the words line up */
+  text-indent: -0.42em;
+}
+/* The signature: a short drawn rule, then the name, small. A rule and not a
+   dash character, since the page carries no em or en dashes. */
+.quoteBy {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--glass-muted);
+}
+.quoteBy::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: var(--home-gold);
+}
+.formula {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(18px, 2.4vw, 26px);
+  color: var(--home-gold);
+}
+.proofText {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-hi);
+}
+.proofNote {
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-dark);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--glass-muted);
+}
+
+/* Journey */
+.mottoLine {
+  margin: 0 0 28px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--glass-muted);
+}
+.mottoText {
+  color: var(--ink-hi);
+}
+
+.people {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+/* Contact */
+.contactTitle {
+  margin: 0 0 12px;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(30px, 5.4vw, 60px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+}
+.contactLede {
+  margin: 0 auto 32px;
+}
+.contactWrap {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+.contactWrap .reach {
+  justify-content: center;
+}
+/* the chips' own words stay left-aligned inside each chip */
+.contactWrap .chip {
+  text-align: left;
+}
+.contactValue {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(16px, 1.9vw, 20px);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  color: var(--ink-hi);
+}
+/* The copy button (components/CopyEmail) places itself in the corner of the
+   nearest positioned box; this makes that box the email tile. */
+.emailTile {
+  position: relative;
+  padding-right: 68px;
+}
+.emailRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.emailLink {
+  color: inherit;
+  text-decoration-color: var(--home-gold);
+  text-underline-offset: 4px;
+}
+.emailLink:focus-visible {
+  outline: 2px solid var(--home-gold);
+  outline-offset: 2px;
+}
+
+.landing {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin: clamp(56px, 9vw, 104px) auto 0;
+  padding: 12px 20px;
+  border-radius: 16px;
+  color: var(--ink-hi);
+  text-align: center;
+  text-decoration: none;
+}
+.landing:focus-visible {
+  outline: 2px solid var(--home-gold);
+  outline-offset: 4px;
+}
+.landingMark {
+  width: min(240px, 64vw);
+  margin-bottom: 10px;
+}
+.landingSmall {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--glass-muted);
+}
+.landingBig {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--home-gold);
+  text-underline-offset: 6px;
+}
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line-dark);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--glass-muted);
+}
+
+/* Inside a journey stop's card. */
+.storyLead {
+  margin: 0;
+  max-width: 52ch;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink-hi);
+}
+.storyWhen {
+  margin-left: 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--glass-muted);
+}
+.storyLine {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--glass-muted);
+}
+
+/* The stones of a project's areas, on its tile. */
+.projectStones {
+  display: inline-flex;
+  gap: 7px;
+  padding-left: 2px;
+}
+
+/* Contact: chips as wide as what they say, wrapping as the screen narrows. */
+.reach {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chip {
+  position: relative;
+  display: inline-grid;
+  gap: 4px;
+  padding: 14px 20px 15px;
+  border-radius: 14px;
+  /* Glass without a blur: a little of what is behind shows through (the
+     waves, the page's texture), a sheen along the top, a lighter edge. No
+     backdrop-filter: over the animated canvas it is too costly (rules.md). */
+  border: 1px solid color-mix(in srgb, var(--ink-hi) 9%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--ink-hi) 5%, transparent), transparent 50%),
+    color-mix(in srgb, var(--bg-dark) 66%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink-hi) 9%, transparent);
+  color: var(--ink-hi);
+  text-decoration: none;
+}
+a.chip {
+  transition: border-color 160ms ease, translate 160ms ease;
+}
+a.chip:hover {
+  border-color: color-mix(in srgb, var(--home-gold) 70%, var(--line-dark));
+}
+a.chip:focus-visible {
+  outline: 2px solid var(--home-gold);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  a.chip:hover {
+    translate: 0 -2px;
+  }
+}
+/* room for the copy button, which places itself in the chip's corner */
+.chipEmail {
+  padding-right: 64px;
+}
+.chipLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--glass-muted);
+}
+.chipValue {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(16px, 1.8vw, 19px);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+/* in the centred close, the chip row and the footer keep the full width */
+.contactWrap .reach,
+.contactWrap .footer {
+  justify-self: stretch;
+}

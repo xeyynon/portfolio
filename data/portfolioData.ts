@@ -19,7 +19,26 @@ export const personalInfo = {
   hometown: { city: "Bhilai", region: "Chhattisgarh, India" },
   availability: {
     headline: "Open to work",
-    detail: "AI/ML, software and Flutter internships. Can join immediately.",
+    detail: "AI/ML, software and Flutter internships.",
+  },
+  /** His father's sentence; credited to him on the page (owner, 2026-11-11). */
+  motto: { text: "Learn something new every day.", by: "my father" },
+  /** The owner's own idea, in the concise wording of his write-up
+   *  "The Sine-to-Tangent Philosophy". The note is his too: it is a metaphor. */
+  quote: {
+    text: "We spend our lives oscillating between \u22121 and +1, until one perfect angle changes our trajectory from oscillation to infinity.",
+    formula: "tan \u03B8 = sin \u03B8 / cos \u03B8",
+    reason: "As \u03B8 approaches 90\u00B0, sin \u03B8 approaches 1 and cos \u03B8 approaches 0, so their ratio grows without bound.",
+    note: "At exactly 90\u00B0 the tangent is undefined: infinity is approached, never reached. The mathematics is exact. The comparison with a life is a metaphor.",
+  },
+  contact: {
+    email: "pratiksurya1207@gmail.com",
+    /** Removed (owner, 2026-11-12): the resume link is not to appear anywhere, history included. */
+    resume: "",
+    /** Off for the time being (owner, 2026-11-12): no page links the resume while false. */
+    showResume: false,
+    github: { handle: "xeyynon", url: "https://github.com/xeyynon" },
+    linkedin: { handle: "suryapratik", url: "https://www.linkedin.com/in/suryapratik/" },
   },
 };
 
@@ -30,6 +49,8 @@ export type ExperienceHighlight = {
   summary: string;
   /** The full description, one click away behind "Details". */
   text: string;
+  /** Which line drawing stands beside it (components/molecules/Blueprint). */
+  sketch?: "caller" | "hr-app" | "sorter" | "drops";
 };
 
 export type Experience = {
@@ -52,23 +73,27 @@ export const experience: Experience = {
   highlights: [
     {
       lead: "Multilingual voice AI caller (Raspberry Pi)",
+      sketch: "caller",
       summary: "Answers phone calls in Telugu, Hindi and English, replying in 1.2 to 2.5 s with no cloud telephony.",
       text: "Built a phone agent that answers calls over Bluetooth HFP with no cloud telephony, tested in Telugu, Hindi and English. Replies in 1.2 to 2.5 s on real calls through a streaming Sarvam Saaras STT → Gemini 2.5 Flash → Google TTS pipeline, chosen after evaluating 6 STT, 4 LLM and 4 TTS options."
     },
     {
       lead: "HR mobile app (Flutter, Android)",
+      sketch: "hr-app",
       summary: "Put a desktop-only HR portal on employees' phones: 4 releases in 4 days, 401 automated tests.",
       text: "Put a desktop-only HR portal with no API on employees' phones: attendance, leave, payslips and claims. Piloted with 8 to 10 employees; shipped 4 releases in 4 days with 401 automated tests and CI. PAN, Aadhaar and bank data stay masked until a biometric check."
     },
     {
       lead: "GARBAE AI waste-sorting bin (v3.0)",
+      sketch: "sorter",
       summary: "Sorts waste fully offline on a Raspberry Pi; classification cut from ~14.6 s to ~2 s per item.",
       text: "Moved inference and servo control from ESP32-S3 + cloud onto a Raspberry Pi 4B that sorts fully offline, deployed in a corporate cafeteria. Cut classification from ~14.6 s to ~2 s per item and raised balanced accuracy from 45.8% to 71.5% by benchmarking models on real captures."
     },
     {
       lead: "Droptor (eye-drop adherence device)",
-      summary: "50 working units built and validated in one week with the team; 1st place at GLAUCOPAT 2026.",
-      text: "With the team, built and validated 50 working units in one week for the Glaucoma Society of India conference (GLAUCOPAT 2026), where it won 1st place in the product exhibition."
+      sketch: "drops",
+      summary: "50 working units built and validated in one week with the team; 1st and 2nd place at GLAUCOPAT 2026.",
+      text: "With the team, built and validated 50 working units in one week for the Glaucoma Society of India conference (GLAUCOPAT 2026), where the team won both 1st and 2nd place in the product exhibition."
     }
   ],
 };
@@ -100,6 +125,9 @@ export type Project = {
   /** Key numbers for the case study's Results tiles, each already stated in
    *  the project's own text (no new facts). */
   metrics?: { value: string; label: string }[];
+  /** What it does not do, stated plainly. Only where the project's own
+   *  notes say so; shown on the designed project page. */
+  limits?: string[];
   /** "What I'd do differently", only where the owner's notes give one. */
   nextTime?: string;
   links?: {
@@ -127,7 +155,9 @@ const projectEntries: Omit<Project, "color">[] = [
     stack: [],
     skills: ["AI / ML", "Web & Backend", "Cloud & DevOps", "Languages"],
     metrics: [],
+    limits: [],
     nextTime: "",
+    // live link removed (owner, 2026-11-12): not to appear anywhere, history included
     links: {}
   },
   {
@@ -145,6 +175,7 @@ const projectEntries: Omit<Project, "color">[] = [
     stack: [],
     skills: ["Web & Backend", "Cloud & DevOps", "Languages"],
     metrics: [],
+    // live link removed (owner, 2026-11-12): not to appear anywhere, history included
     links: {}
   },
   {
@@ -338,7 +369,152 @@ const projectEntries: Omit<Project, "color">[] = [
       { value: "10", label: "Samples averaged per reading" },
     ],
     links: { github: "https://github.com/xeyynon/Water-Monitoring-Hardware", demo: "/sources/PPTs/Water.pdf" }
+  },
+  // The three projects below were added on 2026-11-11 at the owner's request.
+  // Their facts come from each project's own README; they are not in the
+  // resume sources yet and should be added there.
+  {
+    slug: "isocode-knitwear",
+    category: "software",
+    num: "11",
+    title: "IsoCode Knitwear",
+    subtitle: "Order Tracking That Warns Before a Shipment Is Late",
+    short: "Knitwear",
+    pipeline: "floor count on a phone → run-rate projection → status with its sum → buyer link",
+    tag: "LIVE",
+    domain: "Operations, Offline-First Web Apps",
+    description: "Order tracking for a knitwear exporter that says, before it is too late, which orders will miss their ship date, and why. Supervisors send a daily count from a phone, in Tamil, even without a signal. A server works out for every order and stage whether it will ship on time and shows the reasoning. Built on demo data.",
+    highlights: [
+      "Every status colour comes with the sum behind it, for example: need 467 a day, making 350 a day",
+      "Supervisor screens are Tamil first and work offline: updates are saved on the phone and sent when it can, never counted twice",
+      "An order with no updates is grey, never green, and a rate based on little data is labelled an estimate",
+      "Buyers get a read-only page of only their own orders, and only what a merchandiser has confirmed",
+      "A supervisor's Tamil note gets an English meaning and a suggested reason with its confidence; the merchandiser decides",
+      "Row-level security is forced on every table"
+    ],
+    stack: ["TypeScript", "React 19", "PostgreSQL 16", "Row-level security", "GitHub Actions"],
+    skills: ["Web & Backend", "Cloud & DevOps", "AI / ML", "Languages"],
+    links: { live: "https://isocode-knitwear.vercel.app/", github: "https://github.com/xeyynon/IsoCode_Knitwear" }
+  },
+  {
+    slug: "dukaan-dost",
+    category: "software",
+    num: "12",
+    title: "Dukaan Dost",
+    subtitle: "A Voice Agent That Takes Phone Orders for a Kirana Store",
+    short: "Dukaan Dost",
+    pipeline: "caller → speech to text → order note → code does the money → speech",
+    tag: "VOICE AI",
+    domain: "Voice AI, Small Business",
+    description: "A voice agent for a neighbourhood kirana store. A customer calls and orders in Telugu, Hindi, English or Hinglish; the agent matches each item to the shop's stock list, confirms quantities and prices, reads back the total, keeps the shop's credit book and writes an order summary the shopkeeper sees on a dashboard. Built for Gnani.ai's Great Indian AI Internship Challenge on Gnani's speech models. All voices, shops and orders are synthetic.",
+    highlights: [
+      "The model never does the money: it only says which items and how many; code checks stock, rounds, totals and writes every sentence that states an amount",
+      "Callers can interrupt, and the agent remembers only what was actually heard",
+      "Scripted credit and loan calls: 8 of 8 exactly right, first audio 2.2 s at the median",
+      "Many shops, one agent, each with a PIN-protected dashboard",
+      "Took two real phone calls on a trial number; it is a demonstration line, not a production one"
+    ],
+    stack: ["Python", "Gnani Prisma (speech to text)", "Gnani Timbre (text to speech)", "WebSockets", "WebRTC VAD", "Docker"],
+    skills: ["AI / ML", "Web & Backend", "Languages"],
+    metrics: [
+      { value: "8 of 8", label: "Scripted credit and loan calls exactly right" },
+      { value: "2.2 s", label: "Median time to first audio" },
+      { value: "4", label: "Ways to speak: Telugu, Hindi, English, Hinglish" },
+    ],
+  },
+  {
+    slug: "kindofui",
+    category: "software",
+    num: "13",
+    title: "kindofui",
+    subtitle: "An Interface Reference Library You Can Touch",
+    short: "kindofui",
+    pipeline: "one page → 134 live examples → view code → paste",
+    tag: "LIVE",
+    domain: "UI and UX, Design Reference",
+    description: "134 live, clickable, copyable examples of how interfaces are designed, on one page. Every entry is alive: hover it, click it, drag it, type into it. Where a lesson is a comparison, both sides are on screen and both work.",
+    highlights: [
+      "38 visual styles, 18 layouts, 18 navigation patterns, 25 components and UX patterns, 5 AI patterns and 10 UX laws",
+      "Every entry has the same shape, so ten styles can be compared in the time one article takes",
+      "Each demo has a View code button with plain HTML, CSS and the little JavaScript it needs"
+    ],
+    stack: ["HTML", "CSS", "JavaScript"],
+    skills: ["Web & Backend", "Languages"],
+    metrics: [
+      { value: "134", label: "Live examples on one page" },
+      { value: "38", label: "Visual styles" },
+      { value: "10", label: "UX laws you can try" },
+    ],
+    links: { live: "https://kindofui.vercel.app/" }
   }
+];
+
+/**
+ * The three of them, in one photo (owner, 2026-11-11: "a common photo where
+ * we all are three"). The photo is blurred until a person in it is pointed
+ * at; then a clear circle opens round them and their name and link appear.
+ *
+ * `at` is where each person is in the photo, as a percentage across and down.
+ * The photo has not been supplied yet, so `photo` is absent, three plain
+ * figures stand in for it, and the positions and the left-to-right order
+ * below are placeholders to be set from the real picture.
+ */
+export type TogetherPerson = { name: string; linkedin?: string; at: [number, number] };
+
+export type Together = {
+  /** Path under /public. Absent until the owner supplies it. */
+  photo?: string;
+  caption: string;
+  people: TogetherPerson[];
+};
+
+export const together: Together = {
+  caption: "Point at someone to bring them into focus.",
+  people: [
+    { name: "Abhinav", linkedin: "https://www.linkedin.com/in/abhinav-pentani/", at: [25, 40] },
+    { name: "Surya", linkedin: personalInfo.contact.linkedin.url, at: [50, 40] },
+    { name: "Saif", linkedin: "https://www.linkedin.com/in/shaik-saifuddin-482947272/", at: [75, 40] },
+  ],
+};
+
+
+/**
+ * The journey, as a wave. `level` (-1 to +1) only shapes the curve: the owner
+ * asked that the lows set the shape and are never written out (2026-11-11),
+ * so a point with no `label` is drawn as curve only. Labelled points are
+ * facts already stated elsewhere in this file.
+ */
+export type JourneyPoint = {
+  level: number;
+  when?: string;
+  label?: string;
+  kind?: "start" | "role" | "award" | "build";
+  /** A stop that opens into its own card (components/sections/JourneySection lists what each holds). */
+  story?: "vectr" | "vit-ap";
+};
+
+export const journey: JourneyPoint[] = [
+  { level: 0.55, when: "Bhilai", label: "Where it starts", kind: "start" },
+  { level: -0.75 },
+  { level: 0.15, when: "2022", label: "First program: a hospital management system, in Class 12", kind: "build" },
+  { level: -0.6 },
+  { level: 0.1, when: "Sep 2023", label: "VIT-AP University, B.Tech in Computer Science", kind: "start", story: "vit-ap" },
+  { level: 0.3, when: "Sep 2023", label: "Co-founded Vectr, a student-ecosystem startup", kind: "role", story: "vectr" },
+  { level: 0.35, when: "Dec 2023", label: "Joined the Microsoft Student Chapter", kind: "role" },
+  { level: 0.5, when: "2024", label: "Semi Finalist, Smart India Hackathon 2024, with Vectr", kind: "award" },
+  { level: 0.85, when: "2024", label: "Li-Fi: Best Contemporary Project among 1,000+ teams", kind: "award" },
+  { level: 0.6, when: "Jul 2024", label: "Club Manager, Microsoft Student Chapter", kind: "role" },
+  // Owner, 2026-11-12: placed 17th; "17th" is not in the resume sources yet and should be added there.
+  { level: 0.65, when: "Mar 2025", label: "NEC '24: Top 20 (17th), Basic Track, E-Cell IIT Bombay", kind: "award" },
+  { level: 0.7, when: "Jul 2025", label: "President, Microsoft Student Chapter", kind: "role" },
+  { level: 0.9, when: "Fall 2025", label: "Best Student Chapter, as President", kind: "award" },
+  { level: 0.2, when: "2025", label: "EcoX: Semi Finalist, Smart India Hackathon 2025", kind: "award" },
+  { level: 0.4, when: "2026", label: "FlowIQ: 98/100 in Round 1, RADIOTHON 2026", kind: "award" },
+  { level: 0.75, when: "Jul 2026", label: "Internship at Alfaleus Technologies, Hyderabad", kind: "role" },
+  { level: 0.8, when: "2026", label: "TARANG and DHARA, for Smart India Hackathon 2026", kind: "build" },
+  { level: 0.95, when: "Oct 2026", label: "Droptor: 1st and 2nd Place, Product Exhibition, GLAUCOPAT 2026", kind: "award" },
+  // Owner, 2026-11-12: both 1st and 2nd place; the resume says 1st only and should be updated.
+  { level: 0.85, when: "Nov 2026", label: "IsoCode Knitwear, Dukaan Dost and kindofui", kind: "build" },
 ];
 
 export const leadershipOrg = "Microsoft Student Chapter, VIT-AP";
@@ -429,7 +605,7 @@ export type Achievement = {
 // ("Qualified for the Semi-Final Round" under "Semi Finalist") were dropped.
 export const achievements: Achievement[] = [
   {
-    title: "1st Place, Product Exhibition",
+    title: "1st and 2nd Place, Product Exhibition",
     event: "GLAUCOPAT 2026",
     year: "2026",
     sub: "Droptor eye-drop adherence device · Glaucoma Society of India",
@@ -458,7 +634,7 @@ export const achievements: Achievement[] = [
     slug: "ecox-industrial-safety"
   },
   {
-    title: "Top 20, Basic Track",
+    title: "Top 20, Basic Track (17th)",
     event: "NEC '24, E-Cell IIT Bombay",
     year: "2025",
     sub: "National Entrepreneurship Challenge"
@@ -494,6 +670,14 @@ export function capabilityColor(label: string): string {
   if (!group) throw new Error(`Unknown capability "${label}": add it to skills or fix the project's skills list.`);
   return group.color;
 }
+
+/**
+ * Projects listed everywhere as usual, whose own page is not open yet (owner,
+ * 2026-11-12: the SIH 2026 pair). Their tiles and links stay; following one
+ * lands on "not found". Bringing a page back is deleting its slug here.
+ */
+export const PAGELESS_PROJECTS: readonly string[] = ["tarang", "dhara"];
+export const hasPage = (slug: string) => !PAGELESS_PROJECTS.includes(slug);
 
 export const projects: Project[] = projectEntries.map((p) => ({
   ...p,

@@ -1,0 +1,457 @@
+/* Dukaan Dost's world: a phone call to the shop, late in the evening. The
+   world sets its own colours and texture on the page; the fonts, the chrome
+   and the order of the facts stay the site's. Each colour has one job here:
+   turmeric is the caller's voice, lilac is what the model says, mint is what
+   code works out. Each is named in words wherever it is used. */
+.world {
+  --night: #0D0B10;
+  --call-line: #2B2633;
+  --voice: #F2C14E;
+  --model: #C9A7F5;
+  --code: #6FD9B4;
+  --world-bg: var(--night);
+  --world-accent: var(--voice);
+  /* a dial pad's dots, faint, behind the whole page */
+  background-color: var(--night);
+  background-image: radial-gradient(circle, var(--call-line) 1.2px, transparent 1.7px);
+  background-size: 28px 28px;
+}
+
+/* The call */
+.call {
+  margin: 0;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.canvas {
+  display: block;
+  width: 100%;
+  height: 140px;
+  border: 1px solid var(--call-line);
+  border-radius: 16px;
+  background: var(--night);
+}
+@media (max-width: 560px) {
+  .canvas {
+    height: 104px;
+  }
+}
+
+.caption {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.schematic {
+  margin: 0;
+  max-width: 80ch;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  color: var(--glass-muted);
+}
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.step,
+.replay {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--call-line);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+.stepNum {
+  font-variant-numeric: tabular-nums;
+  color: var(--glass-muted);
+}
+.step[data-done="true"] .stepNum,
+.step[aria-pressed="true"] .stepNum {
+  color: var(--voice);
+}
+.step[aria-pressed="true"] {
+  border-color: var(--voice);
+}
+.replay {
+  border-style: dashed;
+}
+.replay:disabled {
+  cursor: default;
+  color: var(--glass-muted);
+}
+.step:focus-visible,
+.replay:focus-visible,
+.stepButton:focus-visible {
+  outline: 2px solid var(--voice);
+  outline-offset: 2px;
+}
+.stepText {
+  margin: 0;
+  min-height: 3.2em;
+  max-width: 62ch;
+  font-size: clamp(15px, 1.7vw, 18px);
+  line-height: 1.6;
+  color: var(--ink-hi);
+}
+
+/* What the call has produced: the caller's words, then the slip. */
+.produced {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 16px;
+}
+@media (max-width: 760px) {
+  .produced {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* A part that has not happened yet keeps its place and stays out of sight. */
+.produced [data-on="false"] {
+  visibility: hidden;
+}
+.produced [data-on="true"],
+.heard[data-on="true"] .word {
+  animation: appear 0.45s ease both;
+}
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .produced [data-on="true"],
+  .heard[data-on="true"] .word {
+    animation: none;
+  }
+}
+
+.heard {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--call-line);
+  border-radius: 12px;
+  background: var(--bg-dark);
+}
+.speaker::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  vertical-align: 1px;
+  background: var(--voice);
+}
+.speaker {
+  display: block;
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--glass-muted);
+}
+.words {
+  margin: 0;
+  font-size: clamp(18px, 2.2vw, 22px);
+  line-height: 1.5;
+  color: var(--ink-hi);
+  overflow-wrap: anywhere;
+}
+/* Once the order note exists, the words it picked out are underlined. */
+.heard[data-noted="true"] .word[data-item="true"] {
+  text-decoration: underline;
+  text-decoration-color: var(--model);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+.gloss {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--glass-muted);
+}
+
+.slip {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--call-line);
+  border-top: 2px dashed var(--glass-muted);
+  border-radius: 2px 2px 12px 12px;
+  background: var(--bg-dark-2);
+}
+.slipTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-hi);
+}
+.slipTitle {
+  padding-bottom: 10px;
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--glass-muted);
+}
+.slipTable th,
+.slipTable td {
+  padding: 6px 6px;
+  text-align: left;
+  font-weight: 400;
+  vertical-align: baseline;
+}
+.slipTable thead th {
+  font-size: 11px;
+  color: var(--glass-muted);
+}
+/* Who works out each column: said by a small dot and the words, not a coloured rule (D-022). */
+.slipTable .byModel,
+.slipTable .byCode {
+  font-weight: 600;
+  color: var(--ink-hi);
+}
+.slipTable .byModel::before,
+.slipTable .byCode::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  vertical-align: 1px;
+  background: var(--model);
+}
+.slipTable .byCode::before {
+  background: var(--code);
+}
+.slipTable td:last-child,
+.slipTable th:last-child {
+  text-align: right;
+}
+.slipTable tfoot th,
+.slipTable tfoot td {
+  padding-top: 10px;
+  border-top: 1px dashed var(--glass-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+.total,
+.amount {
+  font-weight: 600;
+  color: var(--code);
+}
+.reply {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--call-line);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-hi);
+}
+
+/* The model never does the money */
+.split {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.sides {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 16px;
+}
+@media (max-width: 760px) {
+  .sides {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.side {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--call-line);
+  border-radius: 12px;
+  background: var(--bg-dark);
+}
+.sideModel {
+  --side: var(--model);
+}
+.sideCode {
+  --side: var(--code);
+}
+/* The side's colour as a small dot before its name, not a coloured edge (D-022). */
+.sideTag::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  vertical-align: 1px;
+  background: var(--side);
+}
+.sideTag {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-hi);
+}
+.sideLead {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-hi);
+}
+
+.note,
+.lines {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.noteLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  min-width: 0;
+}
+.noteName,
+.lineName {
+  min-width: 0;
+  font-size: 15px;
+  color: var(--ink-hi);
+}
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.stepButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--call-line);
+  border-radius: 8px;
+  background: var(--bg-dark-2);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.stepButton:hover {
+  border-color: var(--model);
+}
+.stepButton[aria-disabled="true"] {
+  cursor: default;
+  border-style: dashed;
+  color: var(--glass-muted);
+}
+.quantity {
+  min-width: 6ch;
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-hi);
+}
+@media (pointer: coarse) {
+  .step,
+  .replay {
+    min-height: 44px;
+  }
+  .stepButton {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+}
+
+.line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 12px;
+  min-width: 0;
+}
+.lineAmount {
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--ink-hi);
+}
+.lineCheck {
+  grid-column: 1 / -1;
+  min-width: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--glass-muted);
+}
+.line[data-short="true"] .lineCheck {
+  color: var(--ink-hi);
+}
+.totalLine {
+  padding-top: 10px;
+  border-top: 1px dashed var(--glass-muted);
+}
+.totalLine .lineName {
+  font-weight: 600;
+}
+.totalLine .lineAmount {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--code);
+}
+.said {
+  display: grid;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--call-line);
+}
+.saidLine {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-hi);
+}

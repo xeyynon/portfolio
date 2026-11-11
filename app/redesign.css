@@ -1,0 +1,15 @@
+/* The site's own colours beyond the global tokens (globals.css): the Snitch's
+   gold and light, the gauntlet's gilt, and the pruning on the not-found page.
+   Scoped to [data-redesign], which every page's root carries. */
+[data-redesign] {
+  --home-gold: #D8A94A;
+  --home-light: #FFE7B3;
+  /* the gauntlet's gold, from the recess to the shine */
+  --gilt-edge: #2A1904;
+  --gilt-deep: #5E3D0C;
+  --gilt-mid: #A87322;
+  --gilt-hi: #FFE2A1;
+  /* the not-found page's pruning: a hot amber and its glow, used nowhere else */
+  --prune-hot: #FF8A3D;
+  --prune-glow: #FFC98A;
+}

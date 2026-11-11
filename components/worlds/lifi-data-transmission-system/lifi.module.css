@@ -1,0 +1,321 @@
+/* Li-Fi's world: a dark optical bench. The world sets its own colours and
+   texture on the page; the fonts, the chrome and the order of the facts stay
+   the site's. Each colour has one job here: red is laser light (the laser is
+   on, a 1), green is what the receiver hands on and the decoder reads. */
+.world {
+  --bench: #08090B;
+  --bench-line: #1C2027;
+  --beam: #FF5A4E;
+  --recovered: #8FD694;
+  --world-bg: var(--bench);
+  --world-accent: var(--beam);
+  /* the bench's grid of mounting holes, faint, behind the whole page */
+  background-color: var(--bench);
+  background-image: radial-gradient(circle, var(--bench-line) 1.5px, transparent 2px);
+  background-size: 32px 32px;
+}
+
+.figure {
+  margin: 0;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--bench-line);
+  border-radius: 16px;
+  background: var(--bench);
+}
+@media (max-width: 560px) {
+  .canvas {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+.caption {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.schematic {
+  margin: 0;
+  max-width: 68ch;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  color: var(--glass-muted);
+}
+
+.controls {
+  display: flex;
+  margin: 0;
+}
+.toggle,
+.sendButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--bench-line);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+.toggle {
+  min-width: 72px;
+  border-style: dashed;
+  border-color: var(--glass-muted);
+}
+.toggle:focus-visible,
+.sendButton:focus-visible,
+.input:focus-visible {
+  outline: 2px solid var(--beam);
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .toggle,
+  .sendButton,
+  .input {
+    min-height: 44px;
+  }
+}
+/* With reduced motion the picture is one still frame: there is nothing to pause. */
+@media (prefers-reduced-motion: reduce) {
+  .controls {
+    display: none;
+  }
+}
+
+.legend {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  max-width: 68ch;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--glass-muted);
+}
+.legend li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.key {
+  width: 18px;
+  height: 4px;
+  margin-top: calc(0.5lh - 2px);
+  border-radius: 2px;
+}
+.key[data-key="beam"] {
+  background: var(--beam);
+}
+.key[data-key="recovered"] {
+  background: var(--recovered);
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--bench-line);
+  list-style: none;
+}
+@media (max-width: 760px) {
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 460px) {
+  .steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  min-width: 0;
+}
+.stepNum {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  line-height: 24px;
+  font-variant-numeric: tabular-nums;
+  color: var(--beam);
+}
+.stepBody {
+  min-width: 0;
+}
+.stepName {
+  display: block;
+  font-family: var(--font-display), sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 24px;
+  color: var(--ink-hi);
+}
+.stepText {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--glass-muted);
+}
+
+/* Send a word across */
+.send {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+.form {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-hi);
+}
+.field {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+  max-width: 360px;
+}
+.input {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 40px;
+  padding: 6px 12px;
+  border: 1px solid var(--glass-muted);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 16px;
+}
+.sendButton {
+  min-height: 40px;
+  border-color: var(--beam);
+}
+.sendButton:disabled {
+  cursor: default;
+  border-color: var(--bench-line);
+  color: var(--glass-muted);
+}
+
+.link {
+  width: 100%;
+  max-width: 460px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.linkCaption {
+  padding-bottom: 12px;
+  caption-side: top;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--glass-muted);
+}
+.link th,
+.link td {
+  padding: 4px 0;
+  vertical-align: middle;
+  text-align: left;
+}
+.link thead th {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--bench-line);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--glass-muted);
+}
+.link thead th:first-child {
+  width: 60px;
+}
+.link thead th:last-child {
+  width: 76px;
+  text-align: right;
+}
+.link tbody tr:first-child th,
+.link tbody tr:first-child td {
+  padding-top: 10px;
+}
+.link .char {
+  font-family: var(--font-mono), monospace;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink-hi);
+}
+.link .char[data-side="decoded"] {
+  text-align: right;
+  color: var(--recovered);
+}
+.waiting {
+  color: var(--glass-muted);
+}
+.bits {
+  display: flex;
+  gap: 3px;
+  min-width: 0;
+}
+.bit {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  max-width: 30px;
+  aspect-ratio: 1;
+  border: 1px dashed var(--glass-muted);
+  border-radius: 4px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--glass-muted);
+}
+.bit[data-arrived="true"] {
+  border-style: solid;
+  color: var(--ink-hi);
+}
+.bit[data-arrived="true"][data-on="true"] {
+  border-color: var(--beam);
+  background: color-mix(in srgb, var(--beam) 30%, var(--bg-dark));
+}
+
+.count {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--glass-muted);
+}
+.status {
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--bench-line);
+  max-width: 62ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-hi);
+}

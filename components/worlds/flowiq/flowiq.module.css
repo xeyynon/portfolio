@@ -1,0 +1,243 @@
+/* FlowIQ's world: a city map at night, streets as thin lines. The world sets
+   its own colours and texture on the page; the fonts, the chrome and the
+   order of the facts stay the site's. Each colour has one job here: green is
+   the route, coral is the blocked road, pale yellow is traffic, amber is a
+   fine. */
+.world {
+  --night: #07090F;
+  --street: #1A2233;
+  --car: #E9DFC0;
+  --route: #45D6A0;
+  --blocked: #F2715C;
+  --fine: #F2B84B;
+  --world-bg: var(--night);
+  --world-accent: var(--route);
+  /* the street grid, faint, behind the whole page */
+  background-color: var(--night);
+  background-image:
+    linear-gradient(var(--street) 1px, transparent 1px),
+    linear-gradient(90deg, var(--street) 1px, transparent 1px);
+  background-size: 168px 112px;
+}
+
+.figure {
+  margin: 0;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--street);
+  border-radius: 16px;
+  background: var(--night);
+}
+@media (max-width: 560px) {
+  .canvas {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+.caption {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.note {
+  margin: 0;
+  max-width: 68ch;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  color: var(--glass-muted);
+}
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.step,
+.replay {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--street);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+.stepNum {
+  font-variant-numeric: tabular-nums;
+  color: var(--glass-muted);
+}
+.step[data-done="true"] .stepNum {
+  color: var(--route);
+}
+.step[aria-pressed="true"] {
+  border-color: var(--route);
+}
+.step[aria-pressed="true"] .stepNum {
+  color: var(--route);
+}
+.replay {
+  border-style: dashed;
+}
+.replay:disabled {
+  cursor: default;
+  color: var(--glass-muted);
+}
+.step:focus-visible,
+.replay:focus-visible {
+  outline: 2px solid var(--route);
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .step,
+  .replay {
+    min-height: 44px;
+  }
+}
+/* Playing and pausing mean nothing when nothing moves. */
+@media (prefers-reduced-motion: reduce) {
+  .motionOnly {
+    display: none;
+  }
+}
+.stepText {
+  margin: 0;
+  min-height: 3.2em;
+  max-width: 62ch;
+  font-size: clamp(15px, 1.7vw, 18px);
+  line-height: 1.6;
+  color: var(--ink-hi);
+}
+
+/* What each mark on the map is, in words. The swatch only repeats the word. */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--street);
+  list-style: none;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--glass-muted);
+}
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.swatch {
+  flex: none;
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+}
+.swatch[data-kind="route"] {
+  background: var(--route);
+}
+.swatch[data-kind="blocked"] {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--blocked);
+  border-radius: 50%;
+}
+.swatch[data-kind="car"] {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--car);
+}
+.swatch[data-kind="ends"] {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--ink-hi);
+  border-radius: 50%;
+}
+
+/* What the app does for a road user */
+.screens {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(20px, 5vw, 48px);
+}
+.screensText {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+@media (max-width: 620px) {
+  .screens {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.phone {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  margin-inline: auto;
+}
+.phoneFrame {
+  fill: var(--night);
+  stroke: var(--glass-muted);
+  stroke-width: 1.5;
+}
+.sketchLine {
+  fill: none;
+  stroke: var(--glass-muted);
+  stroke-width: 1.5;
+}
+.sketchCard {
+  fill: var(--bg-dark-2);
+  stroke: var(--street);
+  stroke-width: 1;
+}
+.sketchBar {
+  fill: var(--glass-muted);
+}
+.sketchBarDim {
+  fill: var(--glass-muted);
+  opacity: 0.45;
+}
+.sketchButton {
+  fill: var(--ink-hi);
+}
+.sketchStreet {
+  fill: none;
+  stroke: var(--street);
+  stroke-width: 5;
+}
+.sketchRoute {
+  fill: none;
+  stroke: var(--route);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sketchStart {
+  fill: var(--night);
+  stroke: var(--ink-hi);
+  stroke-width: 2;
+}
+.sketchFine {
+  fill: var(--fine);
+}

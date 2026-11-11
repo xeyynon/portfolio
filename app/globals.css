@@ -94,6 +94,34 @@
   /* Bento Grid (uistyleguide.com): 16px gaps between tiles. */
   --bento-gap:16px;
 
+  /* ---- PAPER GUN ----
+     The gun is ivory, the colour of white light: on this site red means
+     Hardware, so a red gun would borrow a capability colour. Slips and the
+     detail card are paper, so their text is the fixed dark --scene-base
+     (inside .scene-overlay --ink-lo is rebound to light ink). */
+  --gun-top-a:#FFFDF7;
+  --gun-top-b:#E9E6DC;
+  --gun-side-a:#ECE9DF;
+  --gun-side-b:#CAC6B9;
+  --gun-side-c:#8F8B80;
+  --gun-end-a:#8C887E;
+  --gun-end-b:#55524C;
+  --gun-trigger:#1E2026;
+  --gun-rivet:#3A3C42;
+  --gun-shine:rgba(255,255,255,.9);
+  --gun-line:rgba(11,12,16,.16);
+  --gun-shadow:rgba(0,0,0,.6);
+  --gun-halo:rgba(237,235,226,.22);
+  --glass-clear:rgba(11,13,18,.1);
+  --slip-rule:rgba(11,12,16,.22);
+  --slip-shine:rgba(255,255,255,.35);
+  /* Muted text on paper: 6.6:1 on --vwhite. */
+  --paper-muted:#55534C;
+  --key-paper-side:#9B978B;
+  --key-ink-face:#1B1D23;
+  --key-ink-side:#050608;
+  --key-drop:rgba(0,0,0,.45);
+
   /* ---- shadcn / Animate UI bridge ----
      shadcn components consume these names. Rather than run a second palette
      alongside the spectrum system, every one of them is aliased onto the
@@ -1344,3 +1372,202 @@ footer{font-family:var(--font-mono);font-size:10.5px;color:var(--muted-dark);pad
   transition:border-color .2s;
 }
 .nf-home:hover{border-color:var(--muted-dark);}
+
+/* ---------- PAPER GUN (components/paper-gun) ----------
+   Atoms: .keycap, .gun, .gslip. Molecule: .pg-card. Organism: .pg.
+   Every animation is transform/opacity (or the individual `translate`
+   property for hover lifts, so it composes with the engine's transform). */
+
+/* Atom: keycap. A 7px solid side under the cap; press sinks onto it, release
+   springs back past rest (the overshoot in the curve). */
+.keycap{
+  position:relative;display:inline-flex;align-items:center;gap:8px;
+  height:54px;padding:0 26px 0 20px;margin-bottom:7px;border:0;border-radius:14px;
+  font-family:var(--font-display);font-size:15px;font-weight:600;letter-spacing:-.005em;
+  background:var(--key-face);color:var(--key-ink);
+  box-shadow:0 7px 0 var(--key-side),0 14px 20px -8px var(--key-drop);
+  cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;
+  transition:transform .32s cubic-bezier(.3,1.7,.5,1),box-shadow .32s cubic-bezier(.3,1.7,.5,1);
+}
+.keycap:active,.keycap.is-pressed{
+  transform:translateY(6px);
+  box-shadow:0 1px 0 var(--key-side),0 4px 8px -4px var(--key-drop);
+  transition-duration:.06s;
+}
+.keycap-legend{position:absolute;top:6px;right:9px;font-family:var(--font-mono);font-size:10px;line-height:1;color:var(--key-legend);}
+.keycap-paper{--key-face:var(--vwhite);--key-ink:var(--scene-base);--key-side:var(--key-paper-side);--key-legend:var(--paper-muted);}
+.keycap-ink{
+  --key-face:var(--key-ink-face);--key-ink:var(--ink-hi);--key-side:var(--key-ink-side);--key-legend:var(--glass-muted);
+  outline:1px solid var(--glass-border);outline-offset:-1px;
+}
+.keycap-ink:focus-visible{outline:2px solid var(--v500);outline-offset:2px;}
+@media(prefers-reduced-motion:reduce){.keycap{transition-duration:.01s;}}
+
+/* The glass thins to almost nothing around the gun, so the prism's rays can
+   be seen running into it (owner, 2026-11-09: "the beam should be
+   connecting with the gun"). Safe for contrast: the clear ellipse covers
+   only the gun column, where everything is opaque (gun, slips, paper card);
+   the copy, chips and the section-head count stay on full glass. Phones
+   keep the full pane: there the gun sits under the copy. */
+@media(min-width:761px){
+  .scene-panel.pg-panel{
+    background:radial-gradient(ellipse 30% 40% at 75% 52%,var(--glass-clear) 0%,var(--glass-clear) 45%,var(--glass-pane) 100%);
+  }
+}
+
+/* Organism layout: copy and tray on the left, the gun on the right. */
+.pg{padding-bottom:56px;}
+.pg-stage{
+  position:relative;display:grid;
+  grid-template-columns:minmax(0,46fr) minmax(0,54fr);
+  grid-template-areas:"copy gun" "tray gun";
+  grid-template-rows:auto 1fr;
+  column-gap:32px;margin-top:28px;min-height:720px;
+  /* Slips fly past the stage edge into the wrap's gutter, never beyond. */
+  overflow:clip;overflow-clip-margin:40px;
+}
+.pg-copy{grid-area:copy;}
+.pg-title{
+  font-family:var(--font-display);font-size:clamp(34px,4.4vw,64px);font-weight:700;
+  line-height:.98;letter-spacing:-.02em;color:var(--ink-hi);max-width:13ch;
+}
+.pg-spectrum{
+  background:linear-gradient(90deg,var(--v400),var(--v500) 30%,var(--v560) 55%,var(--v600) 75%,var(--v680));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.pg-lede{margin-top:18px;max-width:46ch;font-size:var(--fs-16);line-height:1.55;color:var(--muted-dark);}
+.pg-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px 16px;margin-top:28px;}
+.pg-count{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:var(--muted-dark);}
+.pg-count-n{color:var(--ink-hi);font-variant-numeric:tabular-nums;}
+.pg-mags{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:18px;}
+.pg-mags-label{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted-dark);margin-right:2px;}
+
+.pg-gun-col{grid-area:gun;align-self:start;padding-top:8px;}
+.pg-gun{
+  display:block;width:100%;max-width:720px;margin-left:auto;padding:0;border:0;border-radius:24px;
+  background:none;cursor:pointer;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;
+}
+
+/* Atom: the gun. Rotated -16deg so the barrel points down-left at the copy;
+   the recoil wrapper moves along the barrel because it sits inside the tilt. */
+.gun{position:relative;display:block;aspect-ratio:760/600;}
+.gun-shadow{
+  position:absolute;left:16%;right:8%;bottom:8%;height:12%;border-radius:50%;
+  background:radial-gradient(closest-side,var(--gun-shadow),transparent);
+}
+.gun-tilt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transform:rotate(-16deg);}
+.gun-recoil{display:block;width:92%;}
+.gun-svg{display:block;width:100%;height:auto;overflow:visible;}
+.gun-end{fill:url(#pg-end);}
+.gun-slot{fill:var(--scene-base);}
+.gun-shine{fill:none;stroke:var(--gun-shine);stroke-width:2;stroke-linecap:round;}
+.gun-panel{fill:none;stroke:var(--gun-line);stroke-width:1.5;}
+.gun-rivet{fill:var(--gun-rivet);}
+.gun-guard{fill:none;stroke:var(--gun-end-b);stroke-width:12;stroke-linecap:round;stroke-linejoin:round;}
+.gun-trigger{
+  fill:var(--gun-trigger);transform-box:fill-box;transform-origin:50% 0;
+  transition:transform .16s cubic-bezier(.3,1.6,.5,1);
+}
+.pg-stage.is-firing .gun-trigger{transform:rotate(-24deg);}
+.gun-print{
+  fill:var(--scene-base);font-family:var(--font-display);font-size:84px;font-weight:700;letter-spacing:14px;
+}
+/* Charge meter: the dim track shows what the stripe will become; the lit
+   copy is scaled from the left by the engine as the prism charges it, with
+   a glow and a slow shimmer so it reads as light, not paint. */
+.gun-charge-track{opacity:.22;}
+.gun-charge{
+  transform-box:fill-box;transform-origin:0 50%;transform:scaleX(0);
+  filter:drop-shadow(0 0 5px var(--vwhite));
+  animation:gun-shimmer 1.6s ease-in-out infinite;
+}
+@keyframes gun-shimmer{0%,100%{opacity:1;}50%{opacity:.78;}}
+/* The gun drinks the prism's light: a soft spectrum halo behind it, its
+   opacity set by the engine from the charge level. */
+.gun-glow{
+  position:absolute;left:12%;right:6%;top:22%;bottom:22%;border-radius:50%;opacity:0;
+  background:radial-gradient(closest-side,var(--gun-halo),transparent);
+  pointer-events:none;
+}
+@media(prefers-reduced-motion:reduce){.gun-charge{animation:none;}}
+
+/* The tray: slips arrange here. Height is set by the engine to fit the
+   whole set, so nothing below jumps as slips land. */
+.pg-tray{grid-area:tray;margin-top:54px;}
+.pg-tray-label{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;color:var(--muted-dark);margin-bottom:12px;}
+.pg-tray-slots{position:relative;min-height:200px;}
+.pg-tray-empty{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  border:1px dashed var(--card-border);border-radius:var(--card-radius);
+  font-family:var(--font-mono);font-size:11px;color:var(--muted-dark);
+}
+
+.pg-layer{position:absolute;inset:0;pointer-events:none;z-index:2;}
+
+/* Atom: a slip. Paper in its capability colour, with a printed rule just
+   inside the edge like a banknote. Text is the fixed dark ink: it clears
+   4.5:1 on every spectrum colour and on --vwhite. */
+.gslip{
+  position:absolute;left:0;top:0;margin:0;border:0;border-radius:7px;
+  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+  padding:0 16px;text-align:left;
+  background:var(--slip-color);color:var(--scene-base);
+  box-shadow:inset 0 0 0 4px var(--slip-color),inset 0 0 0 5px var(--slip-rule),inset 0 1px 0 var(--slip-shine),0 12px 22px -12px var(--gun-shadow);
+  transform-origin:50% 50%;will-change:transform;pointer-events:none;cursor:pointer;
+  font-family:var(--font-display);
+  transition:translate .22s cubic-bezier(.16,1,.3,1);
+}
+.gslip-big{width:220px;height:84px;}
+.gslip-tag{
+  width:104px;height:64px;padding:10px 8px 0;align-items:center;justify-content:center;text-align:center;
+  background:var(--vwhite);
+  box-shadow:inset 0 8px 0 var(--slip-color),inset 0 0 0 1px var(--slip-rule),0 10px 20px -12px var(--gun-shadow);
+}
+.gslip-word{font-weight:700;text-transform:uppercase;letter-spacing:-.01em;line-height:1;white-space:nowrap;font-size:var(--word-size,30px);}
+.gslip-tag .gslip-word{font-size:12px;letter-spacing:.02em;white-space:normal;line-height:1.1;}
+/* Sub and serial are sized for the tray, where a slip is scaled to ~0.8:
+   12px lands near 9.5px, the floor for uppercase labels (rules.md). The
+   serial sits bottom-right, on the sub's line, so long names never hit it. */
+.gslip-sub{margin-top:8px;font-family:var(--font-mono);font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;}
+.gslip-serial{position:absolute;bottom:13px;right:14px;font-family:var(--font-mono);font-size:12px;font-weight:500;letter-spacing:.04em;}
+.gslip.is-placed{pointer-events:auto;}
+.gslip.is-twin{pointer-events:none;}
+.gslip.is-placed:hover,.gslip.is-placed:focus-visible{translate:0 -6px;}
+/* The shared 2px ring would render ~1.4px on a slip scaled to the tray. */
+.gslip:focus-visible,.gslip.is-active{outline:3px solid var(--vwhite);outline-offset:3px;}
+
+/* Molecule: the detail card, paper like the slips. */
+.pg-card-slot{position:absolute;right:0;bottom:0;width:min(360px,44%);z-index:3;}
+.pg-card{
+  padding:18px 20px 16px;border-radius:var(--card-radius);
+  background:var(--vwhite);color:var(--scene-base);
+  box-shadow:inset 0 6px 0 var(--slip-color),0 28px 48px -22px var(--gun-shadow);
+  animation:pg-card-in .26s cubic-bezier(.16,1,.3,1);
+}
+@keyframes pg-card-in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.pg-card-kicker{display:flex;align-items:center;gap:8px;margin-top:4px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:var(--paper-muted);}
+.pg-card-dot{width:8px;height:8px;border-radius:50%;background:var(--slip-color);box-shadow:inset 0 0 0 1px var(--slip-rule);flex-shrink:0;}
+.pg-card-title{margin-top:8px;font-family:var(--font-display);font-size:var(--fs-21);font-weight:600;line-height:1.2;color:var(--scene-base);}
+.pg-card-text{margin-top:6px;font-size:14px;line-height:1.5;color:var(--paper-muted);}
+.pg-card-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;}
+.pg-card-link{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:var(--scene-base);text-decoration:underline;text-underline-offset:3px;}
+.pg-card-close{
+  width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--slip-rule);border-radius:50%;background:none;color:var(--scene-base);font-size:18px;line-height:1;cursor:pointer;
+}
+.pg-card a:focus-visible,.pg-card button:focus-visible{outline-color:var(--scene-base);}
+@media(pointer:coarse){.pg-card-close{width:44px;height:44px;}}
+@media(prefers-reduced-motion:reduce){.pg-card{animation:none;}.gslip{transition:none;}}
+
+/* Phones and small tablets: heading, then the gun, then the tray. */
+@media(max-width:760px){
+  .pg-stage{
+    grid-template-columns:minmax(0,1fr);grid-template-areas:"copy" "gun" "tray" "card";
+    grid-template-rows:none;min-height:0;overflow-clip-margin:24px;
+  }
+  .pg-gun-col{padding-top:20px;}
+  .pg-gun{max-width:520px;margin:0 auto;}
+  .pg-tray{margin-top:16px;}
+  .pg-card-slot{grid-area:card;position:static;width:auto;margin-top:20px;}
+}

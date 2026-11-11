@@ -1,0 +1,310 @@
+/* SURRAG's world: a noir evidence board. Dark, with one warm accent. The
+   world sets its own colours and texture on the page; the fonts, the chrome
+   and the order of the facts stay the site's. The one colour has one job
+   here: red string is a link between cases. Everything else is ink on dark. */
+.world {
+  --board: #0C0A09;
+  --board-line: #2A2421;
+  --paper: #171412;
+  --string: #F0604A;
+  --world-bg: var(--board);
+  --world-accent: var(--string);
+  /* the cork of the board, faint, behind the whole page */
+  background-color: var(--board);
+  background-image: radial-gradient(var(--board-line) 1px, transparent 1.5px);
+  background-size: 22px 22px;
+}
+
+.figure {
+  margin: 0;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--board-line);
+  border-radius: 16px;
+  background: var(--board);
+  /* the family the report numbers are drawn in */
+  font-family: var(--font-mono), monospace;
+}
+@media (max-width: 560px) {
+  .canvas {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+.caption {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.schematic {
+  margin: 0;
+  max-width: 76ch;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  color: var(--glass-muted);
+}
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.step,
+.replay {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--board-line);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+.stepNum {
+  font-variant-numeric: tabular-nums;
+  color: var(--glass-muted);
+}
+.step[data-done="true"] .stepNum,
+.step[aria-pressed="true"] .stepNum {
+  color: var(--string);
+}
+.step[aria-pressed="true"] {
+  border-color: var(--string);
+}
+.replay {
+  border-style: dashed;
+}
+.replay:disabled {
+  cursor: default;
+  color: var(--glass-muted);
+}
+.step:focus-visible,
+.replay:focus-visible {
+  outline: 2px solid var(--string);
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .step,
+  .replay {
+    min-height: 44px;
+  }
+}
+.stepText {
+  margin: 0;
+  min-height: 3.2em;
+  max-width: 62ch;
+  font-size: clamp(15px, 1.7vw, 18px);
+  line-height: 1.6;
+  color: var(--ink-hi);
+}
+
+/* What the marks mean, in words. */
+.key {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--glass-muted);
+}
+.key li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+.keyMention,
+.keyString {
+  flex: none;
+  width: 10px;
+  height: 10px;
+}
+.keyMention {
+  border: 2px solid var(--ink-hi);
+  border-radius: 50%;
+}
+.keyString {
+  height: 3px;
+  width: 14px;
+  align-self: center;
+  background: var(--string);
+}
+
+/* From a report to a lead */
+.trail {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.reports {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+@media (max-width: 700px) {
+  .reports {
+    grid-template-columns: 1fr;
+  }
+}
+.report {
+  min-width: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--board-line);
+  border-radius: 4px;
+  background: var(--paper);
+}
+.reportId {
+  margin: 0 0 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--glass-muted);
+}
+.reportText {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--ink-hi);
+}
+.entity {
+  padding: 1px 3px;
+  border-bottom: 1px solid var(--ink-hi);
+  background: var(--bg-dark-2);
+  color: var(--ink-hi);
+}
+.entity[data-kind="place"] {
+  border-bottom-style: dotted;
+}
+.entity[data-joined="true"] {
+  border-bottom: 2px solid var(--string);
+}
+.entityTag {
+  margin-left: 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--glass-muted);
+}
+
+.graph {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.graphPicture {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+}
+.graphEdge {
+  stroke: var(--string);
+  stroke-width: 1.5;
+  stroke-opacity: 0.7;
+}
+.graphEdge[data-lead="true"] {
+  stroke-width: 3;
+  stroke-opacity: 1;
+}
+.graphCase {
+  fill: var(--paper);
+  stroke: var(--glass-muted);
+  stroke-width: 1;
+}
+.graphPerson {
+  fill: var(--board);
+  stroke: var(--ink-hi);
+  stroke-width: 1.5;
+}
+.graphLabel {
+  fill: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+}
+.graphList {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--glass-muted);
+}
+.graphList strong {
+  font-weight: 600;
+  color: var(--ink-hi);
+}
+
+.lead {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--line-dark);
+  border-radius: 12px;
+  background: var(--bg-dark);
+}
+.leadText {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-hi);
+}
+.leadTag::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  vertical-align: 1px;
+  background: var(--string);
+}
+.leadTag {
+  margin-right: 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-hi);
+}
+.citations {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--glass-muted);
+}
+.citations li {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.citeId {
+  margin-right: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--ink-hi);
+}

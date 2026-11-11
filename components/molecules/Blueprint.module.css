@@ -1,0 +1,54 @@
+.print {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 14px;
+  border: 1px solid var(--line-dark);
+  border-radius: 10px;
+  /* the blueprint grid: two lines from one token, no image */
+  background-color: var(--bg-dark);
+  background-image:
+    linear-gradient(var(--line-dark) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-dark) 1px, transparent 1px);
+  background-size: 16px 16px;
+  background-position: -1px -1px;
+}
+.lines {
+  fill: none;
+  stroke: var(--glass-muted);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dash {
+  stroke: var(--home-gold);
+  stroke-dasharray: 4 4;
+}
+.label {
+  fill: var(--glass-muted);
+  stroke: none;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+/* Drawn in as it scrolls into view, where scrolling can drive an animation. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .lines {
+      animation: ink linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 40%;
+    }
+  }
+}
+@keyframes ink {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

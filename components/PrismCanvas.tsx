@@ -171,6 +171,23 @@ const SCROLL_EASE_S = 0.22;
 // are the simulated light itself, not environment reflections.
 const SCENE_DIM_FLOOR = 0.55;
 
+// PAPER GUN — owner, 2026-11-09: at the gun section "the prism should look
+// like it is facing the gun, and it should feel it is getting charged by
+// that prism, then the firing will happen". The section dispatches
+// "prism:aim" (detail: true/false) as it enters and leaves view, and
+// "prism:pulse" on every shot. Aim eases the spin back to the rest pose,
+// whose fan points right, where the gun sits, and narrows the fan into a
+// tighter bundle aimed at it; the rays also brighten while aimed. A pulse
+// flares every ray for a moment, so each shot reads as a draw on the light.
+const AIM_EASE_S = 0.45;
+const AIM_FAN_GAIN = 2.2;
+const AIM_GLOW = 0.35;
+// World-space width of the ribbon where it enters the gun (~40px on a
+// 900px-tall screen): wide enough to keep the colours apart.
+const AIM_SPREAD = 0.14;
+const PULSE_GLOW = 0.9;
+const PULSE_DECAY_S = 0.22;
+
 const VERT = `
 attribute vec2 aPos;
 void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
@@ -188,6 +205,7 @@ uniform float uFwdScale;
 uniform float uZoom;
 uniform float uRayScale;
 uniform float uFocusW[SAMPLES];
+uniform float uRayLen[SAMPLES];
 uniform float uExitGain;
 uniform float uTime;
 uniform vec3  uCam;
@@ -277,7 +295,9 @@ void main() {
     if (dot(d, d) > 0.5 && uExitGain > 0.001) {
       // Long enough to leave the frame at any pan/zoom (was 9, which ended
       // mid-screen on phones once the scroll travel zoomed in).
-      vec3 far = p + d * 30.0;
+      // uRayLen is 30 normally; while the paper gun is aimed it shrinks to
+      // the distance to the gun, so each ray ends inside it.
+      vec3 far = p + d * uRayLen[i];
       // uRayScale widens the mid band and haze with scroll so the fan grows
       // from hairlines into bands that fill the screen by the end.
       // uExitGain stays 1: while the prism is edge-on the fan is kept open
@@ -297,7 +317,7 @@ void main() {
       // along each ray at once instead of a lone dot.
       for (int m = 0; m < MOTE_COUNT; m++) {
         float phase = fract(uTime * 0.16 + float(i) * 0.13 + float(m) / float(MOTE_COUNT));
-        vec3 mote = p + d * (phase * 9.0);
+        vec3 mote = p + d * (phase * min(9.0, uRayLen[i]));
         float moteFade = smoothstep(0.0, 0.06, phase) * smoothstep(1.0, 0.88, phase);
         spectrum += (c * 0.7 + 0.5) * pointGlow(ro, rd, mote, 0.0034) * 2.4 * moteFade;
       }
@@ -453,6 +473,27 @@ export default function PrismCanvas({
     };
     window.addEventListener("prism:focus", onFocus);
     window.addEventListener("scroll", markActive, { passive: true });
+
+    let aimTarget = 0;
+    let aim = 0;
+    let pulse = 0;
+    // Live screen point (client px) of the gun's intake, read every frame so
+    // the rays follow recoil, scrolling and pointer parallax.
+    let aimAt: (() => { x: number; y: number } | null) | null = null;
+    const uRayLen = u("uRayLen[0]");
+    const rayLen = new Float32Array(SAMPLES).fill(30);
+    const onAim = (e: Event) => {
+      const d = (e as CustomEvent<{ on: boolean; target?: () => { x: number; y: number } | null }>).detail;
+      aimTarget = d?.on ? 1 : 0;
+      if (d?.target) aimAt = d.target;
+      markActive();
+    };
+    const onPulse = () => {
+      pulse = 1;
+      markActive();
+    };
+    window.addEventListener("prism:aim", onAim);
+    window.addEventListener("prism:pulse", onPulse);
     const uTime = u("uTime");
     const uCam = u("uCam");
     const uPlaneN = u("uPlaneN[0]");
@@ -559,6 +600,15 @@ export default function PrismCanvas({
       if (Math.abs(sRaw - sEased) > 1e-4) lastActive = now;
       const s = sEased;
 
+      // Paper-gun aim and shot flare (see AIM_* above). Under reduced
+      // motion the frame is still, so aim stays 0 and the pose never turns.
+      if (!still) {
+        aim += (aimTarget - aim) * (1 - Math.exp(-dt / AIM_EASE_S));
+        pulse *= Math.exp(-dt / PULSE_DECAY_S);
+        if (Math.abs(aimTarget - aim) > 1e-3 || pulse > 0.01) lastActive = now;
+      }
+      const aimS = aim * aim * (3 - 2 * aim);
+
       // On load, the scene renders near the top of the pinned box — close
       // to the wordmark above it — rather than centered. As soon as
       // scrolling starts it slides down and settles into the centered
@@ -595,7 +645,11 @@ export default function PrismCanvas({
       // standalone for a horizontal beam, not by the yawFloor safety margin
       // the old scroll-driven range needed — there is no range to protect
       // now that this is a single constant pose, so that clamp is gone.
-      const yaw = still ? REST_YAW : spinYaw(smoothstep(SCROLL_TRAVEL_START, 1, s));
+      const spin = still ? REST_YAW : spinYaw(smoothstep(SCROLL_TRAVEL_START, 1, s));
+      // Facing the gun: the nearest whole turn of the rest pose, so the
+      // prism turns the short way round rather than unwinding the spin.
+      const facing = REST_YAW + Math.PI * 2 * Math.round((spin - REST_YAW) / (Math.PI * 2));
+      const yaw = spin + (facing - spin) * aimS;
       const rot: Mat3 = rotationMatrix(REST_PITCH, yaw, REST_ROLL);
 
       // The gain passed here only reshapes how far each already-traced ray
@@ -605,7 +659,8 @@ export default function PrismCanvas({
       // scroll drives: the fan widens from a tight, physically-real spread
       // at the top of the page to a wide, legible spectrum by the bottom,
       // while the beam and glass underneath it never move.
-      const fanGain = still ? FAN_GAIN_MIN : FAN_GAIN_MIN + s * (FAN_GAIN_MAX - FAN_GAIN_MIN);
+      const fanScroll = still ? FAN_GAIN_MIN : FAN_GAIN_MIN + s * (FAN_GAIN_MAX - FAN_GAIN_MIN);
+      const fanGain = fanScroll + (AIM_FAN_GAIN - fanScroll) * aimS;
       const path = traceSpectrum(rot, BEAM_ORIGIN, BEAM_DIR, fanGain);
 
       // ARTISTIC — uSceneDim recedes the glass's own lighting as scroll
@@ -691,7 +746,68 @@ export default function PrismCanvas({
           dirs[o + 2] = bz / len;
         }
       }
-      ctx.uniform1f(uExitGain, 1);
+      // Connect the fan to the gun: project the gun's intake (a screen point)
+      // into the scene on the plane through the exit face, facing the
+      // camera, then turn each ray toward it and end it there. The gun is
+      // drawn above the canvas, so the light disappears into its body.
+      // Same camera as the shader's spectrum (uCam, fwdScale, zoom).
+      rayLen.fill(30);
+      const screenAim = aimS > 0.001 ? aimAt?.() : null;
+      if (screenAim) {
+        const r = cv.getBoundingClientRect();
+        const zoom = 1 + travel * (SCROLL_ZOOM_END - 1);
+        const fx = (screenAim.x - r.left) * (cv.width / r.width);
+        const fy = (r.bottom - screenAim.y) * (cv.height / r.height);
+        const ux = ((fx * 2 - cv.width) / cv.height) * zoom;
+        const uy = ((fy * 2 - cv.height) / cv.height) * zoom;
+        const cl = Math.hypot(cam[0], cam[1], cam[2]);
+        const fw: Vec3 = [-cam[0] / cl, -cam[1] / cl, -cam[2] / cl];
+        const rl = Math.hypot(fw[2], fw[0]) || 1;
+        const rt: Vec3 = [-fw[2] / rl, 0, fw[0] / rl];
+        const up: Vec3 = [
+          rt[1] * fw[2] - rt[2] * fw[1],
+          rt[2] * fw[0] - rt[0] * fw[2],
+          rt[0] * fw[1] - rt[1] * fw[0],
+        ];
+        let rd: Vec3 = [
+          rt[0] * ux + up[0] * uy + fw[0] * fwdScale,
+          rt[1] * ux + up[1] * uy + fw[1] * fwdScale,
+          rt[2] * ux + up[2] * uy + fw[2] * fwdScale,
+        ];
+        const rdl = Math.hypot(rd[0], rd[1], rd[2]);
+        rd = [rd[0] / rdl, rd[1] / rdl, rd[2] / rdl];
+        const mid = (SAMPLES >> 1) * 3;
+        const p0 = path.exitPoints;
+        const num = (p0[mid] - cam[0]) * fw[0] + (p0[mid + 1] - cam[1]) * fw[1] + (p0[mid + 2] - cam[2]) * fw[2];
+        const den = rd[0] * fw[0] + rd[1] * fw[1] + rd[2] * fw[2];
+        if (den > 1e-4) {
+          const tHit = num / den;
+          const T: Vec3 = [cam[0] + rd[0] * tHit, cam[1] + rd[1] * tHit, cam[2] + rd[2] * tHit];
+          const dirs = path.exitDirs;
+          for (let i = 0; i < SAMPLES; i++) {
+            const o = i * 3;
+            if (dirs[o] * dirs[o] + dirs[o + 1] * dirs[o + 1] + dirs[o + 2] * dirs[o + 2] < 0.5) continue;
+            // Each wavelength lands at its own point, spread up the screen in
+            // fan order (violet lowest), so the bundle stays a rainbow
+            // ribbon instead of summing to white at a single point.
+            const k = (i / (SAMPLES - 1) - 0.5) * AIM_SPREAD;
+            const vx = T[0] + up[0] * k - p0[o];
+            const vy = T[1] + up[1] * k - p0[o + 1];
+            const vz = T[2] + up[2] * k - p0[o + 2];
+            const L = Math.hypot(vx, vy, vz) || 1;
+            const bx = dirs[o] + (vx / L - dirs[o]) * aimS;
+            const by = dirs[o + 1] + (vy / L - dirs[o + 1]) * aimS;
+            const bz = dirs[o + 2] + (vz / L - dirs[o + 2]) * aimS;
+            const bl = Math.hypot(bx, by, bz) || 1;
+            dirs[o] = bx / bl;
+            dirs[o + 1] = by / bl;
+            dirs[o + 2] = bz / bl;
+            rayLen[i] = 30 + (L - 30) * aimS;
+          }
+        }
+      }
+      ctx.uniform1fv(uRayLen, rayLen);
+      ctx.uniform1f(uExitGain, 1 + AIM_GLOW * aimS + PULSE_GLOW * pulse);
       ctx.uniform1f(uArtSpin, 0);
       ctx.uniform1f(uSceneDim, sceneDim);
       ctx.uniform1f(uTime, t);
@@ -760,6 +876,8 @@ export default function PrismCanvas({
       cancelAnimationFrame(raf);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("prism:focus", onFocus);
+      window.removeEventListener("prism:aim", onAim);
+      window.removeEventListener("prism:pulse", onPulse);
       window.removeEventListener("scroll", markActive);
       window.removeEventListener("pointermove", markActive);
       io.disconnect();

@@ -1,193 +1,48 @@
 import type { Metadata } from "next";
-import { capabilityColor, projectLabel, projects } from "@/data/portfolioData";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import dynamic from "next/dynamic";
-import { Code, ExternalLink, FileText } from "lucide-react";
-import DeckViewer from "@/components/DeckViewer";
-import { SHOW_PROJECT_PAGES } from "@/lib/flags";
+import { projects } from "@/data/portfolioData";
+import ProjectPage from "@/components/organisms/ProjectPage/ProjectPage";
+import { DESIGNED, isDesigned } from "@/components/worlds/designed";
+import { WORLDS } from "@/components/worlds/registry";
 
-// Puts the shader-string/compile logic in its own chunk instead of this
-// route's main bundle. No `ssr: false` here (unlike PrismScene's own
-// dynamic import of PrismCanvas) — this page is a Server Component, and
-// Next disallows that option outside a Client Component; ProjectPrismRay's
-// own "use client" + idle-deferred mount already keep it from doing
-// anything until the browser is idle regardless of how it's imported.
-const ProjectPrismRay = dynamic(() => import("@/components/ProjectPrismRay"));
-
-// Projects listed on the home page whose own page is closed: they answer "not found".
-const CLOSED = ["tarang", "dhara"];
+// Every project with a designed page (a world). Any other address, including
+// a listed project whose page is closed (PAGELESS_PROJECTS), answers "not found".
+export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return projects.filter((p) => !CLOSED.includes(p.slug)).map((p) => ({ slug: p.slug }));
+  return DESIGNED.map((slug) => ({ slug }));
 }
 
-// Tab title "TARANG · Surya Pratik" via the root layout's title template.
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const project = projects.find((p) => p.slug === slug);
-  if (!project || CLOSED.includes(project.slug)) return {};
-  return { title: project.title, description: project.subtitle ?? project.description };
+  return project ? { title: project.title, description: project.subtitle } : {};
 }
 
-export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
-  const resolvedParams = await params;
-  const project = projects.find((p) => p.slug === resolvedParams.slug);
-  if (!project || CLOSED.includes(project.slug)) return notFound();
-
-  const i = projects.findIndex((p) => p.slug === resolvedParams.slug);
-  const prev = projects[i - 1];
-  const next = projects[i + 1];
+export default async function DesignedProjectPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  // Previous and next step only through pages that are open.
+  const open = projects.filter((p) => isDesigned(p.slug));
+  const index = open.findIndex((p) => p.slug === slug);
+  if (index < 0 || !isDesigned(slug)) return notFound();
 
   return (
-    <article className="project-page wrap" style={{ "--project-accent": project.color } as React.CSSProperties}>
-      {/* SHOW_PROJECT_PAGES switches which hero design ships: the plain
-          back-link + heading (old, already shipped) while the prism-ray
-          redesign is still being finished, then the ProjectPrismRay banner
-          once that's ready to showcase — flip the env var, no code change. */}
-      {SHOW_PROJECT_PAGES ? (
-        <>
-          <div className="pp-hero">
-            <ProjectPrismRay color={project.color} />
-            <Link href="/#projects" className="back-link">← Back to work</Link>
-          </div>
-
-          <div className="pp-head">
-            <span className="pnum">{project.num}</span>
-            <h1>{project.title}</h1>
-            <span className="ptag" style={{ borderColor: project.color, color: project.color }}>
-              {project.tag}
-            </span>
-          </div>
-          {project.subtitle && <p className="pp-subtitle">{project.subtitle}</p>}
-        </>
-      ) : (
-        <>
-          <Link href="/#projects" className="back-link">← Back to work</Link>
-
-          <div className="pp-head">
-            <span className="pnum">{project.num}</span>
-            <h1>{project.title}</h1>
-            <span className="ptag" style={{ borderColor: project.color, color: project.color }}>
-              {project.tag}
-            </span>
-          </div>
-          {project.subtitle && <p className="pp-subtitle">{project.subtitle}</p>}
-        </>
-      )}
-
-      {project.links && (
-        <div className="pp-links">
-          {project.links.live && (
-            <a href={project.links.live} target="_blank" rel="noopener noreferrer" className="link-btn">
-              <ExternalLink size={13} /> LIVE DEMO
-            </a>
-          )}
-          {project.links.github && (
-            <a href={project.links.github} target="_blank" rel="noopener noreferrer" className="link-btn">
-              <Code size={13} /> CODE
-            </a>
-          )}
-          {project.links.demo && (
-            <a href="#presentation" className="link-btn">
-              <FileText size={13} /> PPT
-            </a>
-          )}
-        </div>
-      )}
-
-      <p className="ppipe">{project.pipeline}</p>
-
-      {/* Names the colours: the project's accent is its first capability's
-          spectrum colour, and colour is never the only cue. */}
-      <ul className="pp-caps" aria-label="Capabilities">
-        {project.skills.map((label) => (
-          <li key={label}>
-            <span className="pp-cap-dot" style={{ background: capabilityColor(label) }} aria-hidden="true" />
-            {label}
-          </li>
-        ))}
-      </ul>
-
-      {/* A case study, in reading order: the result first (key numbers, each
-          already stated in the project's text), then the context, what was
-          built, the stack, and what would change next time where the notes
-          give one. */}
-      {project.metrics && project.metrics.length > 0 && (
-        <section className="pp-results" aria-label="Results">
-          <ul className="pp-metrics">
-            {project.metrics.map((m) => (
-              <li key={m.label} className="tile pp-metric">
-                <span className="pp-metric-value">{m.value}</span>
-                <span className="tile-note">{m.label}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      <section className="pp-section">
-        <h2 className="eyebrow">THE PROBLEM AND THE IDEA</h2>
-        <p className="pp-desc">{project.description}</p>
-      </section>
-
-      <section className="pp-section">
-        <h2 className="eyebrow">WHAT I BUILT</h2>
-        <ul className="pp-highlights">
-          {project.highlights.map((h) => <li key={h}>{h}</li>)}
-        </ul>
-      </section>
-
-      <section className="pp-section">
-        <h2 className="eyebrow">STACK</h2>
-        <div className="stack">
-          {project.stack.map((s) => (
-            <span key={s} className="stack-chip">{s}</span>
-          ))}
-        </div>
-      </section>
-
-      {project.nextTime && (
-        <section className="pp-section">
-          <h2 className="eyebrow">WHAT I&apos;D DO DIFFERENTLY</h2>
-          <p className="pp-desc">{project.nextTime}</p>
-        </section>
-      )}
-
-      {project.links?.demo && (
-        <section className="pp-section" id="presentation">
-          <h2 className="eyebrow">PRESENTATION</h2>
-          <DeckViewer src={project.links.demo} title={project.short} />
-        </section>
-      )}
-
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 sm:gap-0 mt-14 pt-5 border-t border-[var(--line-dark)]">
-        {prev ? (
-          <Link href={`/projects/${prev.slug}`} className="group flex items-center gap-3 w-full sm:max-w-[45%]">
-            <span className="w-1 h-8" style={{ background: prev.color }} />
-            <div className="min-w-0">
-              <div className="text-[9px] font-mono text-[var(--muted-dark)] uppercase">PREV</div>
-              <div className="text-sm group-hover:text-[var(--project-accent)] transition-colors text-[var(--ink-hi)] truncate">{projectLabel(prev)}</div>
-            </div>
-          </Link>
-        ) : <div className="hidden sm:block" />}
-        {next ? (
-          <Link href={`/projects/${next.slug}`} className="group flex items-center gap-3 text-left sm:text-right w-full sm:max-w-[45%] justify-start sm:justify-end">
-            <div className="hidden sm:block min-w-0">
-              <div className="text-[9px] font-mono text-[var(--muted-dark)] uppercase">NEXT</div>
-              <div className="text-sm group-hover:text-[var(--project-accent)] transition-colors text-[var(--ink-hi)] truncate">{projectLabel(next)}</div>
-            </div>
-            <span className="w-1 h-8 shrink-0 hidden sm:block" style={{ background: next.color }} />
-
-            {/* Mobile Next Layout */}
-            <span className="w-1 h-8 shrink-0 sm:hidden" style={{ background: next.color }} />
-            <div className="sm:hidden min-w-0">
-              <div className="text-[9px] font-mono text-[var(--muted-dark)] uppercase">NEXT</div>
-              <div className="text-sm group-hover:text-[var(--project-accent)] transition-colors text-[var(--ink-hi)] truncate">{projectLabel(next)}</div>
-            </div>
-          </Link>
-        ) : <div className="hidden sm:block" />}
-      </div>
-    </article>
+    <main id="main">
+      <ProjectPage
+        project={open[index]}
+        world={WORLDS[slug]}
+        backHref="/#projects"
+        prev={open[index - 1]}
+        next={open[index + 1]}
+      />
+    </main>
   );
 }

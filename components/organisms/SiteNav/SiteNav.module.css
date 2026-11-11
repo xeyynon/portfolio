@@ -1,0 +1,92 @@
+.bar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+  padding: 8px clamp(16px, 5vw, 48px);
+  /* solid, so nothing scrolling under it shows through */
+  background: var(--bg-dark);
+  border-bottom: 1px solid var(--line-dark);
+}
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--ink-hi);
+  text-decoration: none;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--glass-muted);
+  text-decoration: none;
+}
+.link:hover {
+  color: var(--ink-hi);
+}
+.mark:focus-visible,
+.link:focus-visible {
+  outline: 2px solid var(--home-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+@media (pointer: coarse) {
+  .mark,
+  .link {
+    min-height: 44px;
+  }
+}
+
+/* The six stones sit beside the mark, pushed left of the links. */
+.stones {
+  margin-right: auto;
+  padding-left: 8px;
+}
+
+/* Narrow screens: the mark and all six links on one row. */
+@media (max-width: 480px) {
+  .bar {
+    flex-wrap: nowrap;
+    padding-inline: 12px;
+  }
+  .links {
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+  .link {
+    padding: 0 5px;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+}
+
+/* No room for the stones in a phone's bar; they are in About me in full. */
+@media (max-width: 700px) {
+  .stones {
+    display: none;
+  }
+}

@@ -1,0 +1,260 @@
+/* CSI-Sense's world: a room seen by radio. The world sets its own colours and
+   texture on the page; the fonts, the chrome and the order of the facts stay
+   the site's. Each colour has one job here: teal is the Wi-Fi signal, amber
+   is a person and what they change in it. */
+.world {
+  --room: #070A10;
+  --room-line: #172134;
+  --wave: #5FD0C5;
+  --stir: #F5B85C;
+  --world-bg: var(--room);
+  --world-accent: var(--wave);
+  /* wavefronts from one corner, faint, behind the whole page */
+  background-color: var(--room);
+  background-image: repeating-radial-gradient(
+    circle at 0 0,
+    transparent 0 119px,
+    var(--room-line) 119px 120px
+  );
+}
+
+.figure {
+  margin: 0;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border: 1px solid var(--room-line);
+  border-radius: 16px;
+  background: var(--room);
+}
+@media (max-width: 560px) {
+  .canvas {
+    aspect-ratio: 1;
+  }
+}
+
+.caption {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.schematic {
+  margin: 0;
+  max-width: 68ch;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  color: var(--glass-muted);
+}
+
+.modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mode,
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--room-line);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+/* The chosen one is told by its heavier edge and its mark, not by colour alone. */
+.mode::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border: 1px solid var(--glass-muted);
+  border-radius: 50%;
+}
+.mode[aria-pressed="true"] {
+  border-color: var(--ink-hi);
+}
+.mode[aria-pressed="true"]::before {
+  border-color: var(--ink-hi);
+  background: var(--ink-hi);
+}
+.toggle {
+  min-width: 72px;
+  border-style: dashed;
+  border-color: var(--glass-muted);
+}
+.mode:focus-visible,
+.toggle:focus-visible {
+  outline: 2px solid var(--wave);
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .mode,
+  .toggle {
+    min-height: 44px;
+  }
+}
+/* With reduced motion the picture is still: there is nothing to pause. */
+@media (prefers-reduced-motion: reduce) {
+  .pause {
+    display: none;
+  }
+}
+
+.modeText {
+  margin: 0;
+  min-height: 4.8em;
+  max-width: 62ch;
+  font-size: clamp(15px, 1.7vw, 18px);
+  line-height: 1.6;
+  color: var(--ink-hi);
+}
+
+.legend {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--room-line);
+  max-width: 68ch;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--glass-muted);
+}
+.legend li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.key {
+  width: 18px;
+  height: 4px;
+  margin-top: calc(0.5lh - 2px);
+  border-radius: 2px;
+}
+.key[data-key="wave"] {
+  background: var(--wave);
+}
+.key[data-key="stir"] {
+  background: var(--stir);
+}
+
+/* From the signal to the app */
+.chainWrap {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.chainNote {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--glass-muted);
+}
+.chain {
+  display: grid;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  max-width: 720px;
+  list-style: none;
+}
+.link {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  min-width: 0;
+}
+/* the line that joins one link to the next */
+.link:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 21.5px;
+  top: 44px;
+  bottom: -20px;
+  width: 1px;
+  background: var(--glass-muted);
+  opacity: 0.5;
+}
+.glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--room-line);
+  border-radius: 10px;
+  background: var(--bg-dark);
+  color: var(--glass-muted);
+}
+.linkBody {
+  min-width: 0;
+  padding-top: 2px;
+}
+.linkHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin: 0;
+}
+.linkName {
+  font-family: var(--font-display), sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink-hi);
+}
+.role {
+  padding: 2px 8px;
+  border: 1px solid var(--room-line);
+  border-radius: 6px;
+  background: var(--bg-dark);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--glass-muted);
+}
+.linkText {
+  margin: 6px 0 0;
+  max-width: 56ch;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--glass-muted);
+}
+/* The owner's parts are picked out by a brighter edge and by their label's
+   words; a dashed edge is "helped", a solid one is "built". No hue is used. */
+.link[data-role="mine"] .glyph,
+.link[data-role="mine"] .role {
+  border-color: var(--ink-hi);
+  color: var(--ink-hi);
+}
+.link[data-role="helped"] .glyph,
+.link[data-role="helped"] .role {
+  border-style: dashed;
+  border-color: var(--ink-hi);
+  color: var(--ink-hi);
+}
+.link[data-role="mine"] .linkText,
+.link[data-role="helped"] .linkText {
+  color: var(--ink-hi);
+}

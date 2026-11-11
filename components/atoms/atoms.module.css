@@ -1,0 +1,112 @@
+/* Atoms: one visual idea each, no layout of their own. */
+
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--glass-muted);
+}
+
+.dot {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dot-color, var(--ink-hi));
+}
+
+.mono {
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border: 1px solid var(--line-dark);
+  border-radius: 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--glass-muted);
+  white-space: nowrap;
+}
+
+/* A cut stone in one area's colour. Unlit: an outline. Lit: filled, with a glow. */
+.gem {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  /* the gold setting */
+  box-shadow:
+    0 0 0 1.2px var(--home-gold),
+    0 0 0 2.2px var(--gilt-edge);
+  transition: filter 400ms ease;
+}
+.gemSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transition: opacity 400ms ease, filter 400ms ease;
+}
+/* Unlit: the stone keeps its colour, so it still says which area it is,
+   but sits a little darker and without a glow. Lit, it burns. */
+.gem[data-lit="false"] .gemSvg {
+  opacity: 0.9;
+  filter: brightness(0.78);
+}
+/* Lit: it burns. */
+.gem[data-lit="true"] {
+  filter: drop-shadow(0 0 4px var(--gem-color));
+}
+/* Away: the stone is elsewhere; the setting is an empty, dashed socket. */
+.gem[data-away="true"] {
+  box-shadow: none;
+  outline: 1.5px dashed var(--glass-muted);
+  outline-offset: -1px;
+  filter: none;
+}
+.gem[data-away="true"] .gemSvg {
+  opacity: 0;
+}
+
+/* The cut (GemCut): facets, the rim, the inner light, the glint. */
+.cutRim {
+  fill: color-mix(in srgb, var(--gem-color) 40%, var(--bg-dark));
+}
+.facet {
+  stroke: color-mix(in srgb, var(--gem-color) 45%, var(--ink-hi));
+  stroke-width: 0.6px;
+  stroke-opacity: 0.55;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+/* At the size of a letter, the facet lines would wash the colour out. */
+.gem .facet {
+  stroke-opacity: 0.18;
+}
+.cutCore {
+  fill: var(--ink-hi);
+  opacity: 0.2;
+  filter: blur(0.6px);
+}
+.cutGlint {
+  fill: var(--ink-hi);
+}
+@media (prefers-reduced-motion: reduce) {
+  .gem,
+  .gemSvg {
+    transition: none;
+  }
+}
+
+

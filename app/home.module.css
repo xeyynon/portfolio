@@ -1,0 +1,16 @@
+/* The redesigned home page. Its two colours of its own, the Snitch's gold and
+   light, are set for every redesigned page in app/lab/chrome.css. */
+.home {
+  /* its own stacking context, so the waves drawn at z-index -1 sit above this ground */
+  isolation: isolate;
+  background: var(--bg-dark-2);
+  color: var(--ink-hi);
+  font-family: var(--font-sans), sans-serif;
+}
+
+/* About to Projects: no ground of their own, so the waves drawn behind the
+   page (AmbientWaves) show through them. The page's own ground is the same
+   colour, so nothing else changes. */
+.waveZone > section {
+  background: transparent;
+}

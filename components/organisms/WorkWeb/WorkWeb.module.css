@@ -1,0 +1,353 @@
+.web {
+  margin: clamp(40px, 6vw, 72px) 0 0;
+}
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line-dark);
+  border-radius: 16px;
+  background: var(--bg-dark);
+}
+
+.thread {
+  fill: none;
+  stroke-width: 1.2;
+  opacity: 0.4;
+  transition: opacity 200ms ease;
+}
+.dot {
+  fill: var(--ink-hi);
+}
+.name {
+  fill: var(--ink-hi);
+  font-family: var(--font-display), sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+.node {
+  cursor: pointer;
+}
+.node:focus-visible {
+  outline: none;
+}
+.node:focus-visible .dot {
+  stroke: var(--home-gold);
+  stroke-width: 3;
+}
+.node:focus-visible .name {
+  text-decoration: underline;
+  text-decoration-color: var(--home-gold);
+}
+
+/* Following one project: its threads brighten, everything else steps back. */
+.svg:hover .project .thread,
+.svg:focus-within .project .thread {
+  opacity: 0.08;
+}
+.svg:hover .project:not(:hover):not(:focus-within) .name,
+.svg:focus-within .project:not(:hover):not(:focus-within) .name {
+  opacity: 0.45;
+}
+.svg .project:hover .thread,
+.svg .project:focus-within .thread {
+  opacity: 1;
+  stroke-width: 2;
+}
+
+/* The gauntlet. Its fills are gradients in Gauntlet.tsx; these are its lines. */
+.edge {
+  stroke: var(--gilt-edge);
+  stroke-width: 1.1;
+  stroke-linejoin: round;
+}
+.ridge {
+  fill: none;
+  stroke: var(--gilt-hi);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+.groove {
+  fill: none;
+  stroke: var(--gilt-edge);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.75;
+}
+.claw {
+  fill: none;
+  stroke: var(--gilt-hi);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* A stone: set but dim until its area has been found, then it burns. */
+/* Unlit, a stone keeps its colour (it names its area) but sits darker. */
+.stone {
+  opacity: 0.9;
+  filter: brightness(0.78);
+  transition: opacity 300ms ease, filter 300ms ease;
+}
+.stone[data-lit="true"] {
+  opacity: 1;
+  filter: drop-shadow(0 0 5px currentColor);
+}
+
+/* Following one project: the stones it uses brighten, the others step back. */
+.svg:has(.project:hover, .project:focus-within) .stone {
+  opacity: 0.45;
+  filter: brightness(0.7);
+}
+.svg:has(.project[data-a~="0"]:is(:hover, :focus-within)) .stone[data-i="0"],
+.svg:has(.project[data-a~="1"]:is(:hover, :focus-within)) .stone[data-i="1"],
+.svg:has(.project[data-a~="2"]:is(:hover, :focus-within)) .stone[data-i="2"],
+.svg:has(.project[data-a~="3"]:is(:hover, :focus-within)) .stone[data-i="3"],
+.svg:has(.project[data-a~="4"]:is(:hover, :focus-within)) .stone[data-i="4"],
+.svg:has(.project[data-a~="5"]:is(:hover, :focus-within)) .stone[data-i="5"] {
+  opacity: 1;
+  filter: drop-shadow(0 0 7px currentColor);
+}
+
+/* ---- The snap (Snap.tsx sets data-phase on the stage) ---- */
+.stage {
+  position: relative;
+}
+.dust {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Every stone wakes, one after another, and burns through the snap. */
+.stage:not([data-phase="idle"]) .stone {
+  opacity: 1;
+  filter: drop-shadow(0 0 9px currentColor);
+  transition-delay: calc(var(--i) * 70ms);
+}
+.stage[data-phase="snap"] .stone,
+.stage[data-phase="dust"] .stone {
+  filter: drop-shadow(0 0 16px currentColor) brightness(1.3);
+}
+
+/* The thumb flicks across, the middle finger drops to meet it. */
+.thumb,
+.middle {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.stage[data-phase="snap"] .thumb {
+  animation: flick 240ms cubic-bezier(0.5, 0, 0.2, 1);
+}
+.stage[data-phase="snap"] .middle {
+  animation: drop 240ms cubic-bezier(0.5, 0, 0.2, 1);
+}
+.stage[data-phase="snap"] .hand {
+  animation: jolt 320ms ease-out 120ms;
+}
+@keyframes flick {
+  50% {
+    transform: rotate(22deg);
+  }
+}
+@keyframes drop {
+  50% {
+    transform: rotate(-7deg) scaleY(0.9);
+  }
+}
+@keyframes jolt {
+  20% {
+    transform: translate(3px, -4px);
+  }
+  45% {
+    transform: translate(-3px, 2px);
+  }
+  70% {
+    transform: translate(2px, -1px);
+  }
+}
+
+/* The flash where the fingers meet, and the ring it throws. */
+.flash,
+.shock {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  pointer-events: none;
+}
+.flash {
+  fill: var(--gilt-hi);
+}
+.shock {
+  fill: none;
+  stroke: var(--gilt-hi);
+  stroke-width: 2;
+}
+.stage[data-phase="snap"] .flash {
+  animation: flash 520ms ease-out 110ms both;
+}
+.stage[data-phase="snap"] .shock {
+  animation: shock 900ms cubic-bezier(0.2, 0.6, 0.3, 1) 110ms both;
+}
+@keyframes flash {
+  0% {
+    opacity: 0.95;
+    transform: scale(0.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+@keyframes shock {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(14);
+    stroke-width: 0.2;
+  }
+}
+
+/* What crumbles: its name and dot give way to the dust, its threads fade.
+   Hidden, not removed: the link is back the moment the dust is. */
+.name,
+.dot {
+  transition: opacity 280ms ease;
+}
+.svg .project[data-gone] .name,
+.svg .project[data-gone] .dot {
+  opacity: 0;
+  transition-duration: 90ms;
+}
+.svg .project[data-gone] .thread {
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+.svg .project[data-gone] .node {
+  visibility: hidden;
+  transition: visibility 0s linear 90ms;
+}
+
+.snapBar {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.snapStatus {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--gilt-hi);
+}
+.snapButton {
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--home-gold);
+  border-radius: 999px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.snapButton:hover {
+  background: var(--bg-dark-2);
+  border-color: var(--gilt-hi);
+}
+.snapButton:focus-visible {
+  outline: 2px solid var(--home-gold);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage[data-phase] .thumb,
+  .stage[data-phase] .middle,
+  .stage[data-phase] .hand,
+  .stage[data-phase] .flash,
+  .stage[data-phase] .shock {
+    animation: none;
+  }
+  .svg .project[data-gone] .name,
+  .svg .project[data-gone] .dot {
+    transition-duration: 400ms;
+  }
+}
+
+.key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-hi);
+}
+.key li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.caption p {
+  max-width: 62ch;
+  margin: 0;
+}
+.caption {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--glass-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stone,
+  .name,
+  .dot,
+  .thread {
+    transition: none;
+  }
+}
+
+/* Thirteen names round a ring cannot be read on a narrow screen, so a phone
+   sees the middle of the web, close up: the gauntlet and its stones, the
+   threads running in from outside the frame, and the snap. The names are
+   left out; the tiles just above carry every project and its link. */
+@media (max-width: 760px) {
+  .stage {
+    overflow: hidden;
+    border: 1px solid var(--line-dark);
+    border-radius: 16px;
+    background: var(--bg-dark);
+  }
+  .svg {
+    /* the site's reset caps every svg at its container; this one is cropped on purpose */
+    max-width: none;
+    width: 170%;
+    margin-left: -35%;
+    margin-block: -14% -10%;
+    border: 0;
+    border-radius: 0;
+  }
+  .name {
+    display: none;
+  }
+  .node {
+    pointer-events: none;
+  }
+  .snapBar {
+    right: 12px;
+    bottom: 12px;
+  }
+}
