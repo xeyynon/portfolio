@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import { personalInfo, skills } from "@/data/portfolioData";
 import Eyebrow from "@/components/atoms/Eyebrow";
@@ -29,7 +30,14 @@ export default function AboutSection() {
             <Tile className={styles.statement}>
               <p className={styles.headline}>{personalInfo.headline}</p>
               <p className={styles.lede}>{personalInfo.focus}</p>
-              <p className={`${styles.lede} ${styles.muted}`}>{personalInfo.belief}</p>
+              {/* A loop: the light rests on each word in turn, then starts again. */}
+              <p className={styles.belief}>
+                {personalInfo.belief.map((word, i) => (
+                  <span key={word} className={styles.beliefWord} style={{ "--i": i } as CSSProperties}>
+                    {word}.
+                  </span>
+                ))}
+              </p>
             </Tile>
           </div>
 

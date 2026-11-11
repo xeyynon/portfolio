@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import Link from "next/link";
+import BackToLine from "./BackToLine";
 import { BRANCH_PATH, EMBERS, SPLIT, TIP } from "./prune";
 import styles from "./LostPage.module.css";
 
@@ -8,7 +8,8 @@ import styles from "./LostPage.module.css";
  * main line of the site runs on; a branch splits off it, which is where the
  * address went, and grows; then it is pruned: a charge strikes its tip and it
  * burns back to where it split, shedding embers, until only a mark is left at
- * the cut. The main line carries on. The way out is back to it.
+ * the cut. The main line carries on. The way out is back to it, at the part
+ * the address split off from (BackToLine).
  *
  * Plays once. The words are there from the start, so nothing waits on the
  * picture; with reduced motion the picture is simply the pruned line.
@@ -56,9 +57,9 @@ export default function LostPage({ home }: { home: string }) {
         The address you followed split off the main line, and it was pruned before it could grow. Everything that is
         real is still on the main line.
       </p>
-      <Link className={styles.home} href={home}>
+      <BackToLine className={styles.home} home={home}>
         Back to the main line <span aria-hidden="true">→</span>
-      </Link>
+      </BackToLine>
     </main>
   );
 }

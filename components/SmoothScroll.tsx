@@ -20,11 +20,13 @@ export default function SmoothScroll() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const lenis = new Lenis({
-      duration: 1.05,
+      duration: 1.15,
       // Exponential ease-out: fast handoff from the wheel, long settle. Reads
       // as weight rather than lag.
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      wheelMultiplier: 1,
+      // v3 (owner, 2026-11-12): a notch of the wheel moved too far; three
+      // quarters of it reads as neither slow nor fast.
+      wheelMultiplier: 0.75,
       touchMultiplier: 1.6,
     });
 

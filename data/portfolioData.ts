@@ -9,7 +9,8 @@ export const personalInfo = {
    *  summary; "intern at Alfaleus" lives in Experience, so it is not here. */
   headline: "AI that answers phone calls and sorts waste offline. I build it.",
   focus: "Voice agents, LLM-backed tools, Flutter apps and, when a product needs it, the hardware they run on.",
-  belief: "Growth comes from challenging yourself, embracing failures, and learning something new every day.",
+  /** Three words, read in a loop (owner, 2026-11-12; it replaces the longer sentence of v2). */
+  belief: ["Learning", "Building", "Improving"],
   education: {
     degree: "B.Tech CSE",
     school: "VIT-AP University",
@@ -469,11 +470,14 @@ export type Together = {
 };
 
 export const together: Together = {
+  // Owner's photo (2026-11-12), cropped to the card and stripped of metadata.
+  photo: "/people/vectr-group.jpg",
   caption: "Point at someone to bring them into focus.",
+  // Left to right, as they stand; `at` is each face's centre in the photo (% across, % down).
   people: [
-    { name: "Abhinav", linkedin: "https://www.linkedin.com/in/abhinav-pentani/", at: [25, 40] },
-    { name: "Surya", linkedin: personalInfo.contact.linkedin.url, at: [50, 40] },
-    { name: "Saif", linkedin: "https://www.linkedin.com/in/shaik-saifuddin-482947272/", at: [75, 40] },
+    { name: "Saif", linkedin: "https://www.linkedin.com/in/shaik-saifuddin-482947272/", at: [26.5, 33] },
+    { name: "Surya", linkedin: personalInfo.contact.linkedin.url, at: [45.3, 34] },
+    { name: "Abhinav", linkedin: "https://www.linkedin.com/in/abhinav-pentani/", at: [65.6, 32] },
   ],
 };
 
