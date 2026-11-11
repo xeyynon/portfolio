@@ -59,3 +59,6 @@ CLAUDE.md
 
 # browser automation output
 .playwright-mcp/
+
+# browser diagnostics exported for debugging (machine details)
+about-gpu-*.txt

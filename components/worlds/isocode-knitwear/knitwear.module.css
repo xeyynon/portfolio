@@ -1,0 +1,349 @@
+/* IsoCode Knitwear's world: knit fabric on a factory floor at night. The world
+   sets its own colours and texture on the page; the fonts, the chrome and the
+   order of the facts stay the site's. Each colour has one job here: oat is the
+   yarn and the pace line, green is on time, amber is behind, grey is no
+   updates. A status is always a word as well. */
+.world {
+  --floor: #0F0D0B;
+  --knit: #1C1814;
+  --floor-line: #3A3229;
+  --yarn: #E6D3AE;
+  --on-time: #7FCF8F;
+  --behind: #F2A93B;
+  --no-updates: #9C9EA6;
+  --world-bg: var(--floor);
+  --world-accent: var(--yarn);
+  /* a knit stitch, faint, behind the whole page: two strokes that make a V */
+  background-color: var(--floor);
+  background-image:
+    linear-gradient(
+      63.43deg,
+      transparent calc(33.33% - 0.6px),
+      var(--knit) calc(33.33% - 0.6px),
+      var(--knit) calc(33.33% + 0.6px),
+      transparent calc(33.33% + 0.6px)
+    ),
+    linear-gradient(
+      116.57deg,
+      transparent calc(66.67% - 0.6px),
+      var(--knit) calc(66.67% - 0.6px),
+      var(--knit) calc(66.67% + 0.6px),
+      transparent calc(66.67% + 0.6px)
+    );
+  background-size: 18px 18px;
+}
+
+/* The status colour of a row, a bar or a verdict. */
+.row[data-status="on-time"],
+.track[data-status="on-time"],
+.verdict[data-status="on-time"] {
+  --status: var(--on-time);
+}
+.row[data-status="behind"],
+.track[data-status="behind"],
+.verdict[data-status="behind"] {
+  --status: var(--behind);
+}
+.row[data-status="no-updates"],
+.track[data-status="no-updates"],
+.verdict[data-status="no-updates"] {
+  --status: var(--no-updates);
+}
+
+/* The knitting floor */
+.floor {
+  margin: 0;
+  display: grid;
+  gap: 16px;
+}
+.rows {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 14px;
+  list-style: none;
+  border: 1px solid var(--floor-line);
+  border-radius: 16px;
+  background: var(--floor);
+}
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 15rem);
+  align-items: center;
+  gap: 6px 16px;
+  min-width: 0;
+}
+.strip {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  border-radius: 4px;
+}
+.rowLabel {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  min-width: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.statusWord {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--status);
+}
+.rowSum {
+  color: var(--ink-hi);
+}
+/* The late row's sum keeps its place before it appears, so nothing jumps. */
+.rowSum[data-shown="false"] {
+  visibility: hidden;
+}
+@media (max-width: 700px) {
+  .rows {
+    padding: 12px;
+    gap: 14px;
+  }
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rowLabel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+  }
+}
+
+.caption {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+.schematic {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  color: var(--glass-muted);
+}
+.captionText {
+  margin: 0;
+  max-width: 62ch;
+  font-size: clamp(15px, 1.7vw, 18px);
+  line-height: 1.6;
+  color: var(--ink-hi);
+}
+.replay {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px dashed var(--floor-line);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+.replay:disabled {
+  cursor: default;
+  color: var(--glass-muted);
+}
+.replay:focus-visible {
+  outline: 2px solid var(--yarn);
+  outline-offset: 2px;
+}
+/* Nothing plays with reduced motion, so there is nothing to play again. */
+@media (prefers-reduced-motion: reduce) {
+  .replay {
+    display: none;
+  }
+}
+
+/* Will it ship on time? */
+.check {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 24px;
+}
+.field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 6px 12px;
+  min-width: 0;
+}
+.fieldLabel {
+  padding: 0;
+  font-size: 14px;
+  color: var(--ink-hi);
+}
+.fieldValue {
+  font-family: var(--font-mono), monospace;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-hi);
+}
+.slider {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  min-height: 28px;
+  margin: 0;
+  accent-color: var(--yarn);
+  cursor: pointer;
+}
+.slider:disabled {
+  cursor: default;
+}
+.slider:focus-visible,
+.choice input:focus-visible {
+  outline: 2px solid var(--yarn);
+  outline-offset: 2px;
+}
+.updates {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--floor-line);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--ink-hi);
+  cursor: pointer;
+}
+.choice:has(input:checked) {
+  border-color: var(--yarn);
+}
+.choice input {
+  margin: 0;
+  accent-color: var(--yarn);
+}
+@media (max-width: 700px) {
+  .controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (pointer: coarse) {
+  .replay,
+  .slider,
+  .choice {
+    min-height: 44px;
+  }
+}
+
+.bars {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px 12px;
+  padding: 14px;
+  border: 1px solid var(--floor-line);
+  border-radius: 12px;
+  background: var(--floor);
+}
+.barName {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--glass-muted);
+}
+.track {
+  display: block;
+  min-width: 0;
+  height: 28px;
+  border-right: 2px solid var(--floor-line);
+  color: var(--status, var(--yarn));
+}
+/* A knitted row: the page's stitch again, in the colour of what it shows. */
+.fill {
+  display: block;
+  height: 100%;
+  background-image:
+    linear-gradient(
+      63.43deg,
+      transparent calc(33.33% - 1px),
+      currentColor calc(33.33% - 1px),
+      currentColor calc(33.33% + 1px),
+      transparent calc(33.33% + 1px)
+    ),
+    linear-gradient(
+      116.57deg,
+      transparent calc(66.67% - 1px),
+      currentColor calc(66.67% - 1px),
+      currentColor calc(66.67% + 1px),
+      transparent calc(66.67% + 1px)
+    );
+  background-size: 14px 14px;
+}
+
+.verdict {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--floor-line);
+  border-radius: 12px;
+  background: var(--bg-dark);
+}
+.verdictWord {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ink-hi);
+}
+/* Status is a dot plus a word (D-022): the colour lives in the dot. */
+.verdictWord::before {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 12px;
+  border-radius: 50%;
+  vertical-align: 3px;
+  background: var(--status);
+}
+.estimate {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-hi);
+}
+.verdictSum {
+  font-family: var(--font-mono), monospace;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-hi);
+}
+.verdictDetail {
+  max-width: 62ch;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--glass-muted);
+}

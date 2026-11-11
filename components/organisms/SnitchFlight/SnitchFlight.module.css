@@ -1,0 +1,18 @@
+/* A fixed layer above the page and below the bar. It takes no clicks. */
+.flyer {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 30;
+  width: 76px;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transition: opacity 200ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flyer {
+    display: none;
+  }
+}

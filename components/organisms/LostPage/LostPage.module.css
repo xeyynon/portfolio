@@ -1,0 +1,238 @@
+.lost {
+  display: grid;
+  justify-items: start;
+  align-content: center;
+  gap: 16px;
+  min-height: 100dvh;
+  padding: 48px clamp(16px, 8vw, 120px);
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+}
+
+.art {
+  width: min(640px, 100%);
+  height: auto;
+  margin-bottom: 8px;
+  overflow: visible;
+}
+
+/* ---- The timeline (one run: 0 to about 4.2 s) ---- */
+
+.main,
+.branch,
+.branchGlow {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 900;
+}
+.main {
+  stroke: var(--ink-hi);
+  stroke-width: 2;
+  animation: draw 1.4s ease-out both;
+}
+/* The branch grows (0.9 to 2.0 s), holds, then burns back from its tip (2.6 to 3.8 s). */
+.branch,
+.branchGlow {
+  animation: grow-then-prune 3.8s both;
+}
+.branch {
+  stroke: var(--home-gold);
+  stroke-width: 2;
+}
+.branchGlow {
+  stroke: var(--prune-hot);
+  stroke-width: 7;
+  opacity: 0;
+  animation-name: grow-then-prune, burn;
+}
+@keyframes draw {
+  from {
+    stroke-dashoffset: 900;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes grow-then-prune {
+  0%,
+  24% {
+    stroke-dashoffset: 900;
+    animation-timing-function: ease-out;
+  }
+  53%,
+  68% {
+    stroke-dashoffset: 0;
+    animation-timing-function: ease-in;
+  }
+  100% {
+    stroke-dashoffset: 900;
+  }
+}
+/* the branch glows hot only while it burns */
+@keyframes burn {
+  0%,
+  64% {
+    opacity: 0;
+  }
+  72%,
+  92% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The charge: a ring that closes on the tip, then a flash. */
+.charge {
+  fill: none;
+  stroke: var(--prune-hot);
+  stroke-width: 2;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: charge 0.6s ease-in 2.1s both;
+}
+@keyframes charge {
+  0% {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+.flash {
+  fill: var(--prune-glow);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: flash 0.5s ease-out 2.6s both;
+}
+@keyframes flash {
+  0% {
+    opacity: 1;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(4);
+  }
+}
+
+/* Embers: each lets go as the burn passes it (tip first), drifts up and goes out. */
+.ember {
+  fill: var(--prune-glow);
+  opacity: 0;
+  animation: ember 1.3s ease-out both;
+  animation-delay: calc(2.6s + (1 - var(--f)) * 1.15s);
+}
+@keyframes ember {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+    fill: var(--prune-glow);
+  }
+  12% {
+    opacity: 1;
+  }
+  60% {
+    fill: var(--prune-hot);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy));
+    fill: var(--prune-hot);
+  }
+}
+
+/* The cut, left where the branch split. */
+.cut {
+  fill: none;
+  stroke: var(--prune-hot);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0;
+  animation: appear 0.4s ease-out 3.7s both;
+}
+.split {
+  fill: var(--home-gold);
+}
+@keyframes appear {
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---- Words ---- */
+
+.code {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--prune-glow);
+}
+.title {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(32px, 6vw, 64px);
+  line-height: 1.05;
+  font-weight: 600;
+}
+.text {
+  margin: 0;
+  max-width: 52ch;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--glass-muted);
+}
+.home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 0 18px;
+  border: 1px solid var(--home-gold);
+  border-radius: 999px;
+  color: var(--ink-hi);
+  text-decoration: none;
+  font-size: 15px;
+}
+.home:hover {
+  background: var(--bg-dark-2);
+}
+.home:focus-visible {
+  outline: 2px solid var(--home-gold);
+  outline-offset: 3px;
+}
+
+/* Reduced motion: the line as it ends, pruned, with nothing moving. */
+@media (prefers-reduced-motion: reduce) {
+  .main,
+  .branch,
+  .branchGlow,
+  .charge,
+  .flash,
+  .ember,
+  .cut {
+    animation: none;
+  }
+  .main {
+    stroke-dashoffset: 0;
+  }
+  .branch,
+  .branchGlow {
+    stroke-dashoffset: 900;
+  }
+  .cut {
+    opacity: 1;
+  }
+}

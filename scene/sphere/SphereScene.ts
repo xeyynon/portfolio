@@ -1,17 +1,18 @@
 import {
-  ACESFilmicToneMapping,
   AdditiveBlending,
   BackSide,
+  BufferAttribute,
   BufferGeometry,
+  Color,
   DirectionalLight,
   DoubleSide,
   Group,
-  Line,
-  LineBasicMaterial,
-  LineLoop,
+  HalfFloatType,
   Mesh,
+  MeshBasicMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  NoToneMapping,
   PerspectiveCamera,
   PlaneGeometry,
   PMREMGenerator,
@@ -22,17 +23,25 @@ import {
   Vector2,
   Vector3,
   WebGLRenderer,
+  WebGLRenderTarget,
 } from "three";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { publishWaveTime, waveTimeNow } from "@/lib/waveClock";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { tokenColor, tokenDisplayRgb } from "../tokens";
-import { FIELD_FRAG, FULLSCREEN_VERT, GLOW_FRAG, GLOW_VERT, INSIDE_FRAG } from "./shaders";
-import { clamp01, sphereState } from "./timeline";
+import { createBodyRelief } from "./body";
+import { FIELD_FRAG, FINAL_FRAG, FINAL_VERT, FULLSCREEN_VERT, GLOW_FRAG, GLOW_VERT, INSIDE_FRAG } from "./shaders";
+import { clamp01, smoothstep, sphereState } from "./timeline";
+import { sailPositions, spinePositions } from "./wing";
 
 /**
- * The sphere: one object made from the owner's worlds (redesign_plan.md,
- * "one original object"). A golden sphere that spins on its point like a top,
- * bends the starfield round it, runs backwards when the page is scrolled
- * back, and opens along six seams into something larger than itself.
+ * The sphere: a golden ball with relief round its body and two long ribbed
+ * wings of glass, after the film prop the owner asked for, with his one
+ * change (glass wings). It spins on its point like a top, bends the
+ * starfield round it, runs backwards when the page is scrolled back, and
+ * opens along six seams into something larger than itself.
  *
  * This file and its siblings in scene/ are the only code that touches
  * three.js. React talks to it through setProgress() and dispose().
@@ -43,20 +52,32 @@ const SEGMENTS = 6;
 const SEAM_GAP = (1.4 * Math.PI) / 180;
 const OPEN_MAX = 1.78; // radians a segment swings out, a little past flat
 const TILT = 0.15;
-const SPIN_SPEED = 1.5; // rad/s when closed
+const SPIN_SPEED = 0.9; // rad/s when closed: slow enough to read the relief
 const PRECESS_SPEED = 0.32;
 const FOV = 32;
-const REVERSE_HOLD_MS = 450; // how long a scroll-back keeps time running backwards
-const WING_SCALE = 0.72;
-const WING_REST = 0.42; // radians a wing is raised at rest
-const WING_BEAT = 0.2; // radians it moves either side of that
-const WING_RATE = 2.1; // rad/s of the beat: a hover, not a flutter
-const WING_SWEEP = 0.28; // radians the wings are swept back, for depth
+const REVERSE_HOLD_MS = 950; // how long a scroll-back keeps time running backwards
+// Going back is slower than going forward (owner, 2026-11-11: "needs to be a
+// little slower"): the scene takes longer to follow a scroll back, and time
+// itself runs backwards at a fraction of its forward pace.
+const FOLLOW_FORWARD = 9;
+const FOLLOW_BACK = 3.2;
+const REVERSE_PACE = 0.55;
+
+const WING_REST = 0.3; // radians a wing is raised at rest
+const WING_TALL = 0.72; // extra raise on a tall screen, so the span fits the width
+const WING_BEAT = 0.13; // the slow beat, radians either side of rest
+const WING_BEAT_RATE = 1.7;
+const WING_FLUTTER = 0.03; // a fast shiver on top of it
+const WING_FLUTTER_RATE = 15;
+const WING_SWEEP = 0.3; // radians the wings are swept back, for depth
+
+const ARRIVE_SECONDS = 2.2; // the flight in, once, when the scene first draws
+const ARRIVE_FROM = new Vector3(8.5, 3.2, -9);
 
 /** Capability tokens, in the order of the six segments. */
 const CAP_TOKENS = ["--v400", "--v450", "--v500", "--v560", "--v600", "--v680"] as const;
 
-export type SphereStats = { fps: number; dpr: number };
+export type SphereStats = { fps: number; dpr: number; bloom: boolean };
 
 export type SphereOptions = {
   /** Element whose computed style carries the colour tokens. */
@@ -64,12 +85,54 @@ export type SphereOptions = {
   reducedMotion: boolean;
   coarsePointer: boolean;
   onStats?: (stats: SphereStats) => void;
+  /**
+   * True when the browser would draw WebGL without a real GPU. The scene then
+   * runs without bloom or multisampling and starts at a lower resolution.
+   */
+  lite?: boolean;
+  /**
+   * Switches for measuring what each part costs, from the lab page's ?q=
+   * parameter: "a" no automatic step-down, "f" full quality even without a GPU, "b" no bloom, "m" no multisampling, "t" true transmission
+   * glass (light bent through the wings; several times dearer than the
+   * default, which only reflects).
+   */
+  debug?: string;
 };
+
+/**
+ * What the gold and the glass reflect: a dark studio with a few lit panels.
+ * Mostly darkness with hard, bright shapes in it is what makes polished
+ * metal and glass read as polished; even light makes them look like plastic.
+ */
+function studio(warm: Color, cool: Color): { scene: Scene; dispose: () => void } {
+  const scene = new Scene();
+  const made: { dispose(): void }[] = [];
+  const panel = (w: number, h: number, at: [number, number, number], light: Color, power: number) => {
+    const geometry = new PlaneGeometry(w, h);
+    const material = new MeshBasicMaterial({ color: light.clone().multiplyScalar(power), side: DoubleSide });
+    const mesh = new Mesh(geometry, material);
+    mesh.position.set(...at);
+    mesh.lookAt(0, 0, 0);
+    scene.add(mesh);
+    made.push(geometry, material);
+  };
+  panel(7, 7, [-6, 7, 6], warm, 7); // a large soft key, above and to the left
+  panel(1.2, 10, [8, 1, -3], warm, 24); // a hard strip behind on the right: the rim
+  panel(9, 1, [0, 4, -9], cool, 9); // a thin line across the back
+  panel(1, 1, [3.5, 5, 7], cool, 70); // a small hot source: the glint
+  panel(0.6, 0.6, [-4, 2, 8], warm, 60); // a second glint, low on the left
+  panel(9, 3, [1, -7, 4], warm, 1.2); // a little light from below
+  panel(16, 16, [0, 1, 12], cool, 0.6); // a dim wall in front, so no facet reflects pure black
+  return { scene, dispose: () => made.forEach((m) => m.dispose()) };
+}
 
 export class SphereScene {
   private readonly renderer: WebGLRenderer;
+  private readonly composer: EffectComposer;
+  private readonly bloom: UnrealBloomPass;
   private readonly scene = new Scene();
-  private readonly camera = new PerspectiveCamera(FOV, 1, 0.1, 60);
+  private readonly camera = new PerspectiveCamera(FOV, 1, 0.1, 80);
+  private readonly body = new Group();
   private readonly precess = new Group();
   private readonly tilt = new Group();
   private readonly spin = new Group();
@@ -77,67 +140,97 @@ export class SphereScene {
   private readonly core: Mesh<SphereGeometry, ShaderMaterial>;
   private readonly halo: Mesh<SphereGeometry, ShaderMaterial>;
   private readonly coreLight: PointLight;
+  private readonly pointerLight: PointLight;
   private readonly wings = new Group();
   private readonly wingPivots: Group[] = [];
-  private readonly wingGlass: MeshPhysicalMaterial;
-  private readonly wingLines: LineBasicMaterial;
+  private readonly wingJoints: Mesh[] = [];
   private readonly field: ShaderMaterial;
   private readonly inside: ShaderMaterial;
   private readonly disposables: { dispose(): void }[] = [];
   private readonly resizeObserver: ResizeObserver;
   private readonly viewObserver: IntersectionObserver;
   private readonly centre = new Vector3();
+  private readonly basePixelRatio: number;
 
   private target = 0;
   private shown = 0;
   private time = 0;
   private direction = 1;
+  private arrived: number;
   private lastScrollBack = -Infinity;
   private pointer = new Vector2();
   private pointerShown = new Vector2();
+  private hasPointer = false;
   private raf = 0;
   private last = 0;
   private inView = true;
+  /** False while the lines are carried by the page behind (AmbientWaves): nothing here is seen then. */
+  private active = true;
   private disposed = false;
   private frames = 0;
   private statsSince = 0;
-  private readonly basePixelRatio: number;
   private resolution = 1;
   private slowSamples = 0;
 
   constructor(private readonly canvas: HTMLCanvasElement, private readonly options: SphereOptions) {
     const src = options.tokenSource;
+    this.arrived = options.reducedMotion ? 1 : 0;
 
-    this.renderer = new WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
-    this.renderer.toneMapping = ACESFilmicToneMapping;
+    // No antialiasing or tone mapping on the canvas itself: the scene is drawn
+    // into a multisampled high-range buffer and finished by the last pass.
+    this.renderer = new WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: "high-performance" });
+    this.renderer.toneMapping = NoToneMapping;
     this.basePixelRatio = Math.min(window.devicePixelRatio || 1, options.coarsePointer ? 1.5 : 2);
     this.renderer.setPixelRatio(this.basePixelRatio);
 
-    // Reflections for the gold: a neutral procedural room, no image download.
+    const warm = tokenColor(src, "--lab-light");
+    const cool = tokenColor(src, "--ink-hi");
+    const light = tokenDisplayRgb(src, "--lab-light");
+
     const pmrem = new PMREMGenerator(this.renderer);
-    const room = new RoomEnvironment();
-    const env = pmrem.fromScene(room, 0.04);
+    const room = studio(warm, cool);
+    const env = pmrem.fromScene(room.scene, 0.02);
     this.scene.environment = env.texture;
-    this.scene.environmentIntensity = 0.85;
     room.dispose();
     pmrem.dispose();
     this.disposables.push(env);
 
-    const warm = tokenColor(src, "--lab-light");
-    const key = new DirectionalLight(warm, 1.6);
+    const key = new DirectionalLight(warm, 0.9);
     key.position.set(-3, 4, 5);
     this.scene.add(key);
+
+    // A light the visitor holds: it sits in front of the scene wherever the
+    // pointer is, so moving the mouse slides a highlight over the gold and
+    // along the ribs of the wings (owner, 2026-11-11). Off on touch screens
+    // and with reduced motion, where there is no pointer to follow.
+    this.pointerLight = new PointLight(cool, 0, 30, 1.4);
+    this.scene.add(this.pointerLight);
 
     // The top: precession about the vertical, a fixed lean, then the spin.
     // Everything hangs from the tip, so the tip is the point that stays put.
     this.precess.position.y = -R;
     this.precess.add(this.tilt);
     this.tilt.add(this.spin);
-    this.scene.add(this.precess);
+    this.body.add(this.precess);
+    this.scene.add(this.body);
 
-    const shell = new SphereGeometry(R, 20, 44, -(Math.PI / 3 - SEAM_GAP) / 2, Math.PI / 3 - SEAM_GAP);
-    const gold = new MeshStandardMaterial({ color: tokenColor(src, "--lab-gold"), metalness: 1, roughness: 0.24 });
-    this.disposables.push(shell, gold);
+    const relief = createBodyRelief();
+    const shell = new SphereGeometry(R, 24, 56, -(Math.PI / 3 - SEAM_GAP) / 2, Math.PI / 3 - SEAM_GAP);
+    // Polished gold under a thin lacquer: the metal gives the warm reflection,
+    // the clear coat a second, sharper one on top. That double highlight is
+    // what reads as "shining" rather than merely "gold".
+    const gold = new MeshPhysicalMaterial({
+      color: tokenColor(src, "--lab-gold"),
+      metalness: 1,
+      roughness: 0.12,
+      map: relief,
+      bumpMap: relief,
+      bumpScale: 1.3,
+      envMapIntensity: 1.8,
+      clearcoat: 1,
+      clearcoatRoughness: 0.05,
+    });
+    this.disposables.push(relief, shell, gold);
 
     for (let i = 0; i < SEGMENTS; i++) {
       const cap = tokenColor(src, CAP_TOKENS[i]);
@@ -165,10 +258,8 @@ export class SphereScene {
     }
 
     // What is inside: light, drawn as a soft orb (bright where it faces the
-    // camera, fading to nothing at its edge), not a flat disc. Seen through
-    // the seams while closed.
+    // camera, fading to nothing at its edge). Seen through the seams while closed.
     const coreGeo = new SphereGeometry(R * 0.86, 32, 16);
-    const light = tokenDisplayRgb(src, "--lab-light");
     const glow = (power: number) =>
       new ShaderMaterial({
         vertexShader: GLOW_VERT,
@@ -188,76 +279,76 @@ export class SphereScene {
     this.core.add(this.coreLight);
     this.disposables.push(coreGeo, this.core.material, this.halo.material);
 
-    // Two wings in the form of a sail: thin ribs fanning from the root with a
-    // membrane between them, scalloped along the trailing edge. The form follows
-    // the film prop's wing as its designers describe it ("thin ribbed wings,
-    // almost in the form of a sail"); the one change is the owner's: glass, not
-    // metal (2026-11-11). They hang from the scene, not from the spin, so they
-    // face the viewer while the sphere turns between them.
-    const RIBS = 9;
-    const WING_LENGTH = 2.9;
-    const curl = (x: number) => 0.06 * x * x; // the sail curls toward the viewer along its length
-    const tips: Vector3[] = [];
-    for (let i = 0; i < RIBS; i++) {
-      const t = i / (RIBS - 1); // 0 the leading rib, 1 the last trailing rib
-      const angle = 0.2 - 0.72 * t;
-      const length = WING_LENGTH * (1 - 0.6 * Math.pow(t, 1.25));
-      const x = length * Math.cos(angle);
-      tips.push(new Vector3(x, length * Math.sin(angle), curl(x)));
-    }
-    // Between two rib tips the membrane's edge dips toward the root, like cloth held by its ribs.
-    const dips = tips.slice(0, -1).map((tip, i) => {
-      const mid = tip.clone().add(tips[i + 1]).multiplyScalar(0.5 * 0.93);
-      mid.z = curl(mid.x);
-      return mid;
-    });
-
-    const root = new Vector3(0, 0, 0);
-    const membrane: Vector3[] = [];
-    const edge: Vector3[] = [root];
-    for (let i = 0; i < RIBS - 1; i++) {
-      membrane.push(root, tips[i], dips[i], root, dips[i], tips[i + 1]);
-      edge.push(tips[i], dips[i]);
-    }
-    edge.push(tips[RIBS - 1]);
-    const paneGeo = new BufferGeometry().setFromPoints(membrane);
-    paneGeo.computeVertexNormals();
-    const edgeGeo = new BufferGeometry().setFromPoints(edge);
-    // Each rib bows a little on its way out, so the fan is not a set of rulers.
-    const veinGeos = tips.map((tip) =>
-      new BufferGeometry().setFromPoints(
-        Array.from({ length: 11 }, (_, k) => {
-          const t = k / 10;
-          const x = tip.x * t;
-          return new Vector3(x, tip.y * t + 0.05 * Math.sin(Math.PI * t), curl(x));
-        }),
-      ),
-    );
-
-    this.wingGlass = new MeshPhysicalMaterial({
-      color: tokenColor(src, "--ink-hi"),
-      metalness: 0,
-      roughness: 0.08,
+    // The wings: ribbed glass. Light passes through and is bent and split by
+    // the ribbing, which is where the sparkle comes from. They hang from the
+    // scene, not from the spin, so they face the viewer while the body turns.
+    const sailGeo = new BufferGeometry();
+    sailGeo.setAttribute("position", new BufferAttribute(sailPositions(), 3));
+    sailGeo.computeVertexNormals();
+    const spineGeo = new BufferGeometry();
+    spineGeo.setAttribute("position", new BufferAttribute(spinePositions(), 3));
+    spineGeo.computeVertexNormals();
+    const debug = options.debug ?? "";
+    // Glass against a dark field is seen almost entirely by what it reflects,
+    // so the default glass reflects and lets the field show through, without
+    // bending it. Bending light through it (transmission) redraws the whole
+    // scene every frame and measured several times slower; it stays behind a
+    // switch for comparison.
+    const glass = debug.includes("t")
+      ? new MeshPhysicalMaterial({
+          color: cool,
+          metalness: 0,
+          roughness: 0.04,
+          transmission: 1,
+          thickness: 0.3,
+          ior: 1.5,
+          dispersion: 5,
+          iridescence: 0.7,
+          iridescenceIOR: 1.3,
+          clearcoat: 1,
+          envMapIntensity: 2.4,
+          side: DoubleSide,
+        })
+      : new MeshPhysicalMaterial({
+          // Only what the glass reflects is drawn, added as light over the
+          // field: a dark reflection adds nothing, so the field shows through
+          // clean, and a bright one is a glint. Lit like a mirror with a thin
+          // film on it, which is where the colours along the ribs come from.
+          color: cool,
+          metalness: 1,
+          roughness: 0.07,
+          iridescence: 1,
+          iridescenceIOR: 1.7,
+          iridescenceThicknessMinimum: 180,
+          iridescenceThicknessMaximum: 620,
+          envMapIntensity: 1.2,
+          transparent: true,
+          opacity: 0.62,
+          blending: AdditiveBlending,
+          depthWrite: false,
+          side: DoubleSide,
+        });
+    // The ball joint each wing grows from.
+    const jointGeo = new SphereGeometry(R * 0.11, 20, 14);
+    const jointGold = new MeshPhysicalMaterial({
+      color: tokenColor(src, "--lab-gold"),
+      metalness: 1,
+      roughness: 0.16,
+      envMapIntensity: 1.8,
       clearcoat: 1,
-      iridescence: 1,
-      iridescenceIOR: 1.3,
-      transparent: true,
-      opacity: 0.3,
-      side: DoubleSide,
-      depthWrite: false,
-      envMapIntensity: 1.6,
+      clearcoatRoughness: 0.06,
     });
-    this.wingLines = new LineBasicMaterial({ color: warm, transparent: true, opacity: 0.7, toneMapped: false });
-    this.disposables.push(paneGeo, edgeGeo, ...veinGeos, this.wingGlass, this.wingLines);
+    this.disposables.push(sailGeo, spineGeo, glass, jointGeo, jointGold);
 
     for (const side of [1, -1]) {
       const pivot = new Group();
-      pivot.position.set(side * R * 0.9, R * 0.3, 0);
-      pivot.scale.set(side * WING_SCALE, WING_SCALE, WING_SCALE);
-      pivot.add(new Mesh(paneGeo, this.wingGlass), new LineLoop(edgeGeo, this.wingLines));
-      for (const g of veinGeos) pivot.add(new Line(g, this.wingLines));
-      this.wings.add(pivot);
+      pivot.position.set(side * R * 0.96, R * 0.22, 0.05);
+      pivot.add(new Mesh(sailGeo, glass), new Mesh(spineGeo, glass));
+      const joint = new Mesh(jointGeo, jointGold);
+      joint.position.copy(pivot.position);
+      this.wings.add(pivot, joint);
       this.wingPivots.push(pivot);
+      this.wingJoints.push(joint);
     }
     this.scene.add(this.wings);
 
@@ -277,7 +368,7 @@ export class SphereScene {
         uLens: { value: 1 },
         uBg: { value: tokenDisplayRgb(src, "--bg-dark") },
         uInk: { value: tokenDisplayRgb(src, "--ink-hi") },
-        uWarm: { value: tokenDisplayRgb(src, "--lab-light") },
+        uWarm: { value: light },
       },
     });
     const fieldMesh = new Mesh(quad, this.field);
@@ -297,7 +388,7 @@ export class SphereScene {
         uCenter: { value: new Vector2(0.5, 0.5) },
         uReveal: { value: 0 },
         uBg: { value: tokenDisplayRgb(src, "--bg-dark-2") },
-        uWarm: { value: tokenDisplayRgb(src, "--lab-light") },
+        uWarm: { value: light },
         uCaps: { value: CAP_TOKENS.map((t) => tokenDisplayRgb(src, t)) },
       },
     });
@@ -306,6 +397,27 @@ export class SphereScene {
     insideMesh.renderOrder = 10;
     this.scene.add(insideMesh);
     this.disposables.push(this.field, this.inside);
+
+    // Scene, then bloom on what is brighter than white, then the finish.
+    const lite = options.lite === true && !debug.includes("f"); // "f" forces full quality
+    if (lite) this.resolution = 0.7;
+    const buffer = new WebGLRenderTarget(1, 1, {
+      type: HalfFloatType,
+      samples: lite || debug.includes("m") ? 0 : 4,
+    });
+    this.composer = new EffectComposer(this.renderer, buffer);
+    this.composer.setPixelRatio(this.basePixelRatio);
+    this.composer.addPass(new RenderPass(this.scene, this.camera));
+    this.bloom = new UnrealBloomPass(new Vector2(1, 1), 0.42, 0.45, 1.0);
+    this.bloom.enabled = !lite && !debug.includes("b");
+    this.composer.addPass(this.bloom);
+    const finish = new ShaderPass({
+      uniforms: { tDiffuse: { value: null } },
+      vertexShader: FINAL_VERT,
+      fragmentShader: FINAL_FRAG,
+    });
+    this.composer.addPass(finish);
+    this.disposables.push(buffer, this.bloom, finish);
 
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(canvas);
@@ -320,6 +432,13 @@ export class SphereScene {
     }
 
     this.resize();
+    this.schedule();
+  }
+
+  /** Stops or restarts drawing; used while the page behind carries the waves. */
+  setActive(on: boolean): void {
+    if (on === this.active) return;
+    this.active = on;
     this.schedule();
   }
 
@@ -340,17 +459,19 @@ export class SphereScene {
     document.removeEventListener("visibilitychange", this.schedule);
     window.removeEventListener("pointermove", this.onPointer);
     for (const d of this.disposables) d.dispose();
+    this.composer.dispose();
     this.renderer.dispose();
   }
 
   private readonly onPointer = (e: PointerEvent): void => {
+    this.hasPointer = true;
     this.pointer.set((e.clientX / window.innerWidth) * 2 - 1, -((e.clientY / window.innerHeight) * 2 - 1));
   };
 
   /** Runs the loop only while there is something to see. */
   private readonly schedule = (): void => {
     if (this.disposed || this.raf) return;
-    if (document.hidden || !this.inView) return;
+    if (document.hidden || !this.inView || !this.active) return;
     this.raf = requestAnimationFrame(this.frame);
   };
 
@@ -358,7 +479,11 @@ export class SphereScene {
     const w = this.canvas.clientWidth;
     const h = this.canvas.clientHeight;
     if (!w || !h) return;
+    const ratio = this.basePixelRatio * this.resolution;
+    this.renderer.setPixelRatio(ratio);
     this.renderer.setSize(w, h, false);
+    this.composer.setPixelRatio(ratio);
+    this.composer.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.field.uniforms.uAspect.value = w / h;
@@ -370,14 +495,17 @@ export class SphereScene {
     this.raf = 0;
     if (this.disposed) return;
     const dt = this.last ? Math.min(0.05, (now - this.last) / 1000) : 0;
+    // Back after a pause (scrolled away, tab hidden): the waves went on being
+    // drawn elsewhere on the shared clock, so pick them up where they are.
+    if (this.last && now - this.last > 250) this.time = waveTimeNow();
     this.last = now;
     this.render(dt);
 
     this.frames++;
     if (now - this.statsSince >= 500) {
       const fps = this.statsSince ? Math.round((this.frames * 1000) / (now - this.statsSince)) : 0;
-      this.adaptResolution(fps);
-      this.options.onStats?.({ fps, dpr: this.renderer.getPixelRatio() });
+      this.adaptQuality(fps);
+      this.options.onStats?.({ fps, dpr: this.renderer.getPixelRatio(), bloom: this.bloom.enabled });
       this.frames = 0;
       this.statsSince = now;
     }
@@ -395,40 +523,55 @@ export class SphereScene {
   };
 
   /**
-   * Quality is chosen by measurement, not by guessing the device: after 1.5 s
-   * under 40 fps the canvas renders at a lower resolution, down to 55%. It
-   * never steps back up, so it cannot oscillate.
+   * Quality is chosen by measurement, not by guessing the device. After 1.5 s
+   * under 40 fps the canvas renders at a lower resolution, down to 55%; if it
+   * is still slow there, the bloom goes too. It never steps back up, so it
+   * cannot oscillate.
    */
-  private adaptResolution(fps: number): void {
-    if (!fps || fps >= 40 || this.resolution <= 0.55) {
+  private adaptQuality(fps: number): void {
+    if (!fps || fps >= 40 || this.options.debug?.includes("a")) {
       this.slowSamples = 0;
       return;
     }
     if (++this.slowSamples < 3) return;
     this.slowSamples = 0;
-    this.resolution = Math.max(0.55, this.resolution - 0.15);
-    this.renderer.setPixelRatio(this.basePixelRatio * this.resolution);
-    this.resize();
+    if (this.resolution > 0.55) {
+      this.resolution = Math.max(0.55, this.resolution - 0.15);
+      this.resize();
+    } else {
+      this.bloom.enabled = false;
+    }
   }
 
   private render(dt: number): void {
     const reduced = this.options.reducedMotion;
 
     // A little weight on the way to the scroll position. Scroll itself is never altered.
-    this.shown = reduced ? 0 : this.shown + (this.target - this.shown) * Math.min(1, dt * 9);
+    const follow = this.target < this.shown ? FOLLOW_BACK : FOLLOW_FORWARD;
+    this.shown = reduced ? 0 : this.shown + (this.target - this.shown) * Math.min(1, dt * follow);
     const s = sphereState(this.shown);
+    // The wings fold into the body first; only then do the segments part.
+    const fold = smoothstep(0, 0.34, s.open);
+    const part = smoothstep(0.26, 1, s.open);
 
     const reversing = performance.now() - this.lastScrollBack < REVERSE_HOLD_MS;
-    this.direction += ((reversing ? -1 : 1) - this.direction) * Math.min(1, dt * 6);
-    const step = dt * this.direction;
+    this.direction += ((reversing ? -1 : 1) - this.direction) * Math.min(1, dt * 4);
+    const step = dt * (this.direction < 0 ? this.direction * REVERSE_PACE : this.direction);
     this.time += step;
+    publishWaveTime(this.time);
 
-    this.precess.rotation.y += step * PRECESS_SPEED * (1 - s.open);
-    this.tilt.rotation.z = TILT * (1 - s.open);
-    this.spin.rotation.y += step * SPIN_SPEED * (1 - 0.82 * s.open);
+    // The flight in: from far off to the right, easing to rest, with a sway that dies out.
+    this.arrived = Math.min(1, this.arrived + dt / ARRIVE_SECONDS);
+    const away = Math.pow(1 - this.arrived, 3);
+    this.body.position.copy(ARRIVE_FROM).multiplyScalar(away);
+    this.body.position.y += Math.sin(this.arrived * 9) * 0.9 * away;
+
+    this.precess.rotation.y += step * PRECESS_SPEED * (1 - part);
+    this.tilt.rotation.z = TILT * (1 - part);
+    this.spin.rotation.y += step * SPIN_SPEED * (1 - 0.82 * part);
 
     for (let i = 0; i < SEGMENTS; i++) {
-      this.hinges[i].rotation.z = clamp01(s.open * 1.2 - i * 0.04) * OPEN_MAX;
+      this.hinges[i].rotation.z = clamp01(part * 1.2 - i * 0.04) * OPEN_MAX;
     }
 
     this.core.material.uniforms.uOpacity.value = 0.55 + 0.45 * s.glow;
@@ -436,29 +579,45 @@ export class SphereScene {
     this.halo.material.uniforms.uOpacity.value = 0.3 * s.glow;
     this.coreLight.intensity = 2.5 * s.glow;
 
-    // The wings ride with the sphere, beat slowly, and lift away as it opens.
+    // The wings ride with the body, beat, and draw back into it as it opens.
     this.core.getWorldPosition(this.wings.position);
-    // On a tall screen the wings are held higher, so their span fits the width.
-    const tall = this.camera.aspect < 1 ? 0.38 : 0;
-    const raise = WING_REST + tall + WING_BEAT * Math.sin(this.time * WING_RATE) + 0.75 * s.open;
+    const tall = this.camera.aspect < 1 ? WING_TALL : 0;
+    const hurry = 1 + 2.5 * away; // they work harder while it is still flying in
+    const raise =
+      WING_REST +
+      tall +
+      WING_BEAT * Math.sin(this.time * WING_BEAT_RATE * hurry) +
+      WING_FLUTTER * Math.sin(this.time * WING_FLUTTER_RATE);
+    const out = 1 - fold;
     for (let i = 0; i < this.wingPivots.length; i++) {
       const side = i === 0 ? 1 : -1;
-      this.wingPivots[i].rotation.set(0, side * WING_SWEEP, side * raise);
+      const pivot = this.wingPivots[i];
+      pivot.rotation.set(0, side * WING_SWEEP, side * raise);
+      pivot.scale.set(side * out, out, out);
+      pivot.visible = out > 0.02;
+      // The joint belongs to the closed body; it goes once the segments part.
+      this.wingJoints[i].visible = part < 0.02;
     }
-    const present = 1 - s.open;
-    this.wingGlass.opacity = 0.3 * present;
-    this.wingLines.opacity = 0.7 * present;
-    this.wings.visible = present > 0.01;
 
     const aspect = this.camera.aspect;
     const portrait = aspect < 1;
-    const restZ = portrait ? 18 : 12;
-    const lift = (portrait ? -1.2 : -0.95) * (1 - s.dive);
+    const restZ = portrait ? 21 : 14.6;
+    const lift = (portrait ? -0.6 : -0.45) * (1 - s.dive);
     this.pointerShown.lerp(this.pointer, Math.min(1, dt * 3));
     const calm = 1 - s.dive;
+
+    // The pointer moves two things: its own light, and the whole studio the
+    // gold and glass reflect, which turns a little with it. Together the
+    // reflections follow the hand.
+    if (this.hasPointer) {
+      this.pointerLight.position.set(this.pointerShown.x * 7, lift + this.pointerShown.y * 4.5, 5.5);
+      this.pointerLight.intensity = 60 * calm;
+      this.scene.environmentRotation.set(-this.pointerShown.y * 0.55, this.pointerShown.x * 0.95, 0);
+    }
+
     this.camera.position.set(
-      this.pointerShown.x * 0.35 * calm,
-      lift + this.pointerShown.y * 0.2 * calm,
+      this.pointerShown.x * 0.4 * calm,
+      lift + this.pointerShown.y * 0.25 * calm,
       restZ + (2.3 - restZ) * s.dive,
     );
     this.camera.lookAt(0, lift, 0);
@@ -476,13 +635,13 @@ export class SphereScene {
     f.uTime.value = this.time;
     f.uCenter.value.set(cx, cy);
     f.uLensR.value = radius * 1.34;
-    f.uLens.value = 1 - s.open;
+    f.uLens.value = 1 - part;
 
     const n = this.inside.uniforms;
     n.uTime.value = this.time;
     n.uCenter.value.set(cx, cy);
     n.uReveal.value = s.reveal;
 
-    this.renderer.render(this.scene, this.camera);
+    this.composer.render();
   }
 }

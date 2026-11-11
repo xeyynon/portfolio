@@ -1,0 +1,382 @@
+/* kindofui's world: a page of small working tiles. The world sets its own
+   colours and texture on the page; the fonts, the chrome and the order of the
+   facts stay the site's. Outside the samples one colour has one job: periwinkle
+   is "switched on" in the mosaic and "chosen" in the controls. Each sample
+   style below brings its own small palette, used only inside its panel, and
+   every pair of text and ground in it clears 4.5:1. */
+.world {
+  --ui-bg: #0C0D12;
+  --ui-grid: #171923;
+  --tile: #161821;
+  --tile-line: #2A2D3A;
+  --switched: #8FB8FF;
+  --world-bg: var(--ui-bg);
+  --world-accent: var(--switched);
+
+  /* Flat */
+  --flat-stage: #141B26;
+  --flat-surface: #1E2A3A;
+  --flat-ink: #FFFFFF;
+  --flat-muted: #B8C4D6;
+  --flat-accent: #2F6BE0;
+  --flat-on-accent: #FFFFFF;
+  --flat-off: #5A6A80;
+
+  /* Glass, faked: a translucent fill and a light edge, no blur */
+  --glass-a: #3B2A6B;
+  --glass-b: #0F4C5C;
+  --glass-pane-fill: rgba(255, 255, 255, 0.08);
+  --glass-pane-edge: rgba(255, 255, 255, 0.32);
+  --glass-ink: #FFFFFF;
+  --glass-soft-ink: #DCDFEA;
+  --glass-accent: rgba(255, 255, 255, 0.92);
+  --glass-on-accent: #1B1430;
+  --glass-off: rgba(255, 255, 255, 0.3);
+
+  /* Neo-brutalist */
+  --brut-stage: #F5F1E8;
+  --brut-surface: #FFE45C;
+  --brut-ink: #111111;
+  --brut-muted: #3A3A3A;
+  --brut-accent: #FF6B9A;
+  --brut-off: #FFFFFF;
+
+  /* Soft */
+  --soft-surface: #2A2D34;
+  --soft-light: #383C46;
+  --soft-dark: #1A1C21;
+  --soft-ink: #F0F0F3;
+  --soft-muted: #BFC3CC;
+  --soft-accent: #9FD3C7;
+
+  /* small tiles, faint, behind the whole page */
+  background-color: var(--ui-bg);
+  background-image:
+    linear-gradient(var(--ui-grid) 2px, transparent 2px),
+    linear-gradient(90deg, var(--ui-grid) 2px, transparent 2px);
+  background-size: 40px 40px;
+}
+
+/* The mosaic */
+.mosaic {
+  margin: 0;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--tile-line);
+  border-radius: 16px;
+  background: var(--ui-bg);
+}
+@media (max-width: 560px) {
+  .canvas {
+    aspect-ratio: 4 / 3;
+  }
+}
+.caption {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.schematic {
+  margin: 0;
+  max-width: 80ch;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  color: var(--glass-muted);
+}
+.captionText {
+  margin: 0;
+  max-width: 62ch;
+  font-size: clamp(15px, 1.7vw, 18px);
+  line-height: 1.6;
+  color: var(--ink-hi);
+}
+.counts {
+  display: grid;
+  /* six counts: three by two, or two by three on a phone, never five and an orphan */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.counts li {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--tile-line);
+  border-radius: 10px;
+  background: var(--tile);
+}
+.count {
+  font-family: var(--font-mono), monospace;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-hi);
+}
+.countLabel {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--glass-muted);
+}
+
+/* One panel, four styles */
+.sampler {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pick {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--tile-line);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+.pick[aria-pressed="true"] {
+  border-color: var(--switched);
+  box-shadow: inset 0 -2px 0 var(--switched);
+}
+.pick:focus-visible {
+  outline: 2px solid var(--switched);
+  outline-offset: 2px;
+}
+
+/* Each style sets the same few names; the panel only reads those names. */
+.stage[data-style="flat"] {
+  --s-stage: var(--flat-stage);
+  --s-surface: var(--flat-surface);
+  --s-ink: var(--flat-ink);
+  --s-muted: var(--flat-muted);
+  --s-accent: var(--flat-accent);
+  --s-on-accent: var(--flat-on-accent);
+  --s-off: var(--flat-off);
+  --s-edge: transparent;
+  --s-focus: var(--flat-ink);
+  --s-radius: 6px;
+  --s-shadow: none;
+  --s-button-shadow: none;
+  --s-border: 0px;
+}
+.stage[data-style="glass"] {
+  --s-stage: linear-gradient(135deg, var(--glass-a), var(--glass-b));
+  --s-surface: var(--glass-pane-fill);
+  --s-ink: var(--glass-ink);
+  --s-muted: var(--glass-soft-ink);
+  --s-accent: var(--glass-accent);
+  --s-on-accent: var(--glass-on-accent);
+  --s-off: var(--glass-off);
+  --s-edge: var(--glass-pane-edge);
+  --s-focus: var(--glass-ink);
+  --s-radius: 18px;
+  --s-shadow: inset 0 1px 0 var(--glass-pane-edge);
+  --s-button-shadow: none;
+  --s-border: 1px;
+}
+.stage[data-style="brutalist"] {
+  --s-stage: var(--brut-stage);
+  --s-surface: var(--brut-surface);
+  --s-ink: var(--brut-ink);
+  --s-muted: var(--brut-muted);
+  --s-accent: var(--brut-accent);
+  --s-on-accent: var(--brut-ink);
+  --s-off: var(--brut-off);
+  --s-edge: var(--brut-ink);
+  --s-focus: var(--brut-ink);
+  --s-radius: 0px;
+  --s-shadow: 6px 6px 0 var(--brut-ink);
+  --s-button-shadow: 3px 3px 0 var(--brut-ink);
+  --s-border: 3px;
+}
+.stage[data-style="soft"] {
+  --s-stage: var(--soft-surface);
+  --s-surface: var(--soft-surface);
+  --s-ink: var(--soft-ink);
+  --s-muted: var(--soft-muted);
+  --s-accent: var(--soft-surface);
+  --s-on-accent: var(--soft-accent);
+  --s-off: var(--soft-dark);
+  --s-edge: transparent;
+  --s-focus: var(--soft-accent);
+  --s-radius: 22px;
+  --s-shadow: -8px -8px 16px var(--soft-light), 8px 8px 16px var(--soft-dark);
+  --s-button-shadow: -3px -3px 6px var(--soft-light), 3px 3px 6px var(--soft-dark);
+  --s-border: 0px;
+}
+
+.stage {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  padding: clamp(24px, 6vw, 56px) clamp(16px, 4vw, 40px);
+  border: 1px solid var(--tile-line);
+  border-radius: 16px;
+  background: var(--s-stage);
+}
+.panel {
+  display: grid;
+  gap: 8px;
+  width: min(360px, 100%);
+  min-width: 0;
+  padding: 22px;
+  border: var(--s-border) solid var(--s-edge);
+  border-radius: var(--s-radius);
+  background: var(--s-surface);
+  box-shadow: var(--s-shadow);
+  color: var(--s-ink);
+  transition:
+    border-radius 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
+}
+.panelKicker {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--s-muted);
+}
+.panelTitle {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--s-ink);
+}
+.panelText {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--s-muted);
+}
+.panelRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.switch,
+.primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+}
+.switch {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--s-ink);
+}
+.switchTrack {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  border: var(--s-border) solid var(--s-edge);
+  border-radius: calc(var(--s-radius) + 11px);
+  background: var(--s-off);
+  box-shadow: var(--s-button-shadow);
+}
+.switchKnob {
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--s-ink);
+  transform: translateY(-50%);
+  transition: left 0.2s ease;
+}
+.switch[aria-pressed="true"] .switchTrack {
+  background: var(--s-accent);
+}
+.switch[aria-pressed="true"] .switchKnob {
+  left: calc(100% - 17px - 2 * var(--s-border));
+}
+/* Glass's accent is near white, and soft's accent is the surface itself, so
+   their switches carry the colour the other way round. */
+.stage[data-style="glass"] .switch[aria-pressed="true"] .switchKnob {
+  background: var(--glass-on-accent);
+}
+.stage[data-style="soft"] .switch[aria-pressed="true"] .switchTrack {
+  background: var(--soft-accent);
+}
+.stage[data-style="soft"] .switch[aria-pressed="true"] .switchKnob {
+  background: var(--soft-surface);
+}
+.primary {
+  padding: 8px 18px;
+  border: var(--s-border) solid var(--s-edge);
+  border-radius: var(--s-radius);
+  background: var(--s-accent);
+  box-shadow: var(--s-button-shadow);
+  color: var(--s-on-accent);
+  font-weight: 600;
+}
+.primary:active {
+  transform: translate(1px, 1px);
+}
+.switch:focus-visible,
+.primary:focus-visible {
+  outline: 2px solid var(--s-focus);
+  outline-offset: 3px;
+}
+@media (pointer: coarse) {
+  .pick,
+  .switch,
+  .primary {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .switchKnob {
+    transition: none;
+  }
+  .primary:active {
+    transform: none;
+  }
+}
+.styleNote {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--glass-muted);
+}
+.styleName {
+  font-weight: 600;
+  color: var(--ink-hi);
+}
+
+@media (max-width: 480px) {
+  .counts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

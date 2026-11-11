@@ -1,0 +1,261 @@
+/* The water node's world: still water. The world sets its own colours and
+   texture on the page; the fonts, the chrome and the order of the facts stay
+   the site's. Each colour has one job here: teal is a reading, on the air or
+   on the plot, and orange is the node. The three readings share the teal and
+   are told apart by their line: solid, dashed, dotted. */
+.world {
+  --water: #061012;
+  --water-line: #12282B;
+  --signal: #62D8C5;
+  --node: #F29A4A;
+  --world-bg: var(--water);
+  --world-accent: var(--signal);
+  /* level lines, faint, behind the whole page */
+  background-color: var(--water);
+  background-image: repeating-linear-gradient(0deg, transparent 0 63px, var(--water-line) 63px 64px);
+}
+
+.figure {
+  margin: 0;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--water-line);
+  border-radius: 16px;
+  background: var(--water);
+}
+@media (max-width: 560px) {
+  .canvas {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+.caption {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.caption p {
+  margin: 0;
+}
+.note {
+  max-width: 68ch;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  color: var(--glass-muted);
+}
+.lead {
+  max-width: 62ch;
+  font-size: clamp(15px, 1.7vw, 18px);
+  line-height: 1.6;
+  color: var(--ink-hi);
+}
+
+/* Which ring is which reading, in words. The line sample only repeats the word. */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-hi);
+}
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.ring {
+  flex: none;
+  width: 36px;
+  height: 8px;
+}
+.ring line {
+  stroke: var(--signal);
+  stroke-width: 2;
+}
+.ring line[data-reading="tds"] {
+  stroke-dasharray: 8 5;
+}
+.ring line[data-reading="temperature"] {
+  stroke-dasharray: 2 5;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px dashed var(--water-line);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+.button:hover {
+  border-color: var(--signal);
+}
+.button:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .button {
+    min-height: 44px;
+  }
+}
+/* Pausing means nothing when nothing moves. */
+@media (prefers-reduced-motion: reduce) {
+  .motionOnly {
+    display: none;
+  }
+}
+
+/* One reading, from sensor to radio */
+.path {
+  display: grid;
+  gap: 28px;
+  min-width: 0;
+}
+.stages {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stage {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--water-line);
+  border-radius: 12px;
+  background: var(--bg-dark);
+}
+/* the way on to the next stage */
+.stage:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 28px;
+  transform: translateY(-50%);
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  color: var(--glass-muted);
+}
+@media (max-width: 700px) {
+  .stages {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .stage:not(:last-child)::after {
+    content: "↓";
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 28px;
+    line-height: 28px;
+    transform: none;
+  }
+}
+.stageNum {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--signal);
+}
+.stageName {
+  font-family: var(--font-display), sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  color: var(--ink-hi);
+}
+.stageDoes {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--glass-muted);
+}
+
+.plot {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 640px;
+  border: 1px solid var(--water-line);
+  border-radius: 16px;
+  background: var(--water);
+}
+.plotAxis {
+  stroke: var(--water-line);
+  stroke-width: 1;
+}
+.sample {
+  fill: var(--glass-muted);
+}
+.mean {
+  stroke: var(--signal);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+/* A new set draws in: the ten dots in turn, then the line through them. */
+.fresh .sample {
+  animation: sampleIn 240ms ease-out both;
+}
+.fresh .sample:nth-child(2) { animation-delay: 80ms; }
+.fresh .sample:nth-child(3) { animation-delay: 160ms; }
+.fresh .sample:nth-child(4) { animation-delay: 240ms; }
+.fresh .sample:nth-child(5) { animation-delay: 320ms; }
+.fresh .sample:nth-child(6) { animation-delay: 400ms; }
+.fresh .sample:nth-child(7) { animation-delay: 480ms; }
+.fresh .sample:nth-child(8) { animation-delay: 560ms; }
+.fresh .sample:nth-child(9) { animation-delay: 640ms; }
+.fresh .sample:nth-child(10) { animation-delay: 720ms; }
+.fresh .mean {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: meanIn 420ms 960ms ease-out both;
+}
+@keyframes sampleIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes meanIn {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fresh .sample,
+  .fresh .mean {
+    animation: none;
+  }
+}

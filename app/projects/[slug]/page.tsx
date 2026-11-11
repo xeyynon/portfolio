@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { capabilityColor, projectLabel, projects } from "@/data/portfolioData";
+import { capabilityColor, hasPage, projectLabel, projects } from "@/data/portfolioData";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -16,7 +16,8 @@ import { SHOW_PROJECT_PAGES } from "@/lib/flags";
 const ProjectPrismRay = dynamic(() => import("@/components/ProjectPrismRay"));
 
 export function generateStaticParams() {
-  return projects.map((p) => ({ slug: p.slug }));
+  // A project without an open page (PAGELESS_PROJECTS) is not built, and answers "not found".
+  return projects.filter((p) => hasPage(p.slug)).map((p) => ({ slug: p.slug }));
 }
 
 // Tab title "TARANG · Surya Pratik" via the root layout's title template.
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   const project = projects.find((p) => p.slug === resolvedParams.slug);
-  if (!project) return notFound();
+  if (!project || !hasPage(project.slug)) return notFound();
 
   const i = projects.findIndex((p) => p.slug === resolvedParams.slug);
   const prev = projects[i - 1];

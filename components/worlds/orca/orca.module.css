@@ -1,0 +1,206 @@
+/* ORCA's world: orbit. Black, with thin lines. The world sets its own colours
+   and texture on the page; the fonts, the chrome and the order of the facts
+   stay the site's. Each colour has one job here: pale blue is an object in
+   the catalog, coral is a possible close approach. */
+.world {
+  --space: #04050A;
+  --space-line: #1A2233;
+  --globe: #090D17;
+  --object: #A9BAD8;
+  --approach: #FF7A59;
+  --world-bg: var(--space);
+  --world-accent: var(--approach);
+  /* orbit tracks, faint, behind the whole page */
+  background-color: var(--space);
+  background-image: repeating-radial-gradient(
+    circle at 50% -240px,
+    transparent 0,
+    transparent 219px,
+    var(--space-line) 219px,
+    var(--space-line) 220px
+  );
+}
+
+.figure {
+  margin: 0;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--space-line);
+  border-radius: 16px;
+  background: var(--space);
+}
+@media (max-width: 560px) {
+  .canvas {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+.caption {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.schematic {
+  margin: 0;
+  max-width: 76ch;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  color: var(--glass-muted);
+}
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.step,
+.replay {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--space-line);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+.stepNum {
+  font-variant-numeric: tabular-nums;
+  color: var(--glass-muted);
+}
+.step[data-done="true"] .stepNum,
+.step[aria-pressed="true"] .stepNum {
+  color: var(--approach);
+}
+.step[aria-pressed="true"] {
+  border-color: var(--approach);
+}
+.replay {
+  border-style: dashed;
+}
+.replay:disabled {
+  cursor: default;
+  color: var(--glass-muted);
+}
+.step:focus-visible,
+.replay:focus-visible {
+  outline: 2px solid var(--approach);
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .step,
+  .replay {
+    min-height: 44px;
+  }
+}
+.stepText {
+  margin: 0;
+  min-height: 3.2em;
+  max-width: 62ch;
+  font-size: clamp(15px, 1.7vw, 18px);
+  line-height: 1.6;
+  color: var(--ink-hi);
+}
+.stepText p {
+  margin: 0;
+}
+.tally {
+  padding-top: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--glass-muted);
+}
+
+/* What the two colours mean, in words. */
+.key {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--glass-muted);
+}
+.key li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+.keyObject,
+.keyApproach {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.keyObject {
+  background: var(--object);
+}
+.keyApproach {
+  border: 2px solid var(--approach);
+}
+
+/* Narrowing the search: the KD-tree picture */
+.field {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  border: 1px solid var(--space-line);
+  border-radius: 16px;
+  background: var(--space);
+}
+.cut {
+  stroke: var(--glass-muted);
+  stroke-opacity: 0.4;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.opened {
+  fill: var(--approach);
+  fill-opacity: 0.14;
+  stroke: var(--approach);
+  stroke-opacity: 0.7;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.reach {
+  fill: none;
+  stroke: var(--approach);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  vector-effect: non-scaling-stroke;
+}
+.dot {
+  fill: var(--object);
+}
+.dot[data-state="out"] {
+  fill-opacity: 0.4;
+}
+.dot[data-state="in"] {
+  fill: var(--approach);
+}
+.dot[data-state="self"] {
+  fill: var(--ink-hi);
+  stroke: var(--approach);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}

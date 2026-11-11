@@ -1,0 +1,100 @@
+.mark {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.stopLight {
+  stop-color: var(--home-light);
+}
+.stopGold {
+  stop-color: var(--home-gold);
+}
+.stopShade {
+  stop-color: var(--bg-dark);
+}
+
+.relief {
+  fill: none;
+  stroke: var(--bg-dark);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  opacity: 0.45;
+}
+.joint {
+  fill: var(--home-gold);
+}
+
+/* Glass: almost nothing of its own, a bright edge, fine ribs. */
+.sail {
+  fill: var(--home-light);
+  fill-opacity: 0.12;
+}
+.rib {
+  stroke: var(--home-light);
+  stroke-width: 0.5;
+  stroke-opacity: 0.7;
+  stroke-linecap: round;
+}
+.spine {
+  fill: none;
+  stroke: var(--ink-hi);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.hollow {
+  fill: var(--bg-dark);
+}
+.light {
+  fill: var(--home-light);
+  opacity: 0;
+  transition: opacity 500ms ease 150ms;
+}
+
+/* Each wing turns about its joint. The left one is the right one mirrored,
+   so one rule beats both. */
+.wing {
+  transform-box: view-box;
+  transform-origin: 72px 30px;
+}
+.lid {
+  transform-box: view-box;
+  transform-origin: 47px 34px;
+  transition: transform 700ms cubic-bezier(0.3, 0, 0, 1);
+}
+.mark[data-open="true"] .lid {
+  transform: rotate(-58deg);
+}
+.mark[data-open="true"] .light {
+  opacity: 1;
+}
+/* Open, it has landed: the wings rest, held a little higher. */
+.mark[data-open="true"] .wing {
+  transform: rotate(-10deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mark[data-open="false"] .wing {
+    animation: beat 190ms ease-in-out infinite alternate;
+  }
+  .mark[data-open="true"] .wing {
+    transition: transform 600ms ease;
+  }
+}
+@keyframes beat {
+  from {
+    transform: rotate(9deg);
+  }
+  to {
+    transform: rotate(-16deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lid,
+  .light {
+    transition: none;
+  }
+}

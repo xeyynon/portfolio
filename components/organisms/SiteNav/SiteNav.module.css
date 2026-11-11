@@ -61,6 +61,12 @@
   }
 }
 
+/* The six stones sit beside the mark, pushed left of the links. */
+.stones {
+  margin-right: auto;
+  padding-left: 8px;
+}
+
 /* Narrow screens: the mark and all six links on one row. */
 @media (max-width: 480px) {
   .bar {
@@ -75,5 +81,12 @@
     padding: 0 5px;
     font-size: 10px;
     letter-spacing: 0.04em;
+  }
+}
+
+/* No room for the stones in a phone's bar; they are in About me in full. */
+@media (max-width: 700px) {
+  .stones {
+    display: none;
   }
 }

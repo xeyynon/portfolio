@@ -133,3 +133,100 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* The strike: as an award comes into view, a bolt drops onto its mark and a
+   ring breaks out of it. Tied to scrolling, so it plays as you reach it and
+   runs back if you scroll back. Without scroll-driven animation, or with
+   reduced motion, the mark is simply there. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .node[data-kind="award"]::before,
+    .node[data-kind="award"]::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      pointer-events: none;
+      animation-timeline: view();
+      animation-range: entry 70% cover 45%;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+    }
+    /* the bolt, drawn straight down onto the mark (the mark is turned 45deg, so it is turned back) */
+    .node[data-kind="award"]::before {
+      width: 14px;
+      height: 64px;
+      background: var(--home-light);
+      clip-path: polygon(55% 0, 20% 48%, 52% 48%, 30% 100%, 85% 40%, 52% 40%, 80% 0);
+      /* its foot sits on the mark's centre, and it turns about that point */
+      top: auto;
+      bottom: 50%;
+      margin-left: -7px;
+      transform-origin: 50% 100%;
+      transform: rotate(-45deg);
+      animation-name: bolt;
+    }
+    /* the ring that breaks out where it lands */
+    .node[data-kind="award"]::after {
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--home-gold);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation-name: ring;
+    }
+  }
+}
+@keyframes bolt {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  45% {
+    opacity: 1;
+  }
+  70%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes ring {
+  0%,
+  42% {
+    opacity: 0;
+    scale: 0.6;
+  }
+  50% {
+    opacity: 1;
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 4;
+  }
+}
+
+/* A stop that opens: a small tab beside its date says so. */
+.openChip {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 1px 7px 1px 8px;
+  border: 1px solid var(--home-gold);
+  border-radius: 5px 5px 5px 0;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--home-gold);
+  vertical-align: 1px;
+  transition: background 200ms ease, color 200ms ease, translate 200ms ease;
+}
+button:hover .openChip,
+button:focus-visible .openChip {
+  background: var(--home-gold);
+  color: var(--bg-dark);
+  translate: 2px -2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .openChip {
+    transition: none;
+  }
+}

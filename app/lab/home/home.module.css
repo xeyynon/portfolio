@@ -1,10 +1,16 @@
-/* The redesigned home page. The two colours below are the sphere's: its gold
-   and its light. They are new and live here while the redesign is under /lab;
-   they move to the site tokens when it replaces the home page. */
+/* The redesigned home page. Its two colours of its own, the Snitch's gold and
+   light, are set for every redesigned page in app/lab/chrome.css. */
 .home {
-  --home-gold: #D8A94A;
-  --home-light: #FFE7B3;
+  /* its own stacking context, so the waves drawn at z-index -1 sit above this ground */
+  isolation: isolate;
   background: var(--bg-dark-2);
   color: var(--ink-hi);
   font-family: var(--font-sans), sans-serif;
+}
+
+/* About to Projects: no ground of their own, so the waves drawn behind the
+   page (AmbientWaves) show through them. The page's own ground is the same
+   colour, so nothing else changes. */
+.waveZone > section {
+  background: transparent;
 }

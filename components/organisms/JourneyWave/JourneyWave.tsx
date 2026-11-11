@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import StoryCard from "@/components/organisms/StoryCard/StoryCard";
 import type { JourneyPoint } from "@/data/portfolioData";
 import { ROW, wavePath, xFor } from "./wave";
 import styles from "./JourneyWave.module.css";
@@ -18,7 +19,16 @@ const KIND_LABEL: Record<NonNullable<JourneyPoint["kind"]>, string> = {
  * line and are never written out (owner, 2026-11-11). The order can be
  * reversed, which is the one control the section has.
  */
-export default function JourneyWave({ points }: { points: JourneyPoint[] }) {
+/** What a stop that opens holds: its card's title and contents. */
+export type Story = { title: string; content: ReactNode };
+
+export default function JourneyWave({
+  points,
+  stories = {},
+}: {
+  points: JourneyPoint[];
+  stories?: Partial<Record<NonNullable<JourneyPoint["story"]>, Story>>;
+}) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(220);
   const [latestFirst, setLatestFirst] = useState(false);
@@ -71,11 +81,34 @@ export default function JourneyWave({ points }: { points: JourneyPoint[] }) {
           {ordered.map((p, i) =>
             p.label ? (
               <li key={p.label} className={styles.item} data-kind={p.kind}>
-                <span className={styles.when}>
-                  {p.when}
-                  {p.kind && <span className={styles.kind}> · {KIND_LABEL[p.kind]}</span>}
-                </span>
-                <span className={styles.label}>{p.label}</span>
+                {!(p.story && stories[p.story]) && (
+                  <span className={styles.when}>
+                    {p.when}
+                    {p.kind && <span className={styles.kind}> · {KIND_LABEL[p.kind]}</span>}
+                  </span>
+                )}
+                {p.story && stories[p.story] ? (
+                  <StoryCard
+                    trigger={
+                      <>
+                        <span className={styles.when}>
+                          {p.when}
+                          {p.kind && <span className={styles.kind}> · {KIND_LABEL[p.kind]}</span>}
+                          <span className={styles.openChip} aria-hidden="true">
+                            Open
+                          </span>
+                        </span>
+                        <span className={styles.label}>{p.label}</span>
+                      </>
+                    }
+                    title={stories[p.story]!.title}
+                    when={p.when}
+                  >
+                    {stories[p.story]!.content}
+                  </StoryCard>
+                ) : (
+                  <span className={styles.label}>{p.label}</span>
+                )}
               </li>
             ) : (
               // A low: the row is kept so the curve has room to swing, and says nothing.

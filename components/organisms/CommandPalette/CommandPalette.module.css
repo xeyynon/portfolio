@@ -1,0 +1,173 @@
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 1px solid var(--line-dark);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--glass-muted);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.trigger:hover {
+  color: var(--ink-hi);
+  border-color: var(--home-gold);
+}
+.trigger:focus-visible,
+.close:focus-visible {
+  outline: 2px solid var(--home-gold);
+  outline-offset: 2px;
+}
+.key {
+  padding: 1px 5px;
+  border: 1px solid var(--line-dark);
+  border-radius: 4px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: var(--glass-muted);
+}
+@media (pointer: coarse) {
+  .trigger,
+  .close {
+    min-height: 44px;
+  }
+  /* A phone has no Ctrl K to show. */
+  .trigger .key {
+    display: none;
+  }
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  justify-items: center;
+  align-items: start;
+  padding: 12vh 16px 16px;
+  /* a solid veil in the page's own colour, not a blur */
+  background: color-mix(in srgb, var(--bg-dark) 82%, transparent);
+}
+.dialog {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(620px, 100%);
+  max-height: min(560px, 76vh);
+  border: 1px solid var(--line-dark);
+  border-radius: 16px;
+  background: var(--bg-dark-2);
+  color: var(--ink-hi);
+  overflow: hidden;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-bottom: 1px solid var(--line-dark);
+}
+.box {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line-dark);
+  border-radius: 10px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-sans), sans-serif;
+  font-size: 16px;
+}
+.box::placeholder {
+  color: var(--glass-muted);
+}
+.box:focus-visible {
+  outline: 2px solid var(--home-gold);
+  outline-offset: 1px;
+}
+.close {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 4px 10px;
+  border: 1px solid var(--line-dark);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.list {
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  overflow-y: auto;
+}
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.option[aria-selected="true"] {
+  background: var(--bg-dark);
+  outline: 1px solid var(--home-gold);
+}
+.optionLabel {
+  min-width: 0;
+  font-size: 15px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.optionGroup {
+  flex: none;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--glass-muted);
+}
+.none {
+  padding: 16px 12px;
+  font-size: 14px;
+  color: var(--glass-muted);
+}
+.status {
+  min-height: 0;
+  margin: 0;
+  padding: 0 16px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--home-gold);
+}
+.status:not(:empty) {
+  padding: 10px 16px;
+  border-top: 1px solid var(--line-dark);
+}
+
+/* On a phone the bar has no room for the word; the glass alone says it. */
+@media (max-width: 560px) {
+  .word,
+  .trigger .key {
+    display: none;
+  }
+  .trigger {
+    min-width: 44px;
+    justify-content: center;
+  }
+}

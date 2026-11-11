@@ -5,6 +5,8 @@
   --lab-gold: #D8A94A;
   --lab-light: #FFE7B3;
   --p: 0;
+  /* how far past the hand-off to the waves behind the page (AmbientWaves) */
+  --out: 0;
   position: relative;
   background: var(--bg-dark);
   color: var(--ink-hi);
@@ -38,6 +40,15 @@
 }
 .lab[data-ready="true"] .canvas {
   opacity: 1;
+}
+/* The hand-off: the waves are now drawn behind the page, in the same place,
+   so the opening lets go of its ground and its picture and they show through. */
+.lab[data-handoff="true"] {
+  background: transparent;
+}
+.lab[data-handoff="true"] .canvas {
+  visibility: hidden;
+  transition: none;
 }
 
 /* What is on screen before the scene has drawn, and for good if it cannot:
@@ -114,6 +125,63 @@
   opacity: clamp(0, calc((var(--p) - 0.86) / 0.1), 1);
   pointer-events: none;
 }
+/* The names of the six waves. They exist only while the scene is running
+   (there are no waves otherwise) and arrive as the inside covers the screen
+   (timeline.ts, BREAKS.reveal). Each sits on a solid chip, so no name is read
+   against a moving line. */
+.legend {
+  display: none;
+}
+.lab[data-live="true"] .legend {
+  display: block;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* and leave again past the hand-off, as the waves go quiet */
+  opacity: calc(clamp(0, calc((var(--p) - 0.74) / 0.12), 1) * (1 - var(--out)));
+}
+.legendTitle {
+  position: absolute;
+  right: clamp(16px, 5vw, 48px);
+  top: 76px;
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--glass-muted);
+}
+.legendList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* On the right: on the left the six still run as one line. */
+.legendItem {
+  position: absolute;
+  right: clamp(16px, 5vw, 48px);
+  /* the six waves are 11.5% of the height apart, centred on the middle */
+  top: calc(50% - (var(--row) - 2.5) * 11.5%);
+  translate: 0 -50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  /* The same glass as the cards (no blur), a little more solid here: it
+     sits right on the bright branches, and the name must stay readable. */
+  border: 1px solid color-mix(in srgb, var(--ink-hi) 9%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--ink-hi) 5%, transparent), transparent 50%),
+    color-mix(in srgb, var(--bg-dark-2) 72%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink-hi) 9%, transparent);
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(14px, 1.6vw, 18px);
+  font-weight: 600;
+  color: var(--ink-hi);
+  white-space: nowrap;
+}
+
 /* Readings for judging the prototype. Not part of the design. */
 .hud {
   position: absolute;

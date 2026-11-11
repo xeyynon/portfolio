@@ -33,7 +33,10 @@ export const personalInfo = {
   },
   contact: {
     email: "pratiksurya1207@gmail.com",
+    /** Removed (owner, 2026-11-12): the resume link is not to appear anywhere, history included. */
     resume: "",
+    /** Off for the time being (owner, 2026-11-12): no page links the resume while false. */
+    showResume: false,
     github: { handle: "xeyynon", url: "https://github.com/xeyynon" },
     linkedin: { handle: "suryapratik", url: "https://www.linkedin.com/in/suryapratik/" },
   },
@@ -46,6 +49,8 @@ export type ExperienceHighlight = {
   summary: string;
   /** The full description, one click away behind "Details". */
   text: string;
+  /** Which line drawing stands beside it (components/molecules/Blueprint). */
+  sketch?: "caller" | "hr-app" | "sorter" | "drops";
 };
 
 export type Experience = {
@@ -68,23 +73,27 @@ export const experience: Experience = {
   highlights: [
     {
       lead: "Multilingual voice AI caller (Raspberry Pi)",
+      sketch: "caller",
       summary: "Answers phone calls in Telugu, Hindi and English, replying in 1.2 to 2.5 s with no cloud telephony.",
       text: "Built a phone agent that answers calls over Bluetooth HFP with no cloud telephony, tested in Telugu, Hindi and English. Replies in 1.2 to 2.5 s on real calls through a streaming Sarvam Saaras STT → Gemini 2.5 Flash → Google TTS pipeline, chosen after evaluating 6 STT, 4 LLM and 4 TTS options."
     },
     {
       lead: "HR mobile app (Flutter, Android)",
+      sketch: "hr-app",
       summary: "Put a desktop-only HR portal on employees' phones: 4 releases in 4 days, 401 automated tests.",
       text: "Put a desktop-only HR portal with no API on employees' phones: attendance, leave, payslips and claims. Piloted with 8 to 10 employees; shipped 4 releases in 4 days with 401 automated tests and CI. PAN, Aadhaar and bank data stay masked until a biometric check."
     },
     {
       lead: "GARBAE AI waste-sorting bin (v3.0)",
+      sketch: "sorter",
       summary: "Sorts waste fully offline on a Raspberry Pi; classification cut from ~14.6 s to ~2 s per item.",
       text: "Moved inference and servo control from ESP32-S3 + cloud onto a Raspberry Pi 4B that sorts fully offline, deployed in a corporate cafeteria. Cut classification from ~14.6 s to ~2 s per item and raised balanced accuracy from 45.8% to 71.5% by benchmarking models on real captures."
     },
     {
       lead: "Droptor (eye-drop adherence device)",
-      summary: "50 working units built and validated in one week with the team; 1st place at GLAUCOPAT 2026.",
-      text: "With the team, built and validated 50 working units in one week for the Glaucoma Society of India conference (GLAUCOPAT 2026), where it won 1st place in the product exhibition."
+      sketch: "drops",
+      summary: "50 working units built and validated in one week with the team; 1st and 2nd place at GLAUCOPAT 2026.",
+      text: "With the team, built and validated 50 working units in one week for the Glaucoma Society of India conference (GLAUCOPAT 2026), where the team won both 1st and 2nd place in the product exhibition."
     }
   ],
 };
@@ -116,6 +125,9 @@ export type Project = {
   /** Key numbers for the case study's Results tiles, each already stated in
    *  the project's own text (no new facts). */
   metrics?: { value: string; label: string }[];
+  /** What it does not do, stated plainly. Only where the project's own
+   *  notes say so; shown on the designed project page. */
+  limits?: string[];
   /** "What I'd do differently", only where the owner's notes give one. */
   nextTime?: string;
   links?: {
@@ -143,7 +155,9 @@ const projectEntries: Omit<Project, "color">[] = [
     stack: [],
     skills: ["AI / ML", "Web & Backend", "Cloud & DevOps", "Languages"],
     metrics: [],
+    limits: [],
     nextTime: "",
+    // live link removed (owner, 2026-11-12): not to appear anywhere, history included
     links: {}
   },
   {
@@ -161,6 +175,7 @@ const projectEntries: Omit<Project, "color">[] = [
     stack: [],
     skills: ["Web & Backend", "Cloud & DevOps", "Languages"],
     metrics: [],
+    // live link removed (owner, 2026-11-12): not to appear anywhere, history included
     links: {}
   },
   {
@@ -435,6 +450,35 @@ const projectEntries: Omit<Project, "color">[] = [
 ];
 
 /**
+ * The three of them, in one photo (owner, 2026-11-11: "a common photo where
+ * we all are three"). The photo is blurred until a person in it is pointed
+ * at; then a clear circle opens round them and their name and link appear.
+ *
+ * `at` is where each person is in the photo, as a percentage across and down.
+ * The photo has not been supplied yet, so `photo` is absent, three plain
+ * figures stand in for it, and the positions and the left-to-right order
+ * below are placeholders to be set from the real picture.
+ */
+export type TogetherPerson = { name: string; linkedin?: string; at: [number, number] };
+
+export type Together = {
+  /** Path under /public. Absent until the owner supplies it. */
+  photo?: string;
+  caption: string;
+  people: TogetherPerson[];
+};
+
+export const together: Together = {
+  caption: "Point at someone to bring them into focus.",
+  people: [
+    { name: "Abhinav", linkedin: "https://www.linkedin.com/in/abhinav-pentani/", at: [25, 40] },
+    { name: "Surya", linkedin: personalInfo.contact.linkedin.url, at: [50, 40] },
+    { name: "Saif", linkedin: "https://www.linkedin.com/in/shaik-saifuddin-482947272/", at: [75, 40] },
+  ],
+};
+
+
+/**
  * The journey, as a wave. `level` (-1 to +1) only shapes the curve: the owner
  * asked that the lows set the shape and are never written out (2026-11-11),
  * so a point with no `label` is drawn as curve only. Labelled points are
@@ -445,6 +489,8 @@ export type JourneyPoint = {
   when?: string;
   label?: string;
   kind?: "start" | "role" | "award" | "build";
+  /** A stop that opens into its own card (components/sections/JourneySection lists what each holds). */
+  story?: "vectr" | "vit-ap";
 };
 
 export const journey: JourneyPoint[] = [
@@ -452,19 +498,22 @@ export const journey: JourneyPoint[] = [
   { level: -0.75 },
   { level: 0.15, when: "2022", label: "First program: a hospital management system, in Class 12", kind: "build" },
   { level: -0.6 },
-  { level: 0.1, when: "Sep 2023", label: "VIT-AP University, B.Tech in Computer Science", kind: "start" },
-  { level: 0.3, when: "Sep 2023", label: "Co-founded Vectr, a student-ecosystem startup", kind: "role" },
+  { level: 0.1, when: "Sep 2023", label: "VIT-AP University, B.Tech in Computer Science", kind: "start", story: "vit-ap" },
+  { level: 0.3, when: "Sep 2023", label: "Co-founded Vectr, a student-ecosystem startup", kind: "role", story: "vectr" },
   { level: 0.35, when: "Dec 2023", label: "Joined the Microsoft Student Chapter", kind: "role" },
   { level: 0.5, when: "2024", label: "Semi Finalist, Smart India Hackathon 2024, with Vectr", kind: "award" },
   { level: 0.85, when: "2024", label: "Li-Fi: Best Contemporary Project among 1,000+ teams", kind: "award" },
   { level: 0.6, when: "Jul 2024", label: "Club Manager, Microsoft Student Chapter", kind: "role" },
+  // Owner, 2026-11-12: placed 17th; "17th" is not in the resume sources yet and should be added there.
+  { level: 0.65, when: "Mar 2025", label: "NEC '24: Top 20 (17th), Basic Track, E-Cell IIT Bombay", kind: "award" },
   { level: 0.7, when: "Jul 2025", label: "President, Microsoft Student Chapter", kind: "role" },
   { level: 0.9, when: "Fall 2025", label: "Best Student Chapter, as President", kind: "award" },
   { level: 0.2, when: "2025", label: "EcoX: Semi Finalist, Smart India Hackathon 2025", kind: "award" },
   { level: 0.4, when: "2026", label: "FlowIQ: 98/100 in Round 1, RADIOTHON 2026", kind: "award" },
   { level: 0.75, when: "Jul 2026", label: "Internship at Alfaleus Technologies, Hyderabad", kind: "role" },
   { level: 0.8, when: "2026", label: "TARANG and DHARA, for Smart India Hackathon 2026", kind: "build" },
-  { level: 0.95, when: "Oct 2026", label: "Droptor: 1st Place, Product Exhibition, GLAUCOPAT 2026", kind: "award" },
+  { level: 0.95, when: "Oct 2026", label: "Droptor: 1st and 2nd Place, Product Exhibition, GLAUCOPAT 2026", kind: "award" },
+  // Owner, 2026-11-12: both 1st and 2nd place; the resume says 1st only and should be updated.
   { level: 0.85, when: "Nov 2026", label: "IsoCode Knitwear, Dukaan Dost and kindofui", kind: "build" },
 ];
 
@@ -556,7 +605,7 @@ export type Achievement = {
 // ("Qualified for the Semi-Final Round" under "Semi Finalist") were dropped.
 export const achievements: Achievement[] = [
   {
-    title: "1st Place, Product Exhibition",
+    title: "1st and 2nd Place, Product Exhibition",
     event: "GLAUCOPAT 2026",
     year: "2026",
     sub: "Droptor eye-drop adherence device · Glaucoma Society of India",
@@ -585,7 +634,7 @@ export const achievements: Achievement[] = [
     slug: "ecox-industrial-safety"
   },
   {
-    title: "Top 20, Basic Track",
+    title: "Top 20, Basic Track (17th)",
     event: "NEC '24, E-Cell IIT Bombay",
     year: "2025",
     sub: "National Entrepreneurship Challenge"
@@ -621,6 +670,14 @@ export function capabilityColor(label: string): string {
   if (!group) throw new Error(`Unknown capability "${label}": add it to skills or fix the project's skills list.`);
   return group.color;
 }
+
+/**
+ * Projects listed everywhere as usual, whose own page is not open yet (owner,
+ * 2026-11-12: the SIH 2026 pair). Their tiles and links stay; following one
+ * lands on "not found". Bringing a page back is deleting its slug here.
+ */
+export const PAGELESS_PROJECTS: readonly string[] = ["tarang", "dhara"];
+export const hasPage = (slug: string) => !PAGELESS_PROJECTS.includes(slug);
 
 export const projects: Project[] = projectEntries.map((p) => ({
   ...p,

@@ -264,7 +264,7 @@ export default function Home() {
               {/* Each way to reach out is a link tile that shows the actual
                   detail (address, handle), not a bare "EMAIL" button. */}
               <ul className="bento contact-bento">
-                <li className="span-4 md-6 sm-12">
+                <li className={personalInfo.contact.showResume ? "span-4 md-6 sm-12" : "span-8 md-12 sm-12"}>
                   <div className="tile contact-tile">
                     <span className="tile-label">Email</span>
                     <a className="contact-value contact-link" href="mailto:pratiksurya1207@gmail.com">
@@ -273,10 +273,11 @@ export default function Home() {
                     <CopyEmail email="pratiksurya1207@gmail.com" />
                   </div>
                 </li>
+                {personalInfo.contact.showResume && (
                 <li className="span-4 md-6 sm-12">
                   <a
                     className="tile tile-link contact-tile"
-                    href=""
+                    href={personalInfo.contact.resume}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -284,6 +285,7 @@ export default function Home() {
                     <span className="contact-value">View resume ↗</span>
                   </a>
                 </li>
+                )}
                 <li className="span-2 md-6 sm-6">
                   <a className="tile tile-link contact-tile" href="https://github.com/xeyynon" target="_blank" rel="noopener noreferrer">
                     <span className="tile-label">GitHub</span>

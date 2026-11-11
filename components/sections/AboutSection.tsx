@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { personalInfo, skills } from "@/data/portfolioData";
-import CapDot from "@/components/atoms/CapDot";
 import Eyebrow from "@/components/atoms/Eyebrow";
+import { AreaGem } from "@/components/molecules/AreaGems";
 import FactTile from "@/components/molecules/FactTile";
 import SectionHead from "@/components/molecules/SectionHead";
 import Tile from "@/components/molecules/Tile";
@@ -47,12 +47,13 @@ export default function AboutSection() {
         <ul className={styles.grid} aria-labelledby="about-areas">
           <li className={styles.subhead}>
             <Eyebrow as="h3" id="about-areas">Six areas, one colour each</Eyebrow>
+            <p className={styles.areasHint}>Each has a stone. Open a project and the stones of its areas light up.</p>
           </li>
           {skills.map((area) => (
             <li key={area.label} className={styles.c4}>
               <Tile>
                 <h4 className={styles.capName}>
-                  <CapDot color={area.color} />
+                  <AreaGem area={{ label: area.label, color: area.color }} />
                   {area.label}
                 </h4>
                 <ul className={styles.capItems}>

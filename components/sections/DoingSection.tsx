@@ -1,5 +1,6 @@
 import { experience } from "@/data/portfolioData";
 import SectionHead from "@/components/molecules/SectionHead";
+import Blueprint from "@/components/molecules/Blueprint";
 import Tile from "@/components/molecules/Tile";
 import styles from "./sections.module.css";
 
@@ -31,6 +32,7 @@ export default function DoingSection() {
           {experience.highlights.map((h) => (
             <li key={h.lead} className={styles.c6}>
               <Tile>
+                {h.sketch && <Blueprint sketch={h.sketch} />}
                 <h3 className={styles.workTitle}>{h.lead}</h3>
                 <p className={styles.workText}>{h.summary}</p>
                 <details className={styles.more}>

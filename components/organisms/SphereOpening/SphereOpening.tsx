@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import Gem from "@/components/atoms/Gem";
 import type { SphereScene, SphereStats } from "@/scene/sphere/SphereScene";
 import { stickyProgress } from "@/scene/sphere/timeline";
 import styles from "./SphereOpening.module.css";
@@ -9,6 +10,11 @@ type Props = {
   name: string;
   motto: string;
   mottoBy: string;
+  /**
+   * The six areas of work. What the Snitch opens onto is six waves, one in
+   * each area's colour; with this they are named, each by its own stone.
+   */
+  areas?: { label: string; color: string }[];
   /** Frame rate and resolution in the corner, for judging the prototype. */
   showReadings?: boolean;
   /** Laid over the stage once the sphere has opened (the lab uses it). */
@@ -24,7 +30,7 @@ type Status = "loading" | "running" | "still" | "unavailable";
  * CSS poster stands in for it. The tall scroll track exists only while the
  * scene is running, so content below is never held behind the show.
  */
-export default function SphereOpening({ name, motto, mottoBy, showReadings = false, children }: Props) {
+export default function SphereOpening({ name, motto, mottoBy, areas, showReadings = false, children }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState<Status>("loading");
@@ -45,12 +51,20 @@ export default function SphereOpening({ name, motto, mottoBy, showReadings = fal
       const p = stickyProgress(rect.top, rect.height, window.innerHeight);
       root.style.setProperty("--p", p.toFixed(4));
       scene?.setProgress(p);
+      // Past the hand-off the waves are drawn behind the page: rest the scene.
+      scene?.setActive(root.dataset.handoff !== "true");
     };
 
     import("@/scene/sphere/SphereScene")
       .then(({ SphereScene }) => {
         if (cancelled) return;
-        scene = new SphereScene(canvas, { tokenSource: root, reducedMotion, coarsePointer, onStats: setStats });
+        // ?q= carries the scene's measuring switches (see SphereOptions.debug).
+        const debug = new URLSearchParams(window.location.search).get("q") ?? "";
+        // A browser drawing WebGL without a real GPU says so when asked for a
+        // context that must not have a major performance caveat.
+        const probe = document.createElement("canvas");
+        const lite = !probe.getContext("webgl2", { failIfMajorPerformanceCaveat: true });
+        scene = new SphereScene(canvas, { tokenSource: root, reducedMotion, coarsePointer, onStats: setStats, debug, lite });
         setStatus(reducedMotion ? "still" : "running");
         if (!reducedMotion) {
           root.dataset.live = "true";
@@ -76,7 +90,7 @@ export default function SphereOpening({ name, motto, mottoBy, showReadings = fal
   }, []);
 
   return (
-    <div className={styles.lab} ref={rootRef}>
+    <div className={styles.lab} ref={rootRef} data-opening>
       <div className={styles.stage}>
         <div className={styles.poster} aria-hidden="true" />
         <canvas className={styles.canvas} ref={canvasRef} aria-hidden="true" />
@@ -90,12 +104,30 @@ export default function SphereOpening({ name, motto, mottoBy, showReadings = fal
           {status === "running" && <p className={styles.hint}>Scroll to open</p>}
         </div>
 
+        {areas && (
+          <div className={styles.legend}>
+            <p className={styles.legendTitle}>Six areas of work, one branch each</p>
+            <ul className={styles.legendList} data-stone-from>
+              {areas.map((area, i) => (
+                // --row places the name on its own branch, at the right where the
+                // branches have parted: the scene draws the first area lowest
+                // and the last highest (shaders.ts, INSIDE_FRAG).
+                <li key={area.label} className={styles.legendItem} style={{ "--row": i } as CSSProperties}>
+                  <Gem color={area.color} />
+                  {area.label}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {showReadings && (
           <p className={styles.hud} aria-hidden="true">
             {status === "loading" && "loading scene"}
             {status === "unavailable" && "3D unavailable · still image"}
             {status === "still" && "reduced motion · still frame"}
-            {status === "running" && (stats ? `${stats.fps} fps · dpr ${stats.dpr.toFixed(2)}` : "starting")}
+            {status === "running" &&
+              (stats ? `${stats.fps} fps · dpr ${stats.dpr.toFixed(2)} · bloom ${stats.bloom ? "on" : "off"}` : "starting")}
           </p>
         )}
       </div>

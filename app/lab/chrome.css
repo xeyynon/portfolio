@@ -1,0 +1,26 @@
+/* The redesigned pages are being built inside the current site's layout, which
+   wraps every page in the old header, rail and intro. While it lives under
+   /lab, this hides them on these pages only, so they can be judged with their own
+   bar. It goes away when the redesign replaces the layout. Scoped by :has(),
+   so no other page is touched. */
+body:has([data-redesign]) .nav,
+body:has([data-redesign]) .rail,
+body:has([data-redesign]) .intro-overlay {
+  display: none;
+}
+
+/* The redesign's own colours: the Snitch's gold and its light. They live here
+   while the redesign is under /lab and move to the site tokens when it
+   replaces the current pages. */
+[data-redesign] {
+  --home-gold: #D8A94A;
+  --home-light: #FFE7B3;
+  /* the gauntlet's gold, from the recess to the shine */
+  --gilt-edge: #2A1904;
+  --gilt-deep: #5E3D0C;
+  --gilt-mid: #A87322;
+  --gilt-hi: #FFE2A1;
+  /* the not-found page's pruning: a hot amber and its glow, used nowhere else */
+  --prune-hot: #FF8A3D;
+  --prune-glow: #FFC98A;
+}
