@@ -28,8 +28,9 @@
 }
 /* a little larger, so the blur has no soft edge inside the frame */
 .blurred {
-  filter: blur(14px);
-  scale: 1.1;
+  /* soft enough to hide the faces, light enough to see the place and the three */
+  filter: blur(6px);
+  scale: 1.05;
 }
 /* A clear copy of the picture for each person, seen only through a circle
    that opens round them. */

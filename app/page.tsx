@@ -3,6 +3,7 @@ import SiteNav, { type NavItem } from "@/components/organisms/SiteNav/SiteNav";
 import SphereOpening from "@/components/organisms/SphereOpening/SphereOpening";
 import AboutSection from "@/components/sections/AboutSection";
 import AmbientWaves from "@/components/organisms/AmbientWaves/AmbientWaves";
+import HashLanding from "@/components/organisms/HashLanding/HashLanding";
 import SnitchFlight from "@/components/organisms/SnitchFlight/SnitchFlight";
 import StoneFlight from "@/components/organisms/StoneFlight/StoneFlight";
 import ContactSection, {
@@ -64,6 +65,7 @@ export default function HomePage() {
       </main>
       <SnitchFlight openingSelector="[data-opening]" landingId={LANDING_ID} />
       <StoneFlight openingSelector="[data-opening]" />
+      <HashLanding />
     </div>
   );
 }
