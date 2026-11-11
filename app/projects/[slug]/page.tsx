@@ -15,22 +15,25 @@ import { SHOW_PROJECT_PAGES } from "@/lib/flags";
 // anything until the browser is idle regardless of how it's imported.
 const ProjectPrismRay = dynamic(() => import("@/components/ProjectPrismRay"));
 
+// Projects listed on the home page whose own page is closed: they answer "not found".
+const CLOSED = ["tarang", "dhara"];
+
 export function generateStaticParams() {
-  return projects.map((p) => ({ slug: p.slug }));
+  return projects.filter((p) => !CLOSED.includes(p.slug)).map((p) => ({ slug: p.slug }));
 }
 
 // Tab title "TARANG · Surya Pratik" via the root layout's title template.
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const project = projects.find((p) => p.slug === slug);
-  if (!project) return {};
+  if (!project || CLOSED.includes(project.slug)) return {};
   return { title: project.title, description: project.subtitle ?? project.description };
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   const project = projects.find((p) => p.slug === resolvedParams.slug);
-  if (!project) return notFound();
+  if (!project || CLOSED.includes(project.slug)) return notFound();
 
   const i = projects.findIndex((p) => p.slug === resolvedParams.slug);
   const prev = projects[i - 1];
