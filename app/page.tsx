@@ -7,6 +7,7 @@ import LeadershipTimeline from "@/components/LeadershipTimeline";
 import WavelengthChips from "@/components/WavelengthChips";
 import ProjectsSection from "@/components/ProjectsSection";
 import CopyEmail from "@/components/CopyEmail";
+import PaperGun from "@/components/paper-gun/PaperGun";
 
 
 export default function Home() {
@@ -153,6 +154,14 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="scene-gap" aria-hidden="true" />
+
+          {/* The paper gun: a playful way in to the work, right before the
+              calm list of it. Slips link to the same project pages. */}
+          <div className="scene-panel scene-overlay pg-panel">
+            <PaperGun />
           </div>
 
           <div className="scene-gap" aria-hidden="true" />
