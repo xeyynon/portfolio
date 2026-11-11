@@ -1,0 +1,157 @@
+.plot {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line-dark);
+  border-radius: 16px;
+  background: var(--bg-dark);
+}
+
+.axis {
+  stroke: var(--line-dark);
+  stroke-width: 1;
+}
+.bound {
+  stroke: var(--glass-muted);
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+  opacity: 0.6;
+}
+.asymptote {
+  stroke: var(--home-gold);
+  stroke-width: 1;
+  stroke-dasharray: 6 6;
+  opacity: 0.7;
+}
+.sine {
+  fill: none;
+  stroke: var(--ink-hi);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.tangent {
+  fill: none;
+  stroke: var(--home-gold);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.cursor {
+  stroke: var(--ink-hi);
+  stroke-width: 1;
+  opacity: 0.35;
+}
+.onSine {
+  fill: var(--ink-hi);
+  stroke: var(--bg-dark);
+  stroke-width: 2;
+}
+.onTangent {
+  fill: var(--home-gold);
+  stroke: var(--bg-dark);
+  stroke-width: 2;
+}
+.label {
+  fill: var(--glass-muted);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+}
+
+.controls {
+  display: grid;
+  gap: 10px;
+}
+.sliderLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--glass-muted);
+}
+.slider {
+  width: 100%;
+  height: 28px;
+  accent-color: var(--home-gold);
+}
+.slider:focus-visible {
+  outline: 2px solid var(--home-gold);
+  outline-offset: 4px;
+}
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.preset {
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 1px solid var(--line-dark);
+  border-radius: 8px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.preset[aria-pressed="true"] {
+  border-color: var(--home-gold);
+  color: var(--home-gold);
+}
+.preset:focus-visible {
+  outline: 2px solid var(--home-gold);
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .preset {
+    min-height: 44px;
+    padding-inline: 14px;
+  }
+  .slider {
+    height: 44px;
+  }
+}
+
+.readings {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+.reading {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line-dark);
+  border-radius: 12px;
+  background: var(--bg-dark);
+}
+.reading dt {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--glass-muted);
+}
+.reading dd {
+  margin: 4px 0 0;
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(15px, 2.2vw, 22px);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-hi);
+  overflow-wrap: anywhere;
+}
+.reading[data-curve="sine"] dd {
+  color: var(--ink-hi);
+}
+.reading[data-curve="tangent"] dd {
+  color: var(--home-gold);
+}
+@media (max-width: 560px) {
+  .readings {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

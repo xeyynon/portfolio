@@ -1,0 +1,10 @@
+/* The redesigned home page. The two colours below are the sphere's: its gold
+   and its light. They are new and live here while the redesign is under /lab;
+   they move to the site tokens when it replaces the home page. */
+.home {
+  --home-gold: #D8A94A;
+  --home-light: #FFE7B3;
+  background: var(--bg-dark-2);
+  color: var(--ink-hi);
+  font-family: var(--font-sans), sans-serif;
+}

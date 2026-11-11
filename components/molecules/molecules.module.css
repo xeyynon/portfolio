@@ -1,0 +1,76 @@
+/* Molecules: a few atoms that work together. */
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-bottom: 28px;
+}
+.headTitle {
+  margin: 6px 0 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(28px, 4.4vw, 44px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: var(--ink-hi);
+}
+.headAside {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--glass-muted);
+}
+
+/* A solid tile: text never sits on a moving background. */
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  height: 100%;
+  padding: 20px;
+  border: 1px solid var(--line-dark);
+  border-radius: 16px;
+  background: var(--bg-dark);
+  color: var(--ink-hi);
+}
+a.tile {
+  text-decoration: none;
+  transition: border-color 160ms ease, translate 160ms ease;
+}
+a.tile:hover {
+  border-color: var(--home-gold);
+}
+a.tile:focus-visible {
+  outline: 2px solid var(--home-gold);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  a.tile:hover {
+    translate: 0 -2px;
+  }
+}
+
+.fact {
+  justify-content: space-between;
+  min-height: 120px;
+}
+.factValue {
+  display: block;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(22px, 2.6vw, 30px);
+  font-weight: 600;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.factNote {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--glass-muted);
+}

@@ -19,7 +19,23 @@ export const personalInfo = {
   hometown: { city: "Bhilai", region: "Chhattisgarh, India" },
   availability: {
     headline: "Open to work",
-    detail: "AI/ML, software and Flutter internships. Can join immediately.",
+    detail: "AI/ML, software and Flutter internships.",
+  },
+  /** His father's sentence; credited to him on the page (owner, 2026-11-11). */
+  motto: { text: "Learn something new every day.", by: "my father" },
+  /** The owner's own idea, in the concise wording of his write-up
+   *  "The Sine-to-Tangent Philosophy". The note is his too: it is a metaphor. */
+  quote: {
+    text: "We spend our lives oscillating between \u22121 and +1, until one perfect angle changes our trajectory from oscillation to infinity.",
+    formula: "tan \u03B8 = sin \u03B8 / cos \u03B8",
+    reason: "As \u03B8 approaches 90\u00B0, sin \u03B8 approaches 1 and cos \u03B8 approaches 0, so their ratio grows without bound.",
+    note: "At exactly 90\u00B0 the tangent is undefined: infinity is approached, never reached. The mathematics is exact. The comparison with a life is a metaphor.",
+  },
+  contact: {
+    email: "pratiksurya1207@gmail.com",
+    resume: "",
+    github: { handle: "xeyynon", url: "https://github.com/xeyynon" },
+    linkedin: { handle: "suryapratik", url: "https://www.linkedin.com/in/suryapratik/" },
   },
 };
 
@@ -338,7 +354,118 @@ const projectEntries: Omit<Project, "color">[] = [
       { value: "10", label: "Samples averaged per reading" },
     ],
     links: { github: "https://github.com/xeyynon/Water-Monitoring-Hardware", demo: "/sources/PPTs/Water.pdf" }
+  },
+  // The three projects below were added on 2026-11-11 at the owner's request.
+  // Their facts come from each project's own README; they are not in the
+  // resume sources yet and should be added there.
+  {
+    slug: "isocode-knitwear",
+    category: "software",
+    num: "11",
+    title: "IsoCode Knitwear",
+    subtitle: "Order Tracking That Warns Before a Shipment Is Late",
+    short: "Knitwear",
+    pipeline: "floor count on a phone → run-rate projection → status with its sum → buyer link",
+    tag: "LIVE",
+    domain: "Operations, Offline-First Web Apps",
+    description: "Order tracking for a knitwear exporter that says, before it is too late, which orders will miss their ship date, and why. Supervisors send a daily count from a phone, in Tamil, even without a signal. A server works out for every order and stage whether it will ship on time and shows the reasoning. Built on demo data.",
+    highlights: [
+      "Every status colour comes with the sum behind it, for example: need 467 a day, making 350 a day",
+      "Supervisor screens are Tamil first and work offline: updates are saved on the phone and sent when it can, never counted twice",
+      "An order with no updates is grey, never green, and a rate based on little data is labelled an estimate",
+      "Buyers get a read-only page of only their own orders, and only what a merchandiser has confirmed",
+      "A supervisor's Tamil note gets an English meaning and a suggested reason with its confidence; the merchandiser decides",
+      "Row-level security is forced on every table"
+    ],
+    stack: ["TypeScript", "React 19", "PostgreSQL 16", "Row-level security", "GitHub Actions"],
+    skills: ["Web & Backend", "Cloud & DevOps", "AI / ML", "Languages"],
+    links: { live: "https://isocode-knitwear.vercel.app/", github: "https://github.com/xeyynon/IsoCode_Knitwear" }
+  },
+  {
+    slug: "dukaan-dost",
+    category: "software",
+    num: "12",
+    title: "Dukaan Dost",
+    subtitle: "A Voice Agent That Takes Phone Orders for a Kirana Store",
+    short: "Dukaan Dost",
+    pipeline: "caller → speech to text → order note → code does the money → speech",
+    tag: "VOICE AI",
+    domain: "Voice AI, Small Business",
+    description: "A voice agent for a neighbourhood kirana store. A customer calls and orders in Telugu, Hindi, English or Hinglish; the agent matches each item to the shop's stock list, confirms quantities and prices, reads back the total, keeps the shop's credit book and writes an order summary the shopkeeper sees on a dashboard. Built for Gnani.ai's Great Indian AI Internship Challenge on Gnani's speech models. All voices, shops and orders are synthetic.",
+    highlights: [
+      "The model never does the money: it only says which items and how many; code checks stock, rounds, totals and writes every sentence that states an amount",
+      "Callers can interrupt, and the agent remembers only what was actually heard",
+      "Scripted credit and loan calls: 8 of 8 exactly right, first audio 2.2 s at the median",
+      "Many shops, one agent, each with a PIN-protected dashboard",
+      "Took two real phone calls on a trial number; it is a demonstration line, not a production one"
+    ],
+    stack: ["Python", "Gnani Prisma (speech to text)", "Gnani Timbre (text to speech)", "WebSockets", "WebRTC VAD", "Docker"],
+    skills: ["AI / ML", "Web & Backend", "Languages"],
+    metrics: [
+      { value: "8 of 8", label: "Scripted credit and loan calls exactly right" },
+      { value: "2.2 s", label: "Median time to first audio" },
+      { value: "4", label: "Ways to speak: Telugu, Hindi, English, Hinglish" },
+    ],
+  },
+  {
+    slug: "kindofui",
+    category: "software",
+    num: "13",
+    title: "kindofui",
+    subtitle: "An Interface Reference Library You Can Touch",
+    short: "kindofui",
+    pipeline: "one page → 134 live examples → view code → paste",
+    tag: "LIVE",
+    domain: "UI and UX, Design Reference",
+    description: "134 live, clickable, copyable examples of how interfaces are designed, on one page. Every entry is alive: hover it, click it, drag it, type into it. Where a lesson is a comparison, both sides are on screen and both work.",
+    highlights: [
+      "38 visual styles, 18 layouts, 18 navigation patterns, 25 components and UX patterns, 5 AI patterns and 10 UX laws",
+      "Every entry has the same shape, so ten styles can be compared in the time one article takes",
+      "Each demo has a View code button with plain HTML, CSS and the little JavaScript it needs"
+    ],
+    stack: ["HTML", "CSS", "JavaScript"],
+    skills: ["Web & Backend", "Languages"],
+    metrics: [
+      { value: "134", label: "Live examples on one page" },
+      { value: "38", label: "Visual styles" },
+      { value: "10", label: "UX laws you can try" },
+    ],
+    links: { live: "https://kindofui.vercel.app/" }
   }
+];
+
+/**
+ * The journey, as a wave. `level` (-1 to +1) only shapes the curve: the owner
+ * asked that the lows set the shape and are never written out (2026-11-11),
+ * so a point with no `label` is drawn as curve only. Labelled points are
+ * facts already stated elsewhere in this file.
+ */
+export type JourneyPoint = {
+  level: number;
+  when?: string;
+  label?: string;
+  kind?: "start" | "role" | "award" | "build";
+};
+
+export const journey: JourneyPoint[] = [
+  { level: 0.55, when: "Bhilai", label: "Where it starts", kind: "start" },
+  { level: -0.75 },
+  { level: 0.15, when: "2022", label: "First program: a hospital management system, in Class 12", kind: "build" },
+  { level: -0.6 },
+  { level: 0.1, when: "Sep 2023", label: "VIT-AP University, B.Tech in Computer Science", kind: "start" },
+  { level: 0.3, when: "Sep 2023", label: "Co-founded Vectr, a student-ecosystem startup", kind: "role" },
+  { level: 0.35, when: "Dec 2023", label: "Joined the Microsoft Student Chapter", kind: "role" },
+  { level: 0.5, when: "2024", label: "Semi Finalist, Smart India Hackathon 2024, with Vectr", kind: "award" },
+  { level: 0.85, when: "2024", label: "Li-Fi: Best Contemporary Project among 1,000+ teams", kind: "award" },
+  { level: 0.6, when: "Jul 2024", label: "Club Manager, Microsoft Student Chapter", kind: "role" },
+  { level: 0.7, when: "Jul 2025", label: "President, Microsoft Student Chapter", kind: "role" },
+  { level: 0.9, when: "Fall 2025", label: "Best Student Chapter, as President", kind: "award" },
+  { level: 0.2, when: "2025", label: "EcoX: Semi Finalist, Smart India Hackathon 2025", kind: "award" },
+  { level: 0.4, when: "2026", label: "FlowIQ: 98/100 in Round 1, RADIOTHON 2026", kind: "award" },
+  { level: 0.75, when: "Jul 2026", label: "Internship at Alfaleus Technologies, Hyderabad", kind: "role" },
+  { level: 0.8, when: "2026", label: "TARANG and DHARA, for Smart India Hackathon 2026", kind: "build" },
+  { level: 0.95, when: "Oct 2026", label: "Droptor: 1st Place, Product Exhibition, GLAUCOPAT 2026", kind: "award" },
+  { level: 0.85, when: "Nov 2026", label: "IsoCode Knitwear, Dukaan Dost and kindofui", kind: "build" },
 ];
 
 export const leadershipOrg = "Microsoft Student Chapter, VIT-AP";

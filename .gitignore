@@ -56,3 +56,6 @@ CLAUDE.md
 
 # Claude Code local tooling config (not site code)
 .claude/
+
+# browser automation output
+.playwright-mcp/

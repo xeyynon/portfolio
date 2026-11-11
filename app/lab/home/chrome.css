@@ -1,0 +1,10 @@
+/* The redesigned home is being built inside the current site's layout, which
+   wraps every page in the old header, rail and intro. While it lives under
+   /lab, this hides them on this page only, so it can be judged with its own
+   bar. It goes away when the redesign replaces the layout. Scoped by :has(),
+   so no other page is touched. */
+body:has([data-redesign-home]) .nav,
+body:has([data-redesign-home]) .rail,
+body:has([data-redesign-home]) .intro-overlay {
+  display: none;
+}
