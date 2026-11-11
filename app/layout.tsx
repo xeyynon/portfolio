@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-import Rail from "@/components/ui/Rail";
-import Header from "@/components/ui/Header";
-import IntroSequence from "@/components/IntroSequence";
-import SmoothScroll from "@/components/SmoothScroll";
+import "./redesign.css";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -45,13 +42,8 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${inter.variable} ${ibmPlexMono.variable} antialiased`}
       >
-        <a href="#main" className="skip-link">Skip to content</a>
-        <SmoothScroll />
-        <IntroSequence>
-          <Rail />
-          <Header />
-          <main id="main">{children}</main>
-        </IntroSequence>
+        {/* Each page brings its own bar and landmarks (v3, 2026-11-12). */}
+        {children}
       </body>
     </html>
   );

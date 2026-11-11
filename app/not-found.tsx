@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import LostPage from "@/components/organisms/LostPage/LostPage";
-import "./lab/chrome.css";
 
 export const metadata: Metadata = {
   title: "Not found",

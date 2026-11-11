@@ -23,4 +23,4 @@ export type DesignedSlug = (typeof DESIGNED)[number];
 export const isDesigned = (slug: string): slug is DesignedSlug => (DESIGNED as readonly string[]).includes(slug);
 
 /** Where a project opens: its designed page if it has one, the shared template if not. */
-export const projectHref = (slug: string) => (isDesigned(slug) ? `/lab/projects/${slug}` : `/projects/${slug}`);
+export const projectHref = (slug: string) => `/projects/${slug}`;

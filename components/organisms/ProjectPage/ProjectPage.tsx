@@ -41,7 +41,7 @@ export default function ProjectPage({ project, world, backHref, prev, next }: Pr
         <span className={styles.level}>
           {project.num} of {String(projects.length).padStart(2, "0")} · {project.short}
         </span>
-        <CommandPalette commands={buildCommands("/lab/home")} />
+        <CommandPalette commands={buildCommands("/")} />
       </header>
 
       <div className={styles.wrap}>
