@@ -316,12 +316,13 @@ export class SphereScene {
           // film on it, which is where the colours along the ribs come from.
           color: cool,
           metalness: 1,
-          roughness: 0.07,
+          roughness: 0.05,
           iridescence: 1,
           iridescenceIOR: 1.7,
           iridescenceThicknessMinimum: 180,
           iridescenceThicknessMaximum: 620,
-          envMapIntensity: 1.2,
+          // brighter wings (owner, 2026-11-12): more of the studio in every rib
+          envMapIntensity: 1.75,
           transparent: true,
           opacity: 0.62,
           blending: AdditiveBlending,
