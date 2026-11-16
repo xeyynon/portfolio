@@ -3,7 +3,7 @@ import { AreaGem } from "@/components/molecules/AreaGems";
 import Tag from "@/components/atoms/Tag";
 import SectionHead from "@/components/molecules/SectionHead";
 import Tile from "@/components/molecules/Tile";
-import { projectHref } from "@/components/worlds/designed";
+import { isDesigned, projectHref } from "@/components/worlds/designed";
 import WorkWeb from "@/components/organisms/WorkWeb/WorkWeb";
 import styles from "./sections.module.css";
 
@@ -22,7 +22,7 @@ export default function ProjectsSection() {
         <ul className={styles.grid}>
           {projects.map((p, i) => (
             <li key={p.slug} className={i === 0 ? styles.c12 : styles.c4}>
-              <Tile href={projectHref(p.slug)}>
+              <Tile href={projectHref(p.slug)} prefetch={isDesigned(p.slug) ? undefined : false}>
                 <span className={styles.projectTop}>
                   <span className={styles.projectNum}>{p.num}</span>
                   <Tag>{p.tag}</Tag>

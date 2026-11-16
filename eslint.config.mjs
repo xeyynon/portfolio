@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Tooling installed into the repo, not project source.
     ".claude/**",
+    // Local copies of earlier versions (owner, 2026-11): not this project's source.
+    "improvisng website BACKUP/**",
+    "improvisng website LOCAL/**",
   ]),
 ]);
 

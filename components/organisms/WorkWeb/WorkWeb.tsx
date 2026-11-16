@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { projects, skills } from "@/data/portfolioData";
 import { AreaGem } from "@/components/molecules/AreaGems";
-import { projectHref } from "@/components/worlds/designed";
+import { isDesigned, projectHref } from "@/components/worlds/designed";
 import Gauntlet from "./Gauntlet";
 import GauntletStones from "./GauntletStones";
 import { SNAP_POINT } from "./hand";
@@ -57,6 +57,7 @@ export default function WorkWeb() {
                 ))}
                 <Link
                   href={projectHref(p.slug)}
+                  prefetch={isDesigned(p.slug) ? undefined : false}
                   className={styles.node}
                   aria-label={`${p.title}: ${p.skills.join(", ")}`}
                 >
@@ -110,7 +111,9 @@ export default function WorkWeb() {
         <p>
           Each thread joins a project to the stone of an area it uses, in that
           area&apos;s colour. A stone burns once you have opened a project that
-          uses it. Point at a project to follow its threads, or snap.
+          uses it. The stones are what I build with; the gold that holds them is
+          how I work with people. Point at a project to follow its threads, or
+          snap.
         </p>
       </figcaption>
     </figure>

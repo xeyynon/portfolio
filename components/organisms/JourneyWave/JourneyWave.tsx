@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import StoryCard from "@/components/organisms/StoryCard/StoryCard";
 import type { JourneyPoint } from "@/data/portfolioData";
 import { ROW, wavePath, xFor } from "./wave";
@@ -43,8 +50,18 @@ export default function JourneyWave({
     return () => observer.disconnect();
   }, []);
 
-  const ordered = useMemo(() => (latestFirst ? [...points].reverse() : points), [points, latestFirst]);
-  const path = useMemo(() => wavePath(ordered.map((p) => p.level), width), [ordered, width]);
+  const ordered = useMemo(
+    () => (latestFirst ? [...points].reverse() : points),
+    [points, latestFirst],
+  );
+  const path = useMemo(
+    () =>
+      wavePath(
+        ordered.map((p) => p.level),
+        width,
+      ),
+    [ordered, width],
+  );
   const height = ordered.length * ROW;
 
   return (
@@ -55,14 +72,25 @@ export default function JourneyWave({
         aria-pressed={latestFirst}
         onClick={() => setLatestFirst((v) => !v)}
       >
-        <span aria-hidden="true">⇅</span> {latestFirst ? "Latest first" : "Earliest first"}
+        <span aria-hidden="true">⇅</span>{" "}
+        {latestFirst ? "Latest first" : "Earliest first"}
         <span className="sr-only">. Press to reverse the order of time.</span>
       </button>
 
-      <div className={styles.grid} style={{ "--rows": ordered.length, "--row": `${ROW}px` } as CSSProperties}>
+      <div
+        className={styles.grid}
+        style={
+          { "--rows": ordered.length, "--row": `${ROW}px` } as CSSProperties
+        }
+      >
         <div className={styles.track} ref={trackRef} aria-hidden="true">
           {/* key: the line is redrawn from the top when the order flips */}
-          <svg key={String(latestFirst)} className={styles.line} width={width} height={height}>
+          <svg
+            key={String(latestFirst)}
+            className={styles.line}
+            width={width}
+            height={height}
+          >
             <path d={path} pathLength={1} />
           </svg>
           {ordered.map((p, i) =>
@@ -84,7 +112,18 @@ export default function JourneyWave({
                 {!(p.story && stories[p.story]) && (
                   <span className={styles.when}>
                     {p.when}
-                    {p.kind && <span className={styles.kind}> · {KIND_LABEL[p.kind]}</span>}
+                    {p.kind && (
+                      <span className={styles.kind}>
+                        {" "}
+                        · {KIND_LABEL[p.kind]}
+                      </span>
+                    )}
+                    {p.skills && (
+                      <span className={styles.skills}>
+                        {" "}
+                        · {p.skills.join(", ")}
+                      </span>
+                    )}
                   </span>
                 )}
                 {p.story && stories[p.story] ? (
@@ -93,7 +132,18 @@ export default function JourneyWave({
                       <>
                         <span className={styles.when}>
                           {p.when}
-                          {p.kind && <span className={styles.kind}> · {KIND_LABEL[p.kind]}</span>}
+                          {p.kind && (
+                            <span className={styles.kind}>
+                              {" "}
+                              · {KIND_LABEL[p.kind]}
+                            </span>
+                          )}
+                          {p.skills && (
+                            <span className={styles.skills}>
+                              {" "}
+                              · {p.skills.join(", ")}
+                            </span>
+                          )}
                           <span className={styles.openChip} aria-hidden="true">
                             Open
                           </span>

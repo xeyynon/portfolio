@@ -2,6 +2,7 @@ import { personalInfo } from "@/data/portfolioData";
 import CopyEmail from "@/components/CopyEmail";
 import SnitchMark from "@/components/atoms/SnitchMark";
 import Eyebrow from "@/components/atoms/Eyebrow";
+import Credits from "@/components/organisms/Credits/Credits";
 import styles from "./sections.module.css";
 
 /** The landing spot's id, shared with the flight that ends there. */
@@ -63,9 +64,12 @@ export default function ContactSection() {
 
         <footer className={styles.footer}>
           <span>© 2026 {name.toUpperCase()}</span>
-          <a className={styles.emailLink} href="#top">
-            Back to the top ↑
-          </a>
+          <span className={styles.footerLinks}>
+            <Credits />
+            <a className={styles.emailLink} href="#top">
+              Back to the top ↑
+            </a>
+          </span>
         </footer>
       </div>
     </section>

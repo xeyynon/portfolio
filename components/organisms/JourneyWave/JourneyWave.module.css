@@ -230,3 +230,8 @@ button:focus-visible .openChip {
     transition: none;
   }
 }
+
+/* The soft skills a stop showed, in the gold that means the person. */
+.skills {
+  color: var(--home-gold);
+}

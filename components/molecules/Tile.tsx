@@ -8,10 +8,12 @@ type Props = {
   href?: string;
   className?: string;
   style?: CSSProperties;
+  /** Internal links only: false for a page that is closed, so it is not fetched ahead. */
+  prefetch?: boolean;
 };
 
 /** Molecule: the solid tile every section is built from. */
-export default function Tile({ children, href, className, style }: Props) {
+export default function Tile({ children, href, className, style, prefetch }: Props) {
   const cls = className ? `${styles.tile} ${className}` : styles.tile;
   if (!href) {
     return (
@@ -22,7 +24,7 @@ export default function Tile({ children, href, className, style }: Props) {
   }
   if (href.startsWith("/")) {
     return (
-      <Link href={href} className={cls} style={style}>
+      <Link href={href} className={cls} style={style} prefetch={prefetch}>
         {children}
       </Link>
     );

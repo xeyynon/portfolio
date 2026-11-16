@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
-import { personalInfo, skills } from "@/data/portfolioData";
+import { personalInfo, skills, softSkills } from "@/data/portfolioData";
 import Eyebrow from "@/components/atoms/Eyebrow";
 import { AreaGem } from "@/components/molecules/AreaGems";
 import FactTile from "@/components/molecules/FactTile";
@@ -73,6 +73,19 @@ export default function AboutSection() {
             </li>
           ))}
         </ul>
+
+        {/* The soft skills, in gold: the setting that holds the six stones. */}
+        <section className={styles.people} aria-labelledby="about-people">
+          <Eyebrow as="h3" id="about-people">With people</Eyebrow>
+          <ul className={styles.peopleList}>
+            {softSkills.map((s) => (
+              <li key={s.skill} className={styles.peopleItem}>
+                <span className={styles.peopleSkill}>{s.skill}</span>
+                <span className={styles.peopleProof}>{s.proof}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
     </section>
   );

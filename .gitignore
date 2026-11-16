@@ -62,3 +62,7 @@ CLAUDE.md
 
 # browser diagnostics exported for debugging (machine details)
 about-gpu-*.txt
+
+# Local copies of earlier versions and their docs (owner, 2026-11): never published.
+/improvisng website BACKUP/
+/improvisng website LOCAL/
