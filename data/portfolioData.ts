@@ -495,7 +495,22 @@ export type JourneyPoint = {
   kind?: "start" | "role" | "award" | "build";
   /** A stop that opens into its own card (components/sections/JourneySection lists what each holds). */
   story?: "vectr" | "vit-ap";
+  /** Soft skills this stop shows, drawn in gold after its date (only ones with a source). */
+  skills?: string[];
 };
+
+/**
+ * The soft skills, in gold: the setting that holds the six stones. Only skills
+ * with a fact behind them (the resume, and LinkedIn role descriptions and
+ * skill tags; checked 2026-11-16), each shown with its proof.
+ */
+export const softSkills: { skill: string; proof: string }[] = [
+  { skill: "Leadership", proof: "Led the Microsoft Student Chapter to Best Student Chapter, Fall 2025, as President" },
+  { skill: "Running events", proof: "8+ events and 5+ webinars for 300+ members, The Matrix Hackathon and DSA Quest among them" },
+  { skill: "Team management", proof: "Managed and mentored the chapter's Hi-Tech team as Club Manager" },
+  { skill: "Public speaking", proof: "Spoke for the chapter as its President" },
+  { skill: "Communication", proof: "Made the chapter's reels and tech posts as a Hi-Tech Team Member" },
+];
 
 export const journey: JourneyPoint[] = [
   { level: 0.55, when: "Bhilai", label: "Where it starts", kind: "start" },
@@ -503,14 +518,14 @@ export const journey: JourneyPoint[] = [
   { level: 0.15, when: "2022", label: "First program: a hospital management system, in Class 12", kind: "build" },
   { level: -0.6 },
   { level: 0.1, when: "Sep 2023", label: "VIT-AP University, B.Tech in Computer Science", kind: "start", story: "vit-ap" },
-  { level: 0.3, when: "Sep 2023", label: "Co-founded Vectr, a student-ecosystem startup", kind: "role", story: "vectr" },
-  { level: 0.35, when: "Dec 2023", label: "Joined the Microsoft Student Chapter", kind: "role" },
+  { level: 0.3, when: "Sep 2023", label: "Co-founded Vectr, a student-ecosystem startup", kind: "role", story: "vectr", skills: ["Leadership"] },
+  { level: 0.35, when: "Dec 2023", label: "Joined the Microsoft Student Chapter", kind: "role", skills: ["Communication"] },
   { level: 0.5, when: "2024", label: "Semi Finalist, Smart India Hackathon 2024, with Vectr", kind: "award" },
   { level: 0.85, when: "2024", label: "Li-Fi: Best Contemporary Project among 1,000+ teams", kind: "award" },
-  { level: 0.6, when: "Jul 2024", label: "Club Manager, Microsoft Student Chapter", kind: "role" },
+  { level: 0.6, when: "Jul 2024", label: "Club Manager, Microsoft Student Chapter", kind: "role", skills: ["Team management"] },
   // Owner, 2026-11-12: placed 17th; "17th" is not in the resume sources yet and should be added there.
   { level: 0.65, when: "Mar 2025", label: "NEC '24: Top 20 (17th), Basic Track, E-Cell IIT Bombay", kind: "award" },
-  { level: 0.7, when: "Jul 2025", label: "President, Microsoft Student Chapter", kind: "role" },
+  { level: 0.7, when: "Jul 2025", label: "President, Microsoft Student Chapter", kind: "role", skills: ["Leadership", "Public speaking"] },
   { level: 0.9, when: "Fall 2025", label: "Best Student Chapter, as President", kind: "award" },
   { level: 0.2, when: "2025", label: "EcoX: Semi Finalist, Smart India Hackathon 2025", kind: "award" },
   { level: 0.4, when: "2026", label: "FlowIQ: 98/100 in Round 1, RADIOTHON 2026", kind: "award" },

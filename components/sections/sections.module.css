@@ -513,3 +513,58 @@ a.chip:focus-visible {
     color: var(--home-gold);
   }
 }
+
+/* About: "With people", the soft skills in gold (the setting that holds the stones). */
+.people {
+  display: grid;
+  gap: 14px;
+  margin-top: clamp(32px, 5vw, 48px);
+}
+.peopleList {
+  display: grid;
+  /* all five in one row on a wide screen, then two, then one */
+  grid-template-columns: repeat(auto-fit, minmax(176px, 1fr));
+  gap: 0 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.peopleItem {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 4px 10px;
+  align-items: start;
+  align-content: start;
+  padding: 14px 0;
+  border-top: 1px solid var(--line-dark);
+}
+.peopleItem::before {
+  content: "";
+  grid-row: span 2;
+  align-self: start;
+  width: 8px;
+  height: 8px;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: var(--home-gold);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--home-gold) 50%, transparent);
+}
+.peopleSkill {
+  font-family: var(--font-display), sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--home-gold);
+}
+.peopleProof {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--glass-muted);
+}
+
+/* The footer's two links. */
+.footerLinks {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
